@@ -1,0 +1,17 @@
+# SFTP Zugangsdaten – niemals in GitHub!
+.vscode/sftp.json
+sftp.json
+
+# System
+.DS_Store
+Thumbs.db
+
+# PHP Logs
+error_log
+*.log
+
+# Debug Dateien
+debug.php
+debug2.php
+checkheaders.php
+phptest.php

@@ -1,0 +1,14 @@
+# Monvesto .htaccess
+
+# MIME Types
+AddType text/css .css
+AddType application/javascript .js
+
+# PHP als Standard
+DirectoryIndex index.php index.html
+
+# Fehlerseite
+ErrorDocument 404 /404.php
+
+# Kein Verzeichnis-Listing
+Options -Indexes
