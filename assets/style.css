@@ -44,13 +44,18 @@ nav {
   z-index: 100;
   background: rgba(255,255,255,0.96);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border-bottom: 0.5px solid var(--border);
   padding: 0 32px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;  /* ← Grid statt Flexbox */
   align-items: center;
-  justify-content: space-between;
   height: 64px;
+}
+
+.nav-actions {
+  justify-content: flex-end;
+  display: flex;
+  gap: 10px;
 }
 
 .nav-logo {
@@ -86,6 +91,9 @@ nav {
   align-items: center;
   gap: 4px;
 }
+
+.nav-logo { visibility: hidden; }
+.nav-actions { visibility: hidden; }
 
 .nav-link {
   font-size: 14px;

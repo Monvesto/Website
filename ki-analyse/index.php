@@ -1,30 +1,18 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KI-Finanzanalyse – Dein persönlicher KI-Berater | Monvesto</title>
   <meta name="description" content="Monvesto analysiert dein Vermögen mit KI und gibt konkrete Empfehlungen. Powered by Anthropic Claude." />
+  <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://monvesto.de/ki-analyse/" />
   <link rel="stylesheet" href="../assets/style.css" />
-</head>
-<body><nav>
-  <a href="/" class="nav-logo">
-    <div class="nav-logo-mark">M</div>
-    <span class="nav-logo-text">Monvesto</span>
-  </a>
-  <div class="nav-links">
-    <a href="/konten-kreditkarten/" class="nav-link">Konten</a>
-    <a href="/portfolio/" class="nav-link">Portfolio</a>
-    <a href="/kryptowaehrungen/" class="nav-link">Krypto</a>
-    <a href="/sparplaene/" class="nav-link">Sparpläne</a>
-    <a href="/p2p-kredite/" class="nav-link">P2P</a>
-    <a href="/module/" class="nav-link">Alle Module</a>
-  </div>
-  <div class="nav-actions">
-    <a href="https://app.monvesto.de" class="nav-login">Anmelden</a>
-    <a href="https://app.monvesto.de" class="nav-cta">Kostenlos starten →</a>
-  </div>
-</nav>
+  </head>
+<body>
+  
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/nav.php'; ?>
+
 <section class="hero" style="background:linear-gradient(180deg,#f5f3ff 0%,#fff 70%);border-bottom:0.5px solid var(--border);">
   <div class="hero-badge" style="background:#F5F3FF;color:#6D28D9;border-color:#c4b5fd;">KI-Finanzanalyse</div>
   <h1>Dein persönlicher<br><span style="color:#7C3AED;">KI-Finanzberater</span></h1>

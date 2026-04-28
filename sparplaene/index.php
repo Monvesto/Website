@@ -11,24 +11,8 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was ist ein ETF-Sparplan?","acceptedAnswer":{"@type":"Answer","text":"Automatische, regelmäßige Investition in einen ETF."}}]}</script>
 </head>
 <body>
-<nav>
-  <a href="/" class="nav-logo">
-    <div class="nav-logo-mark">M</div>
-    <span class="nav-logo-text">Monvesto</span>
-  </a>
-  <div class="nav-links">
-    <a href="/konten-kreditkarten/" class="nav-link">Konten</a>
-    <a href="/portfolio/" class="nav-link">Portfolio</a>
-    <a href="/kryptowaehrungen/" class="nav-link">Krypto</a>
-    <a href="/sparplaene/" class="nav-link">Sparpläne</a>
-    <a href="/p2p-kredite/" class="nav-link">P2P</a>
-    <a href="/module/" class="nav-link">Alle Module</a>
-  </div>
-  <div class="nav-actions">
-    <a href="https://app.monvesto.de" class="nav-login">Anmelden</a>
-    <a href="https://app.monvesto.de" class="nav-cta">Kostenlos starten →</a>
-  </div>
-</nav>
+
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/nav.php'; ?>
 
 <section class="hero hero-bg-green">
   <div class="hero-badge">ETF-Sparpläne</div>
