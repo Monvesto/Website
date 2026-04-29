@@ -18,7 +18,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   </div>
 </section>
 
-<div class="trust-bar"><div class="trust-item">💰 6–14 % Rendite möglich</div><div class="trust-item">⚠ Höheres Risiko als ETFs</div><div class="trust-item">🌍 Europäische Plattformen</div><div class="trust-item">📊 Tracking in Monvesto</div></div>
+<div class="trust-bar">
+  <div class="trust-item">💰 6–14 % Rendite möglich</div>
+  <div class="trust-item">⚠ Höheres Risiko als ETFs</div>
+  <div class="trust-item">🌍 Europäische Plattformen</div>
+  <div class="trust-item">📊 Tracking in Monvesto</div></div>
 
 
 <section class="section" id="inhalt">
@@ -31,6 +35,29 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 <section class="section">
   <div class="section-label">Plattformen</div>
   <h2 class="section-title">Seriöse P2P-Plattformen</h2>
+  <div class="grid-3 mt-40">
+    <div class="card" style="border:2px solid var(--green);">
+      <div class="card-tag">Marktführer Europa</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Mintos</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Größte europäische P2P-Plattform. Seit 2023 BaFin-reguliert. Autoinvest und Sekundärmarkt.</p>
+      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Rendite</span><span style="color:var(--green);font-weight:600;">9–14 %</span></div>
+      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Regulierung</span><span style="color:var(--green);font-weight:600;">BaFin</span></div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Immobilienfokus</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Estateguru</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Durch Immobilien besicherte Kredite. Grundschuld als Sicherheit.</p>
+      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Rendite</span><span style="color:var(--green);font-weight:600;">8–12 %</span></div>
+      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Besicherung</span><span style="font-weight:600;">Immobilien</span></div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Einsteigerfreundlich</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Bondora Go & Grow</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">6,75 % p.a., täglich liquide. Ideal für Einsteiger.</p>
+      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Rendite</span><span style="font-weight:600;">6,75 %</span></div>
+      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Liquidität</span><span style="color:var(--green);font-weight:600;">Täglich</span></div>
+    </div>
+  </div>
   <div class="grid-3 mt-40">
     <div class="card" style="border:2px solid var(--green);">
       <div class="card-tag">Marktführer Europa</div>
@@ -83,5 +110,3 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 </section>
 
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php'; ?>
-</body>
-</html>

@@ -18,7 +18,12 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   </div>
 </section>
 
-<div class="trust-bar"><div class="trust-item">₿ Bitcoin seit 2009</div><div class="trust-item">🔐 Blockchain-Technologie</div><div class="trust-item"><span class='trust-check'>✓</span> Live-Kurse via CoinGecko</div><div class="trust-item">🇩🇪 Steuerregeln Deutschland</div><div class="trust-item"><span class='trust-check'>✓</span> Coinbase Import</div></div>
+<div class="trust-bar">
+  <div class="trust-item">₿ Bitcoin seit 2009</div>
+  <div class="trust-item">🔐 Blockchain-Technologie</div>
+  <div class="trust-item"><span class='trust-check'>✓</span> Live-Kurse via CoinGecko</div>
+  <div class="trust-item">🇩🇪 Steuerregeln Deutschland</div>
+  <div class="trust-item"><span class='trust-check'>✓</span> Coinbase Import</div></div>
 
 
 <section class="section" id="inhalt">
@@ -97,6 +102,16 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
     </div>
   </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.faq-q').forEach(function(q) {
+    q.addEventListener('click', function() {
+      this.closest('.faq-item').classList.toggle('open');
+    });
+  });
+});
+</script>
 
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php'; ?>
 </body>

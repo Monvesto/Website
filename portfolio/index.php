@@ -27,10 +27,32 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   <p class="section-intro">Auf einem Sparkonto verliert Geld durch Inflation real an Wert. Der MSCI World hat über 30 Jahre durchschnittlich 7 % p.a. erzielt.</p>
   <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">200 € monatlich über 30 Jahre bei 7 % Rendite ergeben über 240.000 € – bei nur 72.000 € Eigenleistung. Der wichtigste Faktor: früh anfangen und dabeibleiben.</p>
 </section>
+
 <hr class="divider" />
-<section class="section">
+
+<section class="section" id="inhalt">
   <div class="section-label">Anlageklassen</div>
   <h2 class="section-title">Aktien, ETFs – was ist was?</h2>
+  <p class="section-intro">Drei verschiedene Wege um an der Börse zu investieren – mit sehr unterschiedlichem Aufwand, Risiko und Renditechance.</p>
+
+  <div class="grid-3 mt-40" style="margin-bottom:32px;">
+    <div class="card" style="background:#F0FDF4;border-color:#86EFAC;">
+      <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;">FÜR WEN?</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px;">ETFs – für jeden</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;">Ein ETF kauft automatisch viele Aktien auf einmal – du brauchst kein Fachwissen. Einmal einrichten, regelmäßig besparen, Rendite mitnehmen. Das ist die meistempfohlene Methode für Privatanleger.</p>
+    </div>
+    <div class="card" style="background:#EFF6FF;border-color:#BFDBFE;">
+      <div style="font-size:13px;font-weight:700;color:#2563EB;margin-bottom:8px;">FÜR WEN?</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px;">Einzelaktien – für Erfahrene</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;">Du kaufst gezielt Anteile an einzelnen Unternehmen – Apple, SAP, Tesla. Höhere Chancen, aber auch höheres Risiko. Erfordert Zeit für Recherche und ein gutes Verständnis der Unternehmen.</p>
+    </div>
+    <div class="card" style="background:#FFFBEB;border-color:#FDE68A;">
+      <div style="font-size:13px;font-weight:700;color:#92400E;margin-bottom:8px;">FÜR WEN?</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px;">Dividenden-Aktien – für Einkommensinvestoren</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;">Unternehmen wie BASF oder Allianz zahlen regelmäßig einen Teil ihres Gewinns als Dividende aus. Ideal für alle die passives Einkommen aufbauen wollen – ähnlich wie Mietzahlungen aus Immobilien.</p>
+    </div>
+  </div>
+  <!-- Die drei Karten mit Details folgen hier -->
   <div class="grid-3 mt-40">
     <div class="card" style="border:2px solid #2563EB;position:relative;">
       <div style="position:absolute;top:-12px;left:20px;background:#2563EB;color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;">Empfehlung für Einsteiger</div>

@@ -16,7 +16,7 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/head.php";
   <div class="tab-content active" id="tab-impressum">
     <div class="notice notice-yellow">⚠️ Bitte mit deinen vollständigen Kontaktdaten ergänzen.</div>
     <h2>Angaben gemäß § 5 TMG</h2>
-    <p><strong>[Dein Vor- und Nachname]</strong><br>[Straße Hausnummer]<br>[PLZ] [Stadt]<br>Deutschland</p>
+    <p><strong>[Dein Vor- und Nachname eintragen]</strong><br>[Straße Hausnummer eintragen]<br>[PLZ] [Stadt]<br>Deutschland</p>
     <h2>Kontakt</h2>
     <p>E-Mail: <a href="mailto:info@monvesto.de">info@monvesto.de</a></p>
     <h2>Haftungsausschluss</h2>

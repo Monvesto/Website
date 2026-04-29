@@ -24,8 +24,11 @@
   </div>
 </section>
 
-<div class="trust-bar"><div class="trust-item"><span class='trust-check'>✓</span> Ab 1 € monatlich</div><div class="trust-item">📅 Automatisch & kostenlos</div><div class="trust-item">🌍 MSCI World, FTSE All-World & mehr</div><div class="trust-item">📊 Live-Tracking</div></div>
-
+<div class="trust-bar"><div class="trust-item">
+  <span class='trust-check'>✓</span> Ab 1 € monatlich</div>
+  <div class="trust-item">📅 Automatisch & kostenlos</div>
+  <div class="trust-item">🌍 MSCI World, FTSE All-World & mehr</div>
+  <div class="trust-item">📊 Live-Tracking</div></div>
 
 <section class="section" id="inhalt">
   <div class="section-label">Grundlagen</div>

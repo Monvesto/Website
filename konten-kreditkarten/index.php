@@ -20,12 +20,15 @@
   <p class="hero-sub">Verstehe welche Konten du brauchst, was sie kosten und wie Monvesto dir hilft, nie wieder den Überblick zu verlieren.</p>
   <div class="hero-actions">
     <a href="https://app.monvesto.de" class="btn btn-primary btn-lg">Kostenlos starten →</a>
-    <a href="#inhalt" class="btn btn-secondary btn-lg">Alles erklärt ↓</a>
-  </div>
+<!--    <a href="#inhalt" class="btn btn-secondary btn-lg">Alles erklärt ↓</a>
+  </div> -->
 </section>
-
-<div class="trust-bar"><div class="trust-item"><span class='trust-check'>✓</span> Kostenlos bis 2 Konten</div><div class="trust-item"><span class='trust-check'>✓</span> PSD2-konform</div><div class="trust-item"><span class='trust-check'>✓</span> Bank-API Sync</div><div class="trust-item"><span class='trust-check'>✓</span> DSGVO-konform</div></div>
-
+<div class="trust-bar"><div class="trust-item">
+  <span class='trust-check'>✓</span> Kostenlos bis 2 Konten</div>
+  <div class="trust-item"><span class='trust-check'>✓</span> PSD2-konform</div>
+  <div class="trust-item"><span class='trust-check'>✓</span> Bank-API Sync</div>
+  <div class="trust-item"><span class='trust-check'>✓</span> DSGVO-konform</div>
+</div>
 
 <section class="section" id="inhalt">
   <div class="section-label">Grundlagen</div>
@@ -46,6 +49,18 @@
       <div class="card-icon">💳</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Girokonto</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Das Alltagskonto: Hier geht dein Gehalt ein, hier zahlst du Miete und Einkäufe. Heute bei Direktbanken kostenlos.</p>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Kosten/Monat</span><span style="font-weight:600;color:var(--green);">0 – 15 €</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Verfügbarkeit</span><span style="font-weight:600;">Täglich</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">DKB, ING, N26</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="border:2px solid var(--green);position:relative;">
+      <div style="position:absolute;top:-12px;left:20px;background:var(--green);color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;">Pflicht für jeden</div>
+      <div class="people-icon">👫</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Gemeinschaftskonto / Haushaltskonto</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Das Gemeinschaftskonto: Hier geht Geld von mehreren Parteien für gemeinsame Ausgaben ein. Hier zahlst du meist auch Miete, Anschaffungen und Einkäufe.</p>
       <div style="display:flex;flex-direction:column;gap:0;">
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Kosten/Monat</span><span style="font-weight:600;color:var(--green);">0 – 15 €</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Verfügbarkeit</span><span style="font-weight:600;">Täglich</span></div>
@@ -84,6 +99,41 @@
   <div class="section-label">Kostenvergleich</div>
   <h2 class="section-title">Filialbank vs. Direktbank vs. Neobank</h2>
   <p class="section-intro">Der Unterschied kann mehrere hundert Euro im Jahr ausmachen.</p>
+
+  <section class="section">
+  <div class="section-label">Kostenvergleich</div>
+  <h2 class="section-title">Filialbank vs. Direktbank vs. Neobank</h2>
+  <p class="section-intro">Der Unterschied kann mehrere hundert Euro im Jahr ausmachen.</p>
+
+  <div class="grid-3 mt-40">
+    <div class="card">
+      <div style="font-size:28px;margin-bottom:12px;">🏛️</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Filialbank</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;">Die klassische Bank mit Filialen vor Ort – Sparkasse, Volksbank, Deutsche Bank. Persönliche Beratung inklusive, aber meist mit monatlichen Kontoführungsgebühren von 5–15 € und höheren Kosten für Zusatzleistungen.</p>
+      <div style="margin-top:16px;padding:12px;background:#FEF2F2;border-radius:8px;font-size:13px;color:#991B1B;">
+        ⚠ Höchste Kosten – oft 100–180 € pro Jahr nur für Kontoführung
+      </div>
+    </div>
+    <div class="card" style="border:2px solid var(--green);">
+      <div style="font-size:28px;margin-bottom:12px;">💻</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Direktbank</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;">Rein online, keine Filialen – ING, DKB, Comdirect. Meist kostenlose Kontoführung, günstigere Kreditkarten und oft bessere Zinsen auf Tagesgeld. Service läuft über App, Telefon oder Chat.</p>
+      <div style="margin-top:16px;padding:12px;background:var(--green-light);border-radius:8px;font-size:13px;color:var(--green-dark);">
+        ✓ Beste Kombination aus Kosten und Leistung
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:28px;margin-bottom:12px;">📱</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Neobank</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;">100 % App-basiert – N26, Revolut, Vivid. Modernste Benutzeroberfläche, sofortige Benachrichtigungen, kostenlose Kreditkarte oft inklusive. Eingeschränkterer Service und manchmal fehlende Funktionen wie Daueraufträge per Briefpost.</p>
+      <div style="margin-top:16px;padding:12px;background:#EFF6FF;border-radius:8px;font-size:13px;color:#1D4ED8;">
+        💡 Ideal als Zweit- oder Reisekonto
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabelle folgt hier -->
+
   <div style="overflow-x:auto; margin-top:32px;">
     <table class="data-table">
       <thead><tr><th>Leistung</th><th>Filialbank</th><th>Direktbank</th><th>Neobank</th></tr></thead>
