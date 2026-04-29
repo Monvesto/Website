@@ -42,6 +42,18 @@
 <section class="section">
   <div class="section-label">Kontoarten</div>
   <h2 class="section-title">Welche Konten gibt es – und was kosten sie?</h2>
+  <p style="font-size:16px;color:var(--text-muted);line-height:1.7;margin-top:16px;">
+    Alle drei Kontoarten haben eines gemeinsam: Sie sind kostenlos oder günstig, 
+    sicher durch die gesetzliche Einlagensicherung bis 100.000 € und bei deutschen 
+    Banken fest etabliert. Der entscheidende Unterschied liegt in der 
+    <strong>Verfügbarkeit deines Geldes</strong> und dem <strong>Zinssatz</strong>: 
+    Beim Girokonto ist alles jederzeit verfügbar aber kaum verzinst. 
+    Das Tagesgeldkonto kombiniert Flexibilität mit ordentlichen Zinsen. 
+    Das Festgeldkonto bringt die höchsten Zinsen – dafür kommst du während 
+    der Laufzeit nicht ans Geld. Die beste Strategie: alle drei kombinieren 
+    und jedem Euro eine klare Aufgabe geben.
+  </p>
+
   <div class="grid-3 mt-40">
 
     <div class="card" style="border:2px solid var(--green);position:relative;">
