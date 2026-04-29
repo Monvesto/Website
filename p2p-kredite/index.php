@@ -109,4 +109,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   </div>
 </section>
 
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php'; ?>
+<?php require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/footer.php"; ?>
+</body>
+</html>

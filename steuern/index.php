@@ -61,6 +61,38 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/head.php";
   <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Steuerübersicht öffnen →</a>
 </section>
 <div class="notice notice-yellow" style="max-width:760px;margin:32px auto;">⚠️ Alle Angaben ohne Gewähr. Für individuelle Steuerberatung bitte einen Steuerberater kontaktieren.</div>
+
+<section class="section-sm" style="padding:80px 32px;max-width:760px;margin:0 auto;">
+  <div class="section-label">Häufige Fragen</div>
+  <h2 class="section-title">Steuern auf Investments – deine Fragen</h2>
+  <div class="faq-list">
+    <div class="faq-item open">
+      <div class="faq-q">Was ist die Abgeltungssteuer? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Die Abgeltungssteuer beträgt 25 % auf Kapitalerträge wie Dividenden, Zinsen und Kursgewinne – plus Solidaritätszuschlag, insgesamt 26,375 %. Sie wird automatisch von deiner Bank einbehalten und direkt ans Finanzamt abgeführt.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Was ist der Sparerpauschbetrag und wie nutze ich ihn? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Der Sparerpauschbetrag ist ein jährlicher Freibetrag von 1.000 € für Singles und 2.000 € für Ehepaare. Alle Kapitalerträge bis zu dieser Grenze sind steuerfrei. Stelle bei jeder Bank einen Freistellungsauftrag – sonst zieht die Bank automatisch Steuern ab, auch wenn du unter der Grenze bist.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Muss ich Aktiengewinne nach 1 Jahr nicht versteuern? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Nein – bei Aktien und ETFs gilt die Abgeltungssteuer unabhängig von der Haltedauer. Die 1-Jahres-Regelung gilt nur für Kryptowährungen. Nach einem Jahr Krypto-Haltefrist sind Gewinne vollständig steuerfrei.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Wie werden Krypto-Gewinne besteuert? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Kryptowährungen gelten als privates Veräußerungsgeschäft. Gewinne über 1.000 € Freigrenze sind steuerpflichtig wenn die Haltedauer unter einem Jahr liegt – mit dem persönlichen Einkommensteuersatz (bis zu 45 %). Nach einem Jahr sind alle Gewinne vollständig steuerfrei.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Was ist die Teilfreistellung bei ETFs? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Bei Aktien-ETFs werden nur 70 % der Gewinne besteuert – 30 % sind steuerfrei. Der effektive Steuersatz liegt damit bei ca. 18,5 % statt 26,375 %.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Wie hilft Monvesto bei der Steuer? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Monvesto fasst alle realisierten Gewinne, Dividenden, Zinsen und P2P-Erträge automatisch zusammen. Du siehst wie viel deines Sparerpauschbetrags bereits genutzt ist und welche Krypto-Positionen bald die steuerfreie Jahresfrist erreichen.</div>
+    </div>
+  </div>
+</section>
+ 
 <?php require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/footer.php"; ?>
 </body>
 </html>

@@ -21,59 +21,61 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   </p>
 
   <!-- DASHBOARD MOCK -->
-  <div style="max-width:900px;margin:48px auto 0;background:white;border:0.5px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 20px 60px rgba(0,0,0,0.1);overflow:hidden;">
-    <div style="background:var(--bg);border-bottom:0.5px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:6px;">
-      <div style="width:10px;height:10px;border-radius:50%;background:#FF5F57;"></div>
-      <div style="width:10px;height:10px;border-radius:50%;background:#FFBD2E;"></div>
-      <div style="width:10px;height:10px;border-radius:50%;background:#28C840;"></div>
-      <div style="margin-left:8px;font-size:12px;color:var(--text-muted);background:white;border:0.5px solid var(--border);border-radius:6px;padding:3px 12px;">app.monvesto.de/dashboard</div>
-    </div>
-    <div style="display:grid;grid-template-columns:200px 1fr;min-height:340px;">
-      <div style="background:#111827;padding:20px 14px;display:flex;flex-direction:column;gap:4px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
-          <div style="width:26px;height:26px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:12px;">M</div>
-          <span style="color:white;font-weight:700;font-size:14px;">Monvesto</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:rgba(29,158,117,0.2);font-size:12px;color:white;">● Übersicht</div>
-        <div style="padding:8px 10px;font-size:12px;color:rgba(255,255,255,0.5);">● Konten</div>
-        <div style="padding:8px 10px;font-size:12px;color:rgba(255,255,255,0.5);">● Portfolio</div>
-        <div style="padding:8px 10px;font-size:12px;color:rgba(255,255,255,0.5);">● Krypto</div>
-        <div style="padding:8px 10px;font-size:12px;color:rgba(255,255,255,0.5);">● Sparpläne</div>
-        <div style="padding:8px 10px;font-size:12px;color:rgba(255,255,255,0.5);">● P2P</div>
-        <div style="padding:8px 10px;font-size:12px;color:rgba(255,255,255,0.5);">● KI-Analyse</div>
-        <div style="padding:8px 10px;font-size:12px;color:rgba(255,255,255,0.5);">● Steuern</div>
+<div style="max-width:900px;margin:48px auto 0;background:white;border:0.5px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 20px 60px rgba(0,0,0,0.1);overflow:hidden;">
+  <div style="background:var(--bg);border-bottom:0.5px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:6px;">
+    <div style="width:10px;height:10px;border-radius:50%;background:#FF5F57;"></div>
+    <div style="width:10px;height:10px;border-radius:50%;background:#FFBD2E;"></div>
+    <div style="width:10px;height:10px;border-radius:50%;background:#28C840;"></div>
+    <div style="margin-left:8px;font-size:12px;color:var(--text-muted);background:white;border:0.5px solid var(--border);border-radius:6px;padding:3px 12px;">app.monvesto.de/dashboard</div>
+  </div>
+  <div style="display:flex;min-height:280px;">
+    <!-- Sidebar – auf Mobile versteckt -->
+    <div style="width:180px;flex-shrink:0;background:#111827;padding:16px 12px;display:flex;flex-direction:column;gap:4px;" class="mock-sidebar-inner">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+        <div style="width:24px;height:24px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:11px;">M</div>
+        <span style="color:white;font-weight:700;font-size:13px;">Monvesto</span>
       </div>
-      <div style="padding:24px;background:var(--bg);">
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">Guten Morgen, Max 👋</div>
-        <div style="font-size:28px;font-weight:800;letter-spacing:-0.5px;">128.450,00 €</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:20px;">Gesamtvermögen · <span style="color:var(--green);">+2.340 € diesen Monat</span></div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
-          <div style="background:white;border:0.5px solid var(--border);border-radius:10px;padding:14px;">
-            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Konten</div>
-            <div style="font-size:16px;font-weight:700;color:var(--green);">14.230 €</div>
-          </div>
-          <div style="background:white;border:0.5px solid var(--border);border-radius:10px;padding:14px;">
-            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Portfolio</div>
-            <div style="font-size:16px;font-weight:700;color:#2563EB;">89.120 €</div>
-          </div>
-          <div style="background:white;border:0.5px solid var(--border);border-radius:10px;padding:14px;">
-            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Krypto</div>
-            <div style="font-size:16px;font-weight:700;color:#F7931A;">25.100 €</div>
-          </div>
+      <div style="padding:7px 10px;border-radius:8px;background:rgba(29,158,117,0.2);font-size:11px;color:white;">● Übersicht</div>
+      <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● Konten</div>
+      <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● Portfolio</div>
+      <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● Krypto</div>
+      <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● Sparpläne</div>
+      <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● P2P</div>
+      <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● KI-Analyse</div>
+      <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● Steuern</div>
+    </div>
+    <!-- Content -->
+    <div style="flex:1;padding:20px;background:var(--bg);min-width:0;">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">Guten Morgen, Max 👋</div>
+      <div style="font-size:clamp(18px,4vw,28px);font-weight:800;letter-spacing:-0.5px;">128.450,00 €</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;">Gesamtvermögen · <span style="color:var(--green);">+2.340 € diesen Monat</span></div>
+      <div class="mock-cards-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+        <div style="background:white;border:0.5px solid var(--border);border-radius:8px;padding:10px;">
+          <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Konten</div>
+          <div style="font-size:clamp(12px,2vw,15px);font-weight:700;color:var(--green);">14.230 €</div>
         </div>
-        <div style="background:white;border:0.5px solid var(--border);border-radius:10px;padding:14px;height:80px;display:flex;align-items:flex-end;gap:4px;">
-          <div style="background:var(--green-light);border-radius:3px;flex:1;height:40%;"></div>
-          <div style="background:var(--green-light);border-radius:3px;flex:1;height:55%;"></div>
-          <div style="background:var(--green-light);border-radius:3px;flex:1;height:45%;"></div>
-          <div style="background:var(--green-light);border-radius:3px;flex:1;height:65%;"></div>
-          <div style="background:var(--green-light);border-radius:3px;flex:1;height:58%;"></div>
-          <div style="background:var(--green-light);border-radius:3px;flex:1;height:72%;"></div>
-          <div style="background:var(--green-light);border-radius:3px;flex:1;height:68%;"></div>
-          <div style="background:var(--green);border-radius:3px;flex:1;height:85%;"></div>
+        <div style="background:white;border:0.5px solid var(--border);border-radius:8px;padding:10px;">
+          <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Portfolio</div>
+          <div style="font-size:clamp(12px,2vw,15px);font-weight:700;color:#2563EB;">89.120 €</div>
         </div>
+        <div style="background:white;border:0.5px solid var(--border);border-radius:8px;padding:10px;">
+          <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Krypto</div>
+          <div style="font-size:clamp(12px,2vw,15px);font-weight:700;color:#F7931A;">25.100 €</div>
+        </div>
+      </div>
+      <div style="background:white;border:0.5px solid var(--border);border-radius:8px;padding:12px;height:60px;display:flex;align-items:flex-end;gap:3px;">
+        <div style="background:var(--green-light);border-radius:3px;flex:1;height:40%;"></div>
+        <div style="background:var(--green-light);border-radius:3px;flex:1;height:55%;"></div>
+        <div style="background:var(--green-light);border-radius:3px;flex:1;height:45%;"></div>
+        <div style="background:var(--green-light);border-radius:3px;flex:1;height:65%;"></div>
+        <div style="background:var(--green-light);border-radius:3px;flex:1;height:58%;"></div>
+        <div style="background:var(--green-light);border-radius:3px;flex:1;height:72%;"></div>
+        <div style="background:var(--green-light);border-radius:3px;flex:1;height:68%;"></div>
+        <div style="background:var(--green);border-radius:3px;flex:1;height:85%;"></div>
       </div>
     </div>
   </div>
+</div>
 </section>
 
 <div class="trust-bar">
@@ -226,7 +228,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Jetzt kostenlos starten →</a>
 </section>
 
-
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php'; ?>
+<?php require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/footer.php"; ?>
 </body>
 </html>

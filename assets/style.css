@@ -718,3 +718,14 @@ hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 0; }
   .btn-lg { width: 100%; justify-content: center; }
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
 }
+
+/* ── DASHBOARD MOCK ── */
+@media (max-width: 480px) {
+  .mock-sidebar-inner {
+    display: none !important;
+  }
+  /* 3 Karten auf Mobile: 2 Spalten statt 3 */
+  .mock-cards-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}

@@ -103,16 +103,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   </div>
 </section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.faq-q').forEach(function(q) {
-    q.addEventListener('click', function() {
-      this.closest('.faq-item').classList.toggle('open');
-    });
-  });
-});
-</script>
-
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php'; ?>
+<?php require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/footer.php"; ?>
 </body>
 </html>
