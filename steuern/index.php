@@ -23,13 +23,13 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/head.php";
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Auf Dividenden, Zinsen und Kursgewinne. Automatisch von der Bank abgeführt.</p>
       <div style="background:#FEF2F2;border-radius:8px;padding:10px 14px;font-size:14px;font-weight:700;color:#991B1B;">25 % + Soli = 26,375 %</div>
     </div>
-    <div class="card">
+    <div class="card" style="border:2px solid var(--green);">
       <div style="font-size:28px;margin-bottom:12px;">🎁</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Sparerpauschbetrag</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Jährlicher Freibetrag. Bis hier sind alle Kapitalerträge steuerfrei. Freistellungsauftrag stellen!</p>
       <div style="background:var(--green-light);border-radius:8px;padding:10px 14px;font-size:14px;font-weight:700;color:var(--green-dark);">1.000 € Singles / 2.000 € Paare</div>
     </div>
-    <div class="card">
+    <ddiv class="card" style="border:2px solid var(--green);">
       <div style="font-size:28px;margin-bottom:12px;">₿</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Krypto-Steuer</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Privates Veräußerungsgeschäft. Nach 1 Jahr Haltedauer: vollständig steuerfrei!</p>
