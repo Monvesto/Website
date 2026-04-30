@@ -33,8 +33,8 @@
 <section class="section" id="inhalt">
   <div class="section-label">Grundlagen</div>
   <h2 class="section-title">Was ist ein ETF-Sparplan?</h2>
-  <p class="section-intro">Ein ETF-Sparplan ist automatisches Investieren. Du legst einmal fest: wie viel, in welchen ETF, wie oft. Dann läuft es von selbst.</p>
-  <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">Keine Marktanalyse, kein manuelles Kaufen, keine emotionalen Entscheidungen. In Abschwüngen kaufst du automatisch günstiger ein – der Cost-Average-Effekt. Über 10, 20 oder 30 Jahre entsteht daraus erhebliches Vermögen.</p>
+  <p class="section-intro">Ein ETF-Sparplan ist automatisches Investieren in börsengehandelte Fonds. Du legst einmal fest: wie viel, in welchen ETF, wie oft. Dann läuft es von selbst.</p>
+  <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">Keine Marktanalyse, kein manuelles Kaufen, keine emotionalen Entscheidungen. In Abschwüngen kaufst du automatisch günstiger ein – der Cost-Average-Effekt. Über 10, 20 oder 30 Jahre kann daraus ein erhebliches Vermögen entstehen.</p>
 </section>
 <hr class="divider" />
 <section class="section">
@@ -48,22 +48,25 @@
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">4.000+ Unternehmen aus 50+ Ländern. Das umfassendste Einzel-ETF-Portfolio für Privatanleger.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">TER</span><span style="color:var(--green);font-weight:600;">0,22 % / Jahr</span></div>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Unternehmen</span><span style="font-weight:600;">4.200+</span></div>
+      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Volumen</span><span style="font-weight:600;">+15 Mrd</span></div>
     </div>
-    <div class="card">
+    <div class="card" style="border:2px solid var(--green);">
       <div class="card-tag">Industrieländer-Klassiker</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:4px;">iShares MSCI World</div>
       <div style="font-family:monospace;font-size:12px;color:var(--text-muted);margin-bottom:12px;">IE00B4L5Y983</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">1.500+ Unternehmen aus 23 Industrieländern. Kombinierbar mit EM-ETF (80/20 Portfolio).</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">TER</span><span style="color:var(--green);font-weight:600;">0,20 % / Jahr</span></div>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">US-Anteil</span><span style="font-weight:600;">ca. 70 %</span></div>
+      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Volumen</span><span style="font-weight:600;">+50 Mrd</span></div>
     </div>
-    <div class="card">
+    <div class="card" style="border:2px solid var(--green);">
       <div class="card-tag">Dividenden</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:4px;">Vanguard FTSE All-World High Div.</div>
       <div style="font-family:monospace;font-size:12px;color:var(--text-muted);margin-bottom:12px;">IE00B8GKDB10</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Fokus auf hohe Dividenden. Quartalsweise Ausschüttungen. Für Einkommensinvestoren.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">TER</span><span style="font-weight:600;">0,29 % / Jahr</span></div>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Dividendenrendite</span><span style="color:var(--green);font-weight:600;">ca. 3–4 % / Jahr</span></div>
+      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Volumen</span><span style="font-weight:600;">+5 Mrd</span></div>
     </div>
   </div>
 </section>
@@ -82,7 +85,7 @@
         <tr><td style="font-weight:700;">Gesamt</td><td>Ø 50 €</td><td>300 €</td><td style="font-weight:700;">6,17 @ Ø 48,62 €</td></tr>
       </tbody>
     </table>
-    <p style="font-size:14px;color:var(--text-muted);margin-top:16px;">Durch die Schwankungen kaufst du zu einem günstigeren Durchschnittspreis als wenn der Kurs immer gleich wäre.</p>
+    <p style="font-size:14px;color:var(--text-muted);margin-top:16px;">Durch die Schwankungen kaufst du meist zu einem günstigeren Durchschnittspreis als wenn der Kurs immer gleich wäre.</p>
   </div>
 </section>
 

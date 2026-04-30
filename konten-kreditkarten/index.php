@@ -37,24 +37,35 @@
   <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">In Deutschland gibt es vier grundlegende Kontoarten: das Girokonto für den Alltag, das Tagesgeldkonto als flexibler Puffer, das Festgeldkonto für geplantes Sparen und das Kreditkartenkonto. Wer alle diese Konten im Blick hat, kann bewusste Entscheidungen treffen – und weiß am Ende des Monats wo das Geld geblieben ist.</p>
 </section>
 
+<!--
+<section class="insight-section">
+  <div class="insight-inner">
+    <div class="insight-label">Wichtig</div>
+    <div class="insight-title">Die wichtigste Erkenntnis</div>
+    <p class="insight-text">
+      Du brauchst nicht „ein Konto“, sondern eine
+      <strong>Kombination aus mehreren Konten</strong> – jedes mit einer klaren Aufgabe.
+    </p>
+  </div>
+</section>
+-->
+
 <hr class="divider" />
 
 <section class="section">
   <div class="section-label">Kontoarten</div>
   <h2 class="section-title">Welche Konten gibt es – und was kosten sie?</h2>
   <p style="font-size:16px;color:var(--text-muted);line-height:1.7;margin-top:16px;">
-    Alle drei Kontoarten haben eines gemeinsam: Sie sind kostenlos oder günstig, 
-    sicher durch die gesetzliche Einlagensicherung bis 100.000 € und bei deutschen 
-    Banken fest etabliert. Der entscheidende Unterschied liegt in der 
-    <strong>Verfügbarkeit deines Geldes</strong> und dem <strong>Zinssatz</strong>: 
-    Beim Girokonto ist alles jederzeit verfügbar aber kaum verzinst. 
-    Das Tagesgeldkonto kombiniert Flexibilität mit ordentlichen Zinsen. 
-    Das Festgeldkonto bringt die höchsten Zinsen – dafür kommst du während 
-    der Laufzeit nicht ans Geld. Die beste Strategie: alle drei kombinieren 
-    und jedem Euro eine klare Aufgabe geben.
+    Alle Kontoarten haben eines gemeinsam: Sie sind mittlerweile oft kostenlos oder günstig, sicher durch die gesetzliche Einlagensicherung bis 100.000 € und bei 
+    deutschen Banken fest etabliert.
+    Der entscheidende Unterschied liegt in der <strong>Verfügbarkeit deines Geldes</strong> und dem <strong>Zinssatz</strong>: <br><br>
+    - Beim <strong>Girokonto</strong> ist alles jederzeit verfügbar aber kaum verzinst. <br>
+    - Das <strong>Tagesgeldkonto</strong> kombiniert Flexibilität mit ordentlichen Zinsen. <br>
+    - Ein <strong>Festgeldkonto</strong> bringt die höchsten Zinsen – dafür kommst du während der Laufzeit nicht ans Geld. <br><br>
+    Die beste Strategie: alle drei kombinieren und jedem Euro eine klare Aufgabe geben.
   </p>
 
-  <div class="grid-3 mt-40">
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:40px;">
 
     <div class="card" style="border:2px solid var(--green);position:relative;">
       <div style="position:absolute;top:-12px;left:20px;background:var(--green);color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;">Pflicht für jeden</div>
@@ -68,8 +79,7 @@
       </div>
     </div>
 
-    <div class="card" style="border:2px solid var(--green);position:relative;">
-      <div style="position:absolute;top:-12px;left:20px;background:var(--green);color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;">Pflicht für jeden</div>
+    <div class="card">
       <div class="people-icon">👫</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Gemeinschaftskonto / Haushaltskonto</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Das Gemeinschaftskonto: Hier geht Geld von mehreren Parteien für gemeinsame Ausgaben ein. Hier zahlst du meist auch Miete, Anschaffungen und Einkäufe.</p>
@@ -121,7 +131,7 @@
         ⚠ Höchste Kosten – oft 100–180 € pro Jahr nur für Kontoführung
       </div>
     </div>
-    <div class="card" style="border:2px solid var(--green);">
+    <div class="card">
       <div style="font-size:28px;margin-bottom:12px;">💻</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Direktbank</div>
       <p class="text-muted" style="font-size:14px;line-height:1.65;">Rein online, keine Filialen – ING, DKB, Comdirect. Meist kostenlose Kontoführung, günstigere Kreditkarten und oft bessere Zinsen auf Tagesgeld. Service läuft über App, Telefon oder Chat.</p>
@@ -140,14 +150,13 @@
   </div>
 
   <!-- Tabelle folgt hier -->
-
   <div style="overflow-x:auto; margin-top:32px;">
     <table class="data-table">
       <thead><tr><th>Leistung</th><th>Filialbank</th><th>Direktbank</th><th>Neobank</th></tr></thead>
       <tbody>
         <tr><td><strong>Kontoführung/Monat</strong></td><td class="cross">5–15 €</td><td class="check">0 €</td><td class="check">0 €</td></tr>
         <tr><td><strong>Girocard</strong></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td><strong>Kreditkarte</strong></td><td class="cross">20–80 €/J</td><td class="check">Oft kostenlos</td><td class="check">Oft inklusive</td></tr>
+        <tr><td><strong>Kreditkarte</strong></td><td class="cross">20–80 €/Jahr</td><td class="check">Oft kostenlos</td><td class="check">Oft inklusive</td></tr>
         <tr><td><strong>Abheben Ausland</strong></td><td class="cross">1,5–3 %</td><td class="check">Oft kostenlos</td><td class="check">Oft kostenlos</td></tr>
         <tr><td><strong>Beratung vor Ort</strong></td><td class="check">✓</td><td class="cross">Nur digital</td><td class="cross">Nur digital</td></tr>
       </tbody>
