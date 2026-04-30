@@ -795,3 +795,55 @@ hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 0; }
     font-size: 18px;
   }
 }
+
+/* ── KURS BADGES ── */
+.kurs-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
+}
+ 
+.kurs-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  box-shadow: var(--shadow);
+}
+ 
+.kurs-badge--error {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+ 
+.kurs-badge__icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+ 
+.kurs-badge__name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+ 
+.kurs-badge__price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+ 
+.kurs-badge__change {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}

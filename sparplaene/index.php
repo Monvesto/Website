@@ -13,6 +13,11 @@
 <body>
 
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/nav.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/api/widget.php';
+$vwce = get_etf('vwce');  // FTSE All-World → VWCE.AS oder VWRL.AS
+$msci = get_etf('msci');  // MSCI World → EUNL.DE oder EUNL.AS
+$vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
+?>
 
 <section class="hero hero-bg-green">
   <div class="hero-badge">ETF-Sparpläne</div>
@@ -44,29 +49,32 @@
     <div class="card" style="border:2px solid var(--green);">
       <div class="card-tag">Beliebtester Sparplan-ETF</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:4px;">Vanguard FTSE All-World</div>
+      <div style="font-size:17px;font-weight:700;"><?= format_price($vwce) ?> <?= format_change($vwce) ?> € </div>
       <div style="font-family:monospace;font-size:12px;color:var(--text-muted);margin-bottom:12px;">IE00B3RBWM25 / IE00BK5BQT80</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">4.000+ Unternehmen aus 50+ Ländern. Das umfassendste Einzel-ETF-Portfolio für Privatanleger.</p>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">4.000+ Unternehmen aus 50+ Ländern. Das umfassendste Einzel-ETF-Portfolio.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">TER</span><span style="color:var(--green);font-weight:600;">0,22 % / Jahr</span></div>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Unternehmen</span><span style="font-weight:600;">4.200+</span></div>
-      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Volumen</span><span style="font-weight:600;">+15 Mrd</span></div>
+      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Volumen</span><span style="font-weight:600;">+15 Mrd $</span></div>
     </div>
     <div class="card" style="border:2px solid var(--green);">
       <div class="card-tag">Industrieländer-Klassiker</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:4px;">iShares MSCI World</div>
+      <div style="font-size:17px;font-weight:700;"><?= format_price($msci) ?> <?= format_change($msci) ?> € </div>
       <div style="font-family:monospace;font-size:12px;color:var(--text-muted);margin-bottom:12px;">IE00B4L5Y983</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">1.500+ Unternehmen aus 23 Industrieländern. Kombinierbar mit EM-ETF (80/20 Portfolio).</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">TER</span><span style="color:var(--green);font-weight:600;">0,20 % / Jahr</span></div>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">US-Anteil</span><span style="font-weight:600;">ca. 70 %</span></div>
-      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Volumen</span><span style="font-weight:600;">+50 Mrd</span></div>
+      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Volumen</span><span style="font-weight:600;">+50 Mrd $</span></div>
     </div>
     <div class="card" style="border:2px solid var(--green);">
       <div class="card-tag">Dividenden</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:4px;">Vanguard FTSE All-World High Div.</div>
+      <div style="font-size:17px;font-weight:700;"><?= format_price($vhyl) ?> <?= format_change($vhyl) ?> € </div>
       <div style="font-family:monospace;font-size:12px;color:var(--text-muted);margin-bottom:12px;">IE00B8GKDB10</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Fokus auf hohe Dividenden. Quartalsweise Ausschüttungen. Für Einkommensinvestoren.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">TER</span><span style="font-weight:600;">0,29 % / Jahr</span></div>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Dividendenrendite</span><span style="color:var(--green);font-weight:600;">ca. 3–4 % / Jahr</span></div>
-      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Volumen</span><span style="font-weight:600;">+5 Mrd</span></div>
+      <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Volumen</span><span style="font-weight:600;">+5 Mrd $</span></div>
     </div>
   </div>
 </section>

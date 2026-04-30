@@ -6,7 +6,11 @@ $schema   = '{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 ?>
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/nav.php'; ?>
-
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/api/widget.php';
+$btc = get_crypto_price('bitcoin');
+$eth = get_crypto_price('ethereum');
+$usdt = get_crypto_price('tether');
+?>
 
 <section class="hero hero-bg-orange">
   <div class="hero-badge">Kryptowährungen</div>
@@ -40,7 +44,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
     <div class="card" style="border:2px solid #F7931A;">
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
         <div style="width:48px;height:48px;border-radius:50%;background:#F7931A;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:20px;">₿</div>
-        <div><div style="font-size:17px;font-weight:700;">Bitcoin</div><div style="font-size:12px;color:var(--text-muted);">BTC</div></div>
+        <div>
+        <div style="font-size:17px;font-weight:700;">Bitcoin </div>
+        <div style="font-size:17px;font-weight:700;"><?= number_format($btc['price'], 2, ',', '.') ?> € </div>
+        <div style="font-size:12px;color:var(--text-muted);">BTC</div>
+      </div>
       </div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Digitales Gold. Begrenzt auf 21 Mio. Coins. Wertaufbewahrung und inflationsresistente Anlage.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Steuerfrei nach</span><span style="font-weight:600;">1 Jahr Haltefrist</span></div>
@@ -49,7 +57,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
     <div class="card">
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
         <div style="width:48px;height:48px;border-radius:50%;background:#627EEA;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:18px;">Ξ</div>
-        <div><div style="font-size:17px;font-weight:700;">Ethereum</div><div style="font-size:12px;color:var(--text-muted);">ETH</div></div>
+        <div>
+        <div style="font-size:17px;font-weight:700;">Ethereum</div>
+        <div style="font-size:17px;font-weight:700;"><?= number_format($eth['price'], 2, ',', '.') ?> € </div>
+        <div style="font-size:12px;color:var(--text-muted);">ETH</div>
+      </div>
       </div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Die programmierbare Blockchain. Grundlage für Smart Contracts, DeFi und NFTs.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Steuerfrei nach</span><span style="font-weight:600;">1 Jahr Haltefrist</span></div>
@@ -58,7 +70,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
     <div class="card">
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
         <div style="width:48px;height:48px;border-radius:50%;background:#26A17B;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:16px;">$</div>
-        <div><div style="font-size:17px;font-weight:700;">Stablecoins</div><div style="font-size:12px;color:var(--text-muted);">USDC, USDT, DAI</div></div>
+        <div>
+        <div style="font-size:17px;font-weight:700;">Stablecoins</div>
+        <div style="font-size:17px;font-weight:700;"><?= number_format($usdt['price'], 2, ',', '.') ?> € </div>
+        <div style="font-size:12px;color:var(--text-muted);">USDC, USDT, DAI</div>
+      </div>
       </div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Krypto ohne Kursschwankung. 1:1 an den US-Dollar gekoppelt.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Volatilität</span><span style="color:var(--green);font-weight:600;">Sehr gering</span></div>

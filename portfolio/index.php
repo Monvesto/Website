@@ -6,6 +6,7 @@ $schema   = '{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 ?>
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/nav.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/api/widget.php'; ?>
 
 
 <section class="hero hero-bg-blue">
