@@ -18,13 +18,16 @@
   <div class="hero-badge">Konten & Kreditkarten</div>
   <h1>Dein Geld im Blick –<br><span class="highlight">alle Konten, ein Dashboard</span></h1>
   <p class="hero-sub">Verstehe welche Konten du brauchst, was sie kosten und wie Monvesto dir hilft, nie wieder den Überblick zu verlieren.</p>
+  <!--
   <div class="hero-actions">
     <a href="https://app.monvesto.de" class="btn btn-primary btn-lg">Kostenlos starten →</a>
-<!--    <a href="#inhalt" class="btn btn-secondary btn-lg">Alles erklärt ↓</a>
-  </div> -->
+    <a href="#inhalt" class="btn btn-secondary btn-lg">Alles erklärt ↓</a>
+  </div>
+  -->
 </section>
+
 <div class="trust-bar"><div class="trust-item">
-  <span class='trust-check'>✓</span> Kostenlos bis 2 Konten</div>
+  <span class='trust-check'>✓</span> Übersicht Kontomodelle</div>
   <div class="trust-item"><span class='trust-check'>✓</span> PSD2-konform</div>
   <div class="trust-item"><span class='trust-check'>✓</span> Bank-API Sync</div>
   <div class="trust-item"><span class='trust-check'>✓</span> DSGVO-konform</div>
@@ -37,19 +40,6 @@
   <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">In Deutschland gibt es vier grundlegende Kontoarten: das Girokonto für den Alltag, das Tagesgeldkonto als flexibler Puffer, das Festgeldkonto für geplantes Sparen und das Kreditkartenkonto. Wer alle diese Konten im Blick hat, kann bewusste Entscheidungen treffen – und weiß am Ende des Monats wo das Geld geblieben ist.</p>
 </section>
 
-<!--
-<section class="insight-section">
-  <div class="insight-inner">
-    <div class="insight-label">Wichtig</div>
-    <div class="insight-title">Die wichtigste Erkenntnis</div>
-    <p class="insight-text">
-      Du brauchst nicht „ein Konto“, sondern eine
-      <strong>Kombination aus mehreren Konten</strong> – jedes mit einer klaren Aufgabe.
-    </p>
-  </div>
-</section>
--->
-
 <hr class="divider" />
 
 <section class="section">
@@ -59,16 +49,16 @@
     Alle Kontoarten haben eines gemeinsam: Sie sind mittlerweile oft kostenlos oder günstig, sicher durch die gesetzliche Einlagensicherung bis 100.000 € und bei 
     deutschen Banken fest etabliert.
     Der entscheidende Unterschied liegt in der <strong>Verfügbarkeit deines Geldes</strong> und dem <strong>Zinssatz</strong>: <br><br>
-    - Beim <strong>Girokonto</strong> ist alles jederzeit verfügbar aber kaum verzinst. <br>
+    - Beim <strong>Girokonto</strong> und dem <strong>Haushalts- bzw. Gemeinschaftskonto</strong> ist alles jederzeit verfügbar aber kaum verzinst. <br>
     - Das <strong>Tagesgeldkonto</strong> kombiniert Flexibilität mit ordentlichen Zinsen. <br>
     - Ein <strong>Festgeldkonto</strong> bringt die höchsten Zinsen – dafür kommst du während der Laufzeit nicht ans Geld. <br><br>
-    Die beste Strategie: alle drei kombinieren und jedem Euro eine klare Aufgabe geben.
+    Die beste Strategie: Eine Kombination aus mehreren Modellen und jedem Euro eine klare Aufgabe geben.
   </p>
 
   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:40px;">
 
     <div class="card" style="border:2px solid var(--green);position:relative;">
-      <div style="position:absolute;top:-12px;left:20px;background:var(--green);color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;">Pflicht für jeden</div>
+      <div style="position:absolute;top:-12px;left:20px;background:var(--green);color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;">Sollte jeder haben</div>
       <div class="card-icon">💳</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Girokonto</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Das Alltagskonto: Hier geht dein Gehalt ein, hier zahlst du Miete und Einkäufe. Heute bei Direktbanken kostenlos.</p>
@@ -113,6 +103,36 @@
     </div>
 
   </div>
+
+  <p style="font-size:16px;color:var(--text-muted);line-height:1.7;margin-top:36px;">
+    Wie du siehst, ist eine Kombination der Modelle sinnvoll, weil du so Liquidität, Struktur und Rendite gleichzeitig optimierst.
+    Du trennst Alltag, Rücklagen und langfristiges Sparen klar voneinander und behältst jederzeit den Überblick.
+  </p>
+
+  <section class="insight-section" style="margin-top:36px ;">
+    <div class="insight-inner">
+      <!-- <div class="insight-label">Wichtig</div> -->
+      <div class="insight-title">Die wichtigste Erkenntnis</div>
+      <p class="insight-text">
+        Du brauchst nicht nur „ein gutes Konto“, sondern eine gute 
+        <strong>Kombination aus mehreren Konten</strong> – jedes Konto mit einer klaren Aufgabe.
+      </p>
+    </div>
+  </section>
+</section>
+
+<hr class="divider" />
+
+<section class="section" id="inhalt">
+  <div class="section-label">Sonderfall: Kinderkonto und Jugendkonto</div>
+  <h2 class="section-title">Was ist ein Kinder- bzw. Jugendkonto – und wer genau sollte es haben?</h2>
+  <p class="section-intro">
+    Ein Kinderkonto ist ein kostenloses Girokonto auf Guthabenbasis, mit dem du deinem Kind früh den Umgang mit Geld beibringen kannst. Es wird oft schon ab der Geburt angeboten, sinnvoll genutzt wird es aber meist ab dem 10. bis 12. Lebensjahr.</p>
+  <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">
+    Ein Kinderkonto funktioniert wie ein normales Girokonto, ist aber speziell auf Minderjährige ausgelegt. 
+    Dein Kind kann damit Geld empfangen, erste Zahlungen tätigen und den Umgang mit Budget und Ausgaben lernen – ohne Risiko, sich zu verschulden.
+    Typisch sind ein integrierter Überziehungsschutz sowie Funktionen, mit denen du als Elternteil den Überblick behältst und bei Bedarf eingreifen kannst. 
+    So entsteht Schritt für Schritt finanzielle Verantwortung – in einem sicheren Rahmen. 
 </section>
 
 <hr class="divider" />
@@ -156,6 +176,7 @@
       <tbody>
         <tr><td><strong>Kontoführung/Monat</strong></td><td class="cross">5–15 €</td><td class="check">0 €</td><td class="check">0 €</td></tr>
         <tr><td><strong>Girocard</strong></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td><strong>Unterkonten</strong></td><td class="cross">oft kostenpflichtig</td><td class="check">Oft kostenlos</td><td class="check">Oft kostenlos</td></tr>
         <tr><td><strong>Kreditkarte</strong></td><td class="cross">20–80 €/Jahr</td><td class="check">Oft kostenlos</td><td class="check">Oft inklusive</td></tr>
         <tr><td><strong>Abheben Ausland</strong></td><td class="cross">1,5–3 %</td><td class="check">Oft kostenlos</td><td class="check">Oft kostenlos</td></tr>
         <tr><td><strong>Beratung vor Ort</strong></td><td class="check">✓</td><td class="cross">Nur digital</td><td class="cross">Nur digital</td></tr>
@@ -164,9 +185,7 @@
   </div>
 </section>
 
-<hr class="divider" />
-
-<section class="section" style="background:var(--bg);">
+<section class="section" style="background:var(--bg)">
   <div class="section-label">Tipps</div>
   <h2 class="section-title">So optimierst du deine Kontostruktur</h2>
   <div class="grid-3 mt-40">
@@ -186,7 +205,8 @@
 <section class="section-sm" style="padding:80px 32px; max-width:760px; margin:0 auto;">
   <div class="section-label">Häufige Fragen</div>
   <h2 class="section-title">Deine Fragen beantwortet</h2>
-  <div class="faq-list"><div class="faq-item">
+  <div class="faq-list">
+    <div class="faq-item">
       <div class="faq-q">Was ist ein Girokonto? <span class="faq-arrow">▾</span></div>
       <div class="faq-a">Das Girokonto ist das Basiskonto für den finanziellen Alltag. Hier geht das Gehalt ein, hier werden Daueraufträge, Überweisungen und Kartenzahlungen abgewickelt. Kostenlose Girokonten gibt es bei DKB, ING und N26.</div>
     </div><div class="faq-item">

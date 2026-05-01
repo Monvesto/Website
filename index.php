@@ -13,11 +13,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   <h1>Alle deine Finanzen.<br><span class="highlight">Ein Überblick.</span></h1>
   <p class="hero-sub">Konten, Aktien, ETFs, Krypto und P2P-Kredite – endlich alles zusammen. In Echtzeit. Kostenlos.</p>
   <div class="hero-actions">
-    <a href="https://app.monvesto.de" class="btn btn-primary btn-lg">Jetzt kostenlos starten →</a>
-    <a href="#module" class="btn btn-secondary btn-lg">Alle Funktionen ansehen</a>
+   <!-- <a href="https://app.monvesto.de" class="btn btn-primary btn-lg">Jetzt kostenlos starten →</a> -->
+    <a href="#themen" class="btn btn-primary btn-lg">Alle Bereiche ansehen</a>
   </div>
   <p style="margin-top:20px;font-size:13px;color:var(--text-light);">
-    Keine Kreditkarte &middot; Keine Mindestlaufzeit &middot; <span style="color:var(--green);font-weight:600;">2 Konten dauerhaft gratis</span>
+    Für Einsteiger und Profis &middot; Alles auf einem Blick &middot; <!-- <span style="color:var(--green);font-weight:600;"> --> Keine Chance verpassen <!--</span>-->
   </p>
 
   <!-- DASHBOARD MOCK -->
@@ -78,6 +78,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 </div>
 </section>
 
+<!-- Trustbar -->
 <div class="trust-bar">
   <div class="trust-item"><span class="trust-check">✓</span> DSGVO-konform</div>
   <div class="trust-item"><span class="trust-check">✓</span> EU-Server Frankfurt</div>
@@ -86,44 +87,53 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   <div class="trust-item"><span class="trust-check">✓</span> Kostenlos starten</div>
 </div>
 
-<section class="section" id="module">
+<!-- Übersicht -->
+<section class="section" id="themen">
   <div class="section-center mb-40">
     <div class="section-label">Alle Funktionen</div>
     <h2 class="section-title">Alles was deine Finanzen brauchen</h2>
-    <p class="section-intro center">Von Girokonten über ETF-Sparpläne bis zu Kryptowährungen – alle Anlageklassen auf einen Blick.</p>
+    <p class="section-intro center">Von Girokonten über ETF-Sparpläne bis zu Kryptowährungen und Steuern – alle Bereiche auf einen Blick.</p>
   </div>
   <div class="grid-3">
     <a href="/konten-kreditkarten/" style="text-decoration:none;" class="card card-hover">
       <div class="card-tag">Basis</div><div class="card-icon">🏦</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Konten & Kreditkarten</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Giro, Tagesgeld, Festgeld und Kreditkarten auf einen Blick. Manuell oder per Bank-API.</p>
-      <div style="font-size:13px;font-weight:700;color:var(--green);">Mehr erfahren →</div>
-    </a>
-    <a href="/portfolio/" style="text-decoration:none;" class="card card-hover">
-      <div class="card-tag">Investments</div><div class="card-icon">📈</div>
-      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Portfolio & Aktien</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Aktien und ETFs mit Live-Kursen tracken. Gewinn/Verlust und Performance in Echtzeit.</p>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Giro, Tagesgeld, Festgeld und Kreditkarten auf einen Blick. Unterschiede zusammengefasst und erklärt.</p>
       <div style="font-size:13px;font-weight:700;color:var(--green);">Mehr erfahren →</div>
     </a>
     <a href="/sparplaene/" style="text-decoration:none;" class="card card-hover">
       <div class="card-tag">Automatisch</div><div class="card-icon">🔄</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">ETF-Sparpläne</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Monatliche Sparpläne tracken. Eingezahltes Kapital vs. aktueller Wert auf einen Blick.</p>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Die einfachste und sicherste Anlagemöglichkeit für jeden, egal ob Einsteiger oder Profi.</p>
       <div style="font-size:13px;font-weight:700;color:var(--green);">Mehr erfahren →</div>
     </a>
     <a href="/kryptowaehrungen/" style="text-decoration:none;" class="card card-hover">
       <div class="card-tag">Digital Assets</div><div class="card-icon">₿</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Kryptowährungen</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Bitcoin, Ethereum und alle Coins live tracken. Coinbase-Import, CoinGecko-Kurse.</p>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Bitcoin, Ethereum und sogenannte Alt-Coins. Livedaten, Stärken und Schwächen von Kryptowährungen.</p>
       <div style="font-size:13px;font-weight:700;color:var(--green);">Mehr erfahren →</div>
     </a>
     <a href="/p2p-kredite/" style="text-decoration:none;" class="card card-hover">
       <div class="card-tag">Rendite</div><div class="card-icon">🤝</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">P2P-Kredite</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">P2P-Investments von Mintos, Estateguru & Co. im Gesamtvermögen tracken.</p>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">P2P-Investments, oder auch: Kredite von Person zu Person. Kluges Investment und große Chance?</p>
       <div style="font-size:13px;font-weight:700;color:var(--green);">Mehr erfahren →</div>
     </a>
-    <a href="/ki-analyse/" style="text-decoration:none;" class="card card-hover">
+    <a href="/steuern/" style="text-decoration:none;" class="card card-hover">
+      <div class="card-tag">Finanzamt & Co.</div><div class="card-icon">📈</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Steuern</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Steuern, Kapitalerträge, Gewinne und Verluste übersichtlich im Blick behalten.</p>
+      <div style="font-size:13px;font-weight:700;color:var(--green);">Mehr erfahren →</div>
+    </a>
+    <a href="/portfolio/" style="text-decoration:none;" class="card card-hover card-disabled">
+      <div class="coming-badge">Coming soon</div>
+      <div class="card-tag">Investments</div><div class="card-icon">📈</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Portfolio & Aktien</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Bankkonten, Aktien, ETFs und Krypto mit Live-Kursen tracken. Gesamtvermögen, Gewinn/Verlust und Performance in Echtzeit.</p>
+      <div style="font-size:13px;font-weight:700;color:var(--green);">Mehr erfahren →</div>
+    </a>
+    <a href="/ki-analyse/" style="text-decoration:none;" class="card card-hover card-disabled">
+      <div class="coming-badge">Coming soon</div>
       <div class="card-tag">KI-Powered</div><div class="card-icon">🤖</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">KI-Finanzanalyse</div>
       <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Dein persönlicher KI-Berater analysiert dein Vermögen – powered by Anthropic Claude.</p>
@@ -134,6 +144,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 
 <hr class="divider" />
 
+<!-- in 4 Schritten -->
 <section class="section" style="max-width:1140px;text-align:center;">
   <div class="section-label">So einfach geht's</div>
   <h2 class="section-title">In 4 Schritten zum Überblick</h2>
@@ -142,22 +153,22 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
     <div style="padding:24px;">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--green);color:white;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">1</div>
       <div style="font-size:16px;font-weight:700;margin-bottom:8px;">Konto erstellen</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.6;">Kostenlos mit E-Mail. In 60 Sekunden startklar.</p>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;">Kostenlos mit E-Mail registrieren. In 60 Sekunden startklar.</p>
     </div>
     <div style="padding:24px;">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--green);color:white;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">2</div>
-      <div style="font-size:16px;font-weight:700;margin-bottom:8px;">Konten eintragen</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.6;">Manuell oder per Bank-API. Alle Banken.</p>
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px;">Konten & Assets eintragen</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;">Manuell oder per API erfassen. Banken, Wallets, Sparpläne uvm.</p>
     </div>
     <div style="padding:24px;">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--green);color:white;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">3</div>
       <div style="font-size:16px;font-weight:700;margin-bottom:8px;">Überblick genießen</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.6;">Gesamtvermögen in Echtzeit.</p>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;">Tracke und analysiere dein Gesamtvermögen in Echtzeit.</p>
     </div>
     <div style="padding:24px;">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--green);color:white;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">4</div>
       <div style="font-size:16px;font-weight:700;margin-bottom:8px;">KI-Analyse nutzen</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.6;">Konkrete Empfehlungen.</p>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;">KI-Analyse über das Portfolie aufgestellt inkl. Ideen zur Optimierung.</p>
     </div>
   </div>
 </section>
@@ -205,17 +216,39 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 
 <hr class="divider" />
 
-<section class="section-sm" style="padding:80px 32px;max-width:760px;margin:0 auto;">
-  <div class="section-label">FAQ</div>
-  <h2 class="section-title">Häufige Fragen</h2>
-  <div class="faq-list">
-    <div class="faq-item open"><div class="faq-q">Sind meine Daten bei Monvesto sicher? <span class="faq-arrow">▾</span></div><div class="faq-a">Ja. Alle Daten werden verschlüsselt auf EU-Servern gespeichert. DSGVO-konform, keine Datenweitergabe. Bank-API hat nur Lesezugriff.</div></div>
-    <div class="faq-item"><div class="faq-q">Welche Banken werden unterstützt? <span class="faq-arrow">▾</span></div><div class="faq-a">Alle großen deutschen Banken: Sparkasse, ING, DKB, Comdirect, N26, Volksbank und mehr. Investments manuell oder per Coinbase-API.</div></div>
-    <div class="faq-item"><div class="faq-q">Was kostet Monvesto? <span class="faq-arrow">▾</span></div><div class="faq-a">Dauerhaft kostenlos für bis zu 2 Konten und 5 Investments. Premium kostet 7,99 € pro Monat, jederzeit kündbar.</div></div>
-    <div class="faq-item"><div class="faq-q">Funktioniert Monvesto auf dem Smartphone? <span class="faq-arrow">▾</span></div><div class="faq-a">Die Web-App unter app.monvesto.de funktioniert auf allen Geräten. Eine native App ist in Planung.</div></div>
+<!-- KONTAKT SECTION-->
+<section class="section" id="kontakt" style="max-width:760px;margin:0 auto;text-align:center;">
+  <div class="section-label">Kontakt</div>
+  <h2 class="section-title">Fragen? Wir helfen gerne.</h2>
+  <p class="section-intro center" style="margin-bottom:32px;">
+    Egal ob Support, allgemeine Fragen oder Kooperationsanfragen – schreib uns einfach.
+  </p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:36px;">
+    <div class="card" style="text-align:center;padding:24px;">
+      <div style="font-size:28px;margin-bottom:10px;">💬</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Allgemeine Anfragen</div>
+      <p class="text-muted" style="font-size:13px;">Feedback und Fragen zu Monvesto</p>
+    </div>
+    <div class="card" style="text-align:center;padding:24px;">
+      <div style="font-size:28px;margin-bottom:10px;">🛠️</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Support & Hilfe</div>
+      <p class="text-muted" style="font-size:13px;">Technische Probleme & App-Fragen</p>
+    </div>
+    <div class="card" style="text-align:center;padding:24px;">
+      <div style="font-size:28px;margin-bottom:10px;">📰</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Presse & Kooperationen</div>
+      <p class="text-muted" style="font-size:13px;">Medien, Partner & Affiliate</p>
+    </div>
   </div>
+  <a href="/kontakt/" class="btn btn-primary btn-lg">Zum Kontaktformular →</a>
+  <p style="margin-top:16px;font-size:13px;color:var(--text-muted);">
+    Oder direkt per E-Mail: <a href="mailto:info@monvesto.de" style="color:var(--green);font-weight:600;">info@monvesto.de</a>
+  </p>
 </section>
 
+<hr class="divider" />
+
+<!-- Call to Action-->
 <section class="cta-banner">
   <h2>Dein Vermögen. Endlich auf einen Blick.</h2>
   <p>Starte kostenlos in 60 Sekunden. Keine Kreditkarte. Kein Risiko.</p>
@@ -226,6 +259,18 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
     <div class="cta-feat">EU-Server</div>
   </div>
   <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Jetzt kostenlos starten →</a>
+</section>
+
+<!-- FAQ-->
+<section class="section-sm" style="padding:80px 32px;max-width:760px;margin:0 auto;">
+  <div class="section-label">FAQ</div>
+  <h2 class="section-title">Häufige Fragen</h2>
+  <div class="faq-list">
+    <div class="faq-item open"><div class="faq-q">Sind meine Daten bei Monvesto sicher? <span class="faq-arrow">▾</span></div><div class="faq-a">Ja. Alle Daten werden verschlüsselt auf EU-Servern gespeichert. DSGVO-konform, keine Datenweitergabe. Bank-API hat nur Lesezugriff.</div></div>
+    <div class="faq-item"><div class="faq-q">Welche Banken werden unterstützt? <span class="faq-arrow">▾</span></div><div class="faq-a">Alle großen deutschen Banken: Sparkasse, ING, DKB, Comdirect, N26, Volksbank und mehr. Investments manuell oder per Coinbase-API.</div></div>
+    <div class="faq-item"><div class="faq-q">Was kostet Monvesto? <span class="faq-arrow">▾</span></div><div class="faq-a">Dauerhaft kostenlos für bis zu 2 Konten und 5 Investments. Premium kostet 7,99 € pro Monat, jederzeit kündbar.</div></div>
+    <div class="faq-item"><div class="faq-q">Funktioniert Monvesto auf dem Smartphone? <span class="faq-arrow">▾</span></div><div class="faq-a">Die Web-App unter app.monvesto.de funktioniert auf allen Geräten. Eine native App ist in Planung.</div></div>
+  </div>
 </section>
 
 <?php require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/footer.php"; ?>

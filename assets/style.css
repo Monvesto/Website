@@ -237,8 +237,8 @@ footer {
 /* ── LAYOUT HELPER ── */
 .container { max-width: 1140px; margin: 0 auto; padding: 0 32px; }
 .container-sm { max-width: 800px; margin: 0 auto; padding: 0 32px; }
-.section { padding: 80px 32px; max-width: 1140px; margin: 0 auto; }
-.section-sm { padding: 80px 32px; max-width: 800px; margin: 0 auto; }
+.section { padding: 40px 32px; max-width: 1140px; margin: 0 auto; }
+.section-sm { padding: 60px 32px; max-width: 800px; margin: 0 auto; }
 .section-center { text-align: center; }
 hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 0; }
 
@@ -271,7 +271,7 @@ hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 0; }
 
 /* ── HERO ── */
 .hero {
-  padding: 80px 32px 60px;
+  padding: 60px 32px 60px;
   text-align: center;
   border-bottom: 0.5px solid var(--border);
 }
@@ -406,7 +406,7 @@ hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 0; }
 /* ── CARDS ── */
 .card {
   background: white;
-  border: 0.5px solid var(--border);
+  border: 2px solid var(--green);
   border-radius: var(--radius-lg);
   padding: 28px;
 }
@@ -419,7 +419,7 @@ hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 0; }
 .card-hover:hover {
   box-shadow: var(--shadow-lg);
   transform: translateY(-3px);
-  border-color: var(--green-mid);
+  border-color: var(--green);
 }
 
 .card-icon {
@@ -759,8 +759,9 @@ hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 0; }
 
 .insight-inner {
   padding: 20px 24px;
-  border: 2px solid var(--green);
+  border: 2px solid var(--green-mid);
   background: var(--bg);
+  border-radius: 12px;
 }
 
 .insight-label {
@@ -776,7 +777,7 @@ hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 0; }
   font-size: 20px;
   font-weight: 800;
   margin-bottom: 6px;
-  color: var(--text);
+  color: var(--text-muted);
 }
 
 .insight-text {
@@ -846,4 +847,26 @@ hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 0; }
   padding: 4px 8px;
   border-radius: 6px;
   white-space: nowrap;
+}
+
+/* Card auf coming soon setzen */
+.card-disabled {
+  position: relative;
+  pointer-events: none; /* deaktiviert Klick & Hover */
+  opacity: 0.75;
+  filter: grayscale(100%);
+}
+
+/* Badge für coming soon*/
+.coming-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #111;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  z-index: 2;
 }

@@ -41,7 +41,7 @@ $usdt = get_crypto_price('tether');
   <div class="section-label">Die wichtigsten Coins</div>
   <h2 class="section-title">Bitcoin, Ethereum & Co.</h2>
   <div class="grid-3 mt-40">
-    <div class="card" style="border:2px solid #F7931A;">
+    <div class="card">
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
         <div style="width:48px;height:48px;border-radius:50%;background:#F7931A;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:20px;">₿</div>
         <div>
