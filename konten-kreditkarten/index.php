@@ -132,7 +132,7 @@
     Ein Kinderkonto funktioniert wie ein normales Girokonto, ist aber speziell auf Minderjährige ausgelegt. 
     Dein Kind kann damit Geld empfangen, erste Zahlungen tätigen und den Umgang mit Budget und Ausgaben lernen – ohne Risiko, sich zu verschulden.
     Typisch sind ein integrierter Überziehungsschutz sowie Funktionen, mit denen du als Elternteil den Überblick behältst und bei Bedarf eingreifen kannst. 
-    So entsteht Schritt für Schritt finanzielle Verantwortung – in einem sicheren Rahmen. 
+    So entsteht Schritt für Schritt finanzielle Verantwortung – in einem sicheren Rahmen.</p>
 </section>
 
 <hr class="divider" />
@@ -140,8 +140,13 @@
 <section class="section">
   <div class="section-label">Kostenvergleich</div>
   <h2 class="section-title">Filialbank vs. Direktbank vs. Neobank</h2>
-  <p class="section-intro">Der Unterschied kann mehrere hundert Euro im Jahr ausmachen.</p>
-
+  <p class="section-intro">Durch einen Wechsel oder eine Optimierung können oft mehrere hundert Euro im Jahr gespart werden.</p>
+  <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">
+    Die Unterschiede zwischen Filialbank, Direktbank und Neobank liegen vor allem
+    bei Kosten, Service und Funktionsumfang. Während Filialbanken persönliche
+    Beratung bieten, sind Direkt- und Neobanken deutlich günstiger und stärker
+    auf digitale Nutzung ausgelegt.
+</p>
   <div class="grid-3 mt-40">
     <div class="card">
       <div style="font-size:28px;margin-bottom:12px;">🏛️</div>

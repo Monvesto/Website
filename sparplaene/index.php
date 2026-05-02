@@ -23,10 +23,12 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
   <div class="hero-badge">ETF-Sparpläne</div>
   <h1>Monatlich automatisch investieren –<br><span class="highlight">einfacher geht es nicht</span></h1>
   <p class="hero-sub">Was ist ein ETF-Sparplan, welcher ETF ist der richtige und wie trackt Monvesto deinen Fortschritt in Echtzeit?</p>
+  <!--
   <div class="hero-actions">
     <a href="https://app.monvesto.de" class="btn btn-primary btn-lg">Kostenlos starten →</a>
     <a href="#inhalt" class="btn btn-secondary btn-lg">Alles erklärt ↓</a>
   </div>
+-->
 </section>
 
 <div class="trust-bar"><div class="trust-item">
@@ -41,9 +43,11 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
   <p class="section-intro">Ein ETF-Sparplan ist automatisches Investieren in börsengehandelte Fonds. Du legst einmal fest: wie viel, in welchen ETF, wie oft. Dann läuft es von selbst.</p>
   <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">Keine Marktanalyse, kein manuelles Kaufen, keine emotionalen Entscheidungen. In Abschwüngen kaufst du automatisch günstiger ein – der Cost-Average-Effekt. Über 10, 20 oder 30 Jahre kann daraus ein erhebliches Vermögen entstehen.</p>
 </section>
+
 <hr class="divider" />
+
 <section class="section">
-  <div class="section-label">ETF-Empfehlungen</div>
+  <div class="section-label">Top-ETFs</div>
   <h2 class="section-title">Die beliebtesten Sparplan-ETFs</h2>
   <div class="grid-3 mt-40">
     <div class="card" style="border:2px solid var(--green);">
@@ -77,20 +81,108 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Volumen</span><span style="font-weight:600;">+5 Mrd $</span></div>
     </div>
   </div>
+  <p style="font-size:16px;color:var(--text-muted);line-height:1.7;margin-top:36px;">
+        Für einen ETF-Sparplan eignen sich besonders breit gestreute, kostengünstige ETFs.
+        Viele Anleger setzen deshalb auf weltweite Aktienindizes wie den MSCI World,
+        FTSE All-World oder dividendenorientierte ETFs. Wichtig sind vor allem niedrige
+        laufende Kosten, ein hohes Fondsvolumen und eine einfache Besparbarkeit beim Broker.
+  </p>
+
+<section class="insight-section" style="margin-top:36px ;">
+    <div class="insight-inner">
+      <!-- <div class="insight-label">Wichtig</div> -->
+      <div class="insight-title">Die wichtigste Erkenntnis</div>
+      <p class="insight-text">
+        Der „beste ETF“ ist nicht der mit der höchsten Rendite – sondern der, der 
+        breit streut, günstig ist und langfristig zu deiner Strategie passt.
+      </p>
+    </div>
+  </section>
 </section>
+
+</section>
+
 <hr class="divider" />
+<section class="section">
+  <div class="section-label">Broker & Anbieter</div>
+  <h2 class="section-title">Wo kann ich ETF-Sparpläne einrichten?</h2>
+  <p class="section-intro">
+    ETF-Sparpläne kannst du bei vielen Online-Brokern und Direktbanken einrichten.
+    Die Anbieter unterscheiden sich vor allem bei Gebühren, ETF-Auswahl,
+    Bedienung, App-Funktionen und Zusatzleistungen.
+  </p>
+  <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">
+    Für die meisten ETF-Sparpläne sind vor allem drei Dinge entscheidend:
+    niedrige Gebühren, eine ausreichende ETF-Auswahl und eine einfache Bedienung.
+    Die Unterschiede liegen meist im Detail – deshalb lohnt es sich, die Anbieter
+    kurz zu vergleichen.
+  </p>
+
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:40px;">
+
+    <div class="card">
+      <div class="card-icon">📱</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Trade Republic</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Sehr einfache App mit vielen kostenlosen Sparplänen und niedriger Einstiegshürde – ideal für Einsteiger.</p>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan ab</span><span style="font-weight:600;color:var(--green);">1 €</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan-Gebühr</span><span style="font-weight:600;color:var(--green);">Kostenlos</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Besonderheit</span><span style="font-weight:600;">4 % Zinsen aufs Guthaben</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">📊</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Scalable Capital</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Große ETF-Auswahl, moderne Plattform und gute Sparplanfunktionen – auch mit Robo-Advisor Option.</p>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan ab</span><span style="font-weight:600;color:var(--green);">1 €</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan-Gebühr</span><span style="font-weight:600;color:var(--green);">Kostenlos</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Besonderheit</span><span style="font-weight:600;">Robo-Advisor inklusive</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">🏦</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">ING</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Direktbank mit Girokonto, Depot und etabliertem Service – solide und zuverlässig.</p>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan ab</span><span style="font-weight:600;color:var(--green);">1 €</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan-Gebühr</span><span style="font-weight:600;color:var(--green);">Kostenlos</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Besonderheit</span><span style="font-weight:600;">Girokonto + Depot</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">📈</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Consorsbank</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Breites Angebot mit vielen Aktions-ETFs und soliden Depotfunktionen – gut für erfahrene Anleger.</p>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan ab</span><span style="font-weight:600;color:var(--green);">1 €</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan-Gebühr</span><span style="font-weight:600;color:var(--green);">Kostenlos</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Besonderheit</span><span style="font-weight:600;">Viele Aktions-ETFs</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider" />
+
 <section class="section">
   <div class="section-label">Cost-Average-Effekt</div>
   <h2 class="section-title">Warum regelmäßig besser ist als einmalig</h2>
+  <p class="section-intro">Du investierst regelmäßig den gleichen Betrag und erhältst dadurch automatisch einen günstigeren Durchschnittspreis – ohne perfektes Timing.</p>
+  <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">Beim Cost-Average-Effekt investierst du jeden Monat denselben Betrag – unabhängig vom aktuellen Kurs. Wenn die Preise niedrig sind, kaufst du mehr Anteile, bei hohen Kursen entsprechend weniger. Dadurch ergibt sich über die Zeit ein ausgeglichener Durchschnittspreis.</p>
   <div style="background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:32px;margin-top:32px;">
-    <p style="font-size:15px;color:var(--text-muted);margin-bottom:20px;">Du investierst 100 € pro Monat. Der Kurs schwankt:</p>
+    <p style="font-size:15px;color:var(--text-muted);margin-bottom:20px;">Beispiel: Du investierst 100 € pro Monat. Der Kurs schwankt.</p>
     <table class="data-table" style="margin-top:0;">
       <thead><tr><th>Monat</th><th>ETF-Kurs</th><th>Investiert</th><th>Anteile</th></tr></thead>
       <tbody>
-        <tr><td>Januar</td><td>50 €</td><td>100 €</td><td>2,00</td></tr>
-        <tr><td>Februar</td><td>40 €</td><td>100 €</td><td style="color:var(--green);font-weight:600;">2,50 (günstiger!)</td></tr>
-        <tr><td>März</td><td>60 €</td><td>100 €</td><td>1,67</td></tr>
-        <tr><td style="font-weight:700;">Gesamt</td><td>Ø 50 €</td><td>300 €</td><td style="font-weight:700;">6,17 @ Ø 48,62 €</td></tr>
+        <tr><td>Januar</td><td>50 €</td><td>100 €</td><td>2,00 Anteile</td></tr>
+        <tr><td>Februar</td><td>40 €</td><td>100 €</td><td style="color:var(--green);font-weight:600;">2,50 Anteile (günstiger!)</td></tr>
+        <tr><td>März</td><td>60 €</td><td>100 €</td><td style="color:var(--red);font-weight:600;">1,67 Anteile (teurer!)</td></tr>
+        <tr><td style="font-weight:700;">Gesamt</td><td>Ø 50 €</td><td>300 €</td><td style="font-weight:700;">6,17 Anteile zu Ø 48,62 €</td></tr>
       </tbody>
     </table>
     <p style="font-size:14px;color:var(--text-muted);margin-top:16px;">Durch die Schwankungen kaufst du meist zu einem günstigeren Durchschnittspreis als wenn der Kurs immer gleich wäre.</p>
@@ -99,7 +191,7 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
 
 
 <section class="cta-banner">
-  <h2>Sparplan einrichten – Monvesto trackt ihn.</h2>
+  <h2>Sparplan einrichten – Automatisch Vermögen aufbauen.</h2>
   <p>Sieh jederzeit wie viel du eingezahlt hast, was er heute wert ist und wie deine Performance aussieht.</p>
   <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Jetzt kostenlos starten →</a>
 </section>
