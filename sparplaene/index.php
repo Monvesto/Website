@@ -127,7 +127,7 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
       <div style="display:flex;flex-direction:column;gap:0;">
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan ab</span><span style="font-weight:600;color:var(--green);">1 €</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan-Gebühr</span><span style="font-weight:600;color:var(--green);">Kostenlos</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Besonderheit</span><span style="font-weight:600;">4 % Zinsen aufs Guthaben</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Besonderheit</span><span style="font-weight:600;">2 % Zinsen aufs Guthaben</span></div>
       </div>
     </div>
 
@@ -189,6 +189,20 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
   </div>
 </section>
 
+<hr class="divider" />
+
+<section class="section" style="background:var(--bg)">
+  <div class="section-label">Tipps</div>
+  <h2 class="section-title">So optimierst du deine Sparpläne</h2>
+  <div class="grid-3 mt-40">
+    <div class="card"><div class="card-tag">Sofortmaßnahme</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;">Sparplan automatisieren</div>
+    <p class="text-muted" style="font-size:14px;line-height:1.65;">Richte einen festen monatlichen Sparplan ein und lasse ihn automatisch laufen. So investierst du regelmäßig, ohne dich um den perfekten Zeitpunkt kümmern zu müssen.</p></div>
+    <div class="card"><div class="card-tag">Strategie</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;">Auf breite ETFs setzen</div>
+    <p class="text-muted" style="font-size:14px;line-height:1.65;">Setze auf weltweit gestreute ETFs wie MSCI World oder FTSE All-World. Damit reduzierst du Risiko und brauchst keine komplizierte ETF-Auswahl.</p></div>
+    <div class="card"><div class="card-tag">Überblick</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;">Sparpläne regelmäßig prüfen</div>
+    <p class="text-muted" style="font-size:14px;line-height:1.65;">Kontrolliere 1–2× pro Jahr deine Sparrate und Entwicklung. Passe den Betrag an dein Einkommen an, statt ständig ETFs zu wechseln.</p></div>
+  </div>
+</section>
 
 <section class="cta-banner">
   <h2>Sparplan einrichten – Automatisch Vermögen aufbauen.</h2>

@@ -16,10 +16,12 @@ $usdt = get_crypto_price('tether');
   <div class="hero-badge">Kryptowährungen</div>
   <h1>Krypto verstehen –<br><span class="highlight">von Bitcoin bis DeFi</span></h1>
   <p class="hero-sub">Was sind Kryptowährungen? Wie sicher ist Krypto? Bitcoin, Ethereum, Stablecoins erklärt – mit Live-Tracking in Monvesto.</p>
+  <!-- 
   <div class="hero-actions">
     <a href="https://app.monvesto.de" class="btn btn-primary btn-lg">Kostenlos starten →</a>
     <a href="#inhalt" class="btn btn-secondary btn-lg">Alles erklärt ↓</a>
   </div>
+-->
 </section>
 
 <div class="trust-bar">
@@ -34,6 +36,10 @@ $usdt = get_crypto_price('tether');
   <div class="section-label">Grundlagen</div>
   <h2 class="section-title">Was sind Kryptowährungen?</h2>
   <p class="section-intro">Kryptowährungen sind digitales Geld ohne Mittelmann. Keine Bank, keine Regierung – nur Mathematik und ein dezentrales Netzwerk weltweit.</p>
+  <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">
+  Bekannte Beispiele sind Bitcoin, Ethereum oder Solana. Der Markt umfasst inzwischen tausende
+  Projekte mit unterschiedlichen Anwendungsfällen – von Zahlungsnetzwerken bis hin zu
+  dezentralen Finanzsystemen.</p>
   <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">Bitcoin wurde 2009 als Reaktion auf die Finanzkrise geschaffen. Heute ist Krypto sowohl Technologie als auch Anlageklasse – mit hohen Chancen und erheblichen Risiken.</p>
 </section>
 <hr class="divider" />
@@ -82,7 +88,21 @@ $usdt = get_crypto_price('tether');
     </div>
   </div>
 </section>
+
+<section class="insight-section" style="margin-top:36px ;">
+    <div class="insight-inner">
+      <!-- <div class="insight-label">Wichtig</div> -->
+      <div class="insight-title">Die wichtigste Erkenntnis</div>
+      <p class="insight-text">
+        Kryptowährungen sind kein Ersatz für dein Portfolio – sondern eine Ergänzung
+    mit höherem Risiko und Potenzial.
+      </p>
+    </div>
+  </section>
+</section>
+
 <hr class="divider" />
+
 <section class="section">
   <div class="section-label">Chancen & Risiken</div>
   <h2 class="section-title">Wie sicher ist Krypto wirklich?</h2>
