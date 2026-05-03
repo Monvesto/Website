@@ -10,8 +10,10 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/head.php";
 <section class="hero hero-bg-green">
   <div class="hero-badge">Steuerübersicht</div>
   <h1>Investmentsteuern<br><span class="highlight">einfach erklärt</span></h1>
-  <p class="hero-sub">Abgeltungssteuer, Sparerpauschbetrag, Krypto-Steuer – automatisch zusammengefasst.</p>
+  <p class="hero-sub">Abgeltungssteuer, Sparerpauschbetrag, Krypto-Steuer – einfach zusammengefasst.</p>
+  <!--
   <div class="hero-actions"><a href="https://app.monvesto.de" class="btn btn-primary btn-lg">Steuerübersicht öffnen →</a></div>
+-->
 </section>
 <section class="section">
   <div class="section-label">Steuerarten</div>
@@ -37,7 +39,22 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/head.php";
     </div>
   </div>
 </section>
+
 <hr class="divider" />
+
+<section class="section" id="inhalt">
+  <div class="section-label">Grundlagen</div>
+  <h2 class="section-title">Welche Steuern fallen bei Investments an?</h2>
+  <p class="section-intro">Je nach Anlageklasse werden Erträge unterschiedlich besteuert.
+  Dividenden, Zinsen und realisierte Kursgewinne aus Aktien oder ETFs
+  fallen meist unter die Abgeltungssteuer.</p>
+  <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">Kryptowährungen gelten steuerlich dagegen als private Veräußerungsgeschäfte.
+  Hier ist vor allem die Haltedauer entscheidend: Nach einem Jahr können Gewinne
+  steuerfrei sein.</p>
+</section>
+
+<hr class="divider" />
+
 <section class="section">
   <div class="section-label">Schnellvergleich</div>
   <h2 class="section-title">Was ist steuerpflichtig?</h2>
@@ -55,11 +72,13 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/head.php";
     </table>
   </div>
 </section>
+
 <section class="cta-banner" style="margin-top:0;">
   <h2>Deine Steuern. Automatisch zusammengefasst.</h2>
   <p>Kapitalerträge, Sparerpauschbetrag und Krypto-Haltefristen auf einen Blick.</p>
   <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Steuerübersicht öffnen →</a>
 </section>
+
 <div class="notice notice-yellow" style="max-width:760px;margin:32px auto;">⚠️ Alle Angaben ohne Gewähr. Für individuelle Steuerberatung bitte einen Steuerberater kontaktieren.</div>
 
 <section class="section-sm" style="padding:80px 32px;max-width:760px;margin:0 auto;">
