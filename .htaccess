@@ -1,3 +1,17 @@
+RewriteEngine On
+
+# Alte Seiten endgültig entfernen
+RewriteRule ^contact(/.*)?$ - [G,L]
+RewriteRule ^service(/.*)?$ - [G,L]
+RewriteRule ^copytrading(/.*)?$ - [G,L]
+RewriteRule ^tools-partner(/.*)?$ - [G,L]
+RewriteRule ^link-hub(/.*)?$ - [G,L]
+RewriteRule ^uncategorized(/.*)?$ - [G,L]
+
+# Duplicates entfernen, solange es keine echten Seiten sind
+RewriteRule ^module(/.*)?$ - [G,L]
+RewriteRule ^transaktionen(/.*)?$ - [G,L]
+
 # Monvesto .htaccess
 
 # MIME Types
