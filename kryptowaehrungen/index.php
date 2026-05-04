@@ -136,12 +136,13 @@ Wichtig ist dabei: Jede Kategorie erfüllt einen anderen Zweck. Während Bitcoin
       <div style="position:absolute;top:-12px;left:20px;background:var(--green);color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;">Sollte jeder haben</div>
       <div class="card-icon">💳</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Einsteiger-Exchange</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Einfacher Einstieg in Kryptowährungen. Kaufen, verkaufen und verwalten
-    über eine intuitive App – ideal für Anfänger.</p>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Einfacher Einstieg in die Welt der Kryptowährungen. Kaufen, verkaufen, informieren und verwalten
+    über eine einfache und intuitive App – ideal für Neulinge.</p>
       <div style="display:flex;flex-direction:column;gap:0;">
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Gebühren</span><span style="font-weight:600;color:var(--green);">0,5 – 2,0 %</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Verfügbarkeit</span><span style="font-weight:600;">Täglich</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">Coinbase, Bitpanda</span></div>
+        <a href="/" class="btn btn-primary" style="margin-top:24px;">zur Einsteiger-Exchange</a>
       </div>
     </div>
 
@@ -154,6 +155,7 @@ Wichtig ist dabei: Jede Kategorie erfüllt einen anderen Zweck. Während Bitcoin
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Gebühren</span><span style="font-weight:600;color:var(--green);">0,1 – 0,5 %</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Verfügbarkeit</span><span style="font-weight:600;">24/7</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">Binance, Kraken</span></div>
+        <a href="/" class="btn btn-primary" style="margin-top:24px;">Zur Trading-Exchange</a>
       </div>
     </div>
 
@@ -166,6 +168,7 @@ Wichtig ist dabei: Jede Kategorie erfüllt einen anderen Zweck. Während Bitcoin
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Kosten</span><span style="font-weight:600;color:var(--green);">Einmalig ca. 50 – 150 €</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Zugriff</span><span style="font-weight:600;">Manuell</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">Ledger, Trezor</span></div>
+        <a href="/" class="btn btn-primary" style="margin-top:24px;">Hardware-Wallet kaufen</a>
       </div>
     </div>
 
@@ -178,6 +181,7 @@ Wichtig ist dabei: Jede Kategorie erfüllt einen anderen Zweck. Während Bitcoin
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Kosten</span><span style="font-weight:600;color:var(--green);">Oft kostenlos oder geringe Gebühren</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Intervall</span><span style="font-weight:600;">Wöchentlich / monatlich</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">Coinbase, Binance, Bitpanda</span></div>
+        <a href="/" class="btn btn-primary" style="margin-top:24px;">Krypto-Sparplan einrichten</a>
       </div>
     </div>
 
@@ -270,7 +274,9 @@ Wichtig ist dabei: Jede Kategorie erfüllt einen anderen Zweck. Während Bitcoin
 <section class="cta-banner">
   <h2>Dein Krypto-Portfolio. Immer aktuell.</h2>
   <p>Tracke Bitcoin, Ethereum und alle Coins in Echtzeit. Sieh Gewinn/Verlust und wie Krypto in dein Gesamtvermögen passt.</p>
+  <!--
   <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Jetzt kostenlos starten →</a>
+-->
 </section>
 
 <section class="section-sm" style="padding:80px 32px;max-width:760px;margin:0 auto;">

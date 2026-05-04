@@ -1,5 +1,8 @@
 RewriteEngine On
 
+# Affiliate-Weiterleitungen
+RewriteRule ^go/([a-z0-9-]+)/?$ /go/index.php?partner=$1 [L,QSA]
+
 # Alte Seiten endgültig entfernen
 RewriteRule ^contact(/.*)?$ - [G,L]
 RewriteRule ^service(/.*)?$ - [G,L]

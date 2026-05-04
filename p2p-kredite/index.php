@@ -70,21 +70,21 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 <!--  <div class="grid-3 mt-40">
     <div class="card" style="border:2px solid var(--green);">
       <div class="card-tag">Marktführer Europa</div>
-      <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Mintos</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Auxmoney</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Größte europäische P2P-Plattform. Seit 2023 BaFin-reguliert. Autoinvest und Sekundärmarkt.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Rendite</span><span style="color:var(--green);font-weight:600;">9–14 %</span></div>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Regulierung</span><span style="color:var(--green);font-weight:600;">BaFin</span></div>
     </div>
     <div class="card">
       <div class="card-tag">Immobilienfokus</div>
-      <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Estateguru</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Swaper</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Durch Immobilien besicherte Kredite. Grundschuld als Sicherheit.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Rendite</span><span style="color:var(--green);font-weight:600;">8–12 %</span></div>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Besicherung</span><span style="font-weight:600;">Immobilien</span></div>
     </div>
     <div class="card">
       <div class="card-tag">Einsteigerfreundlich</div>
-      <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Bondora Go & Grow</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Grow</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">6,75 % p.a., täglich liquide. Ideal für Einsteiger.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Rendite</span><span style="font-weight:600;">6,75 %</span></div>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Liquidität</span><span style="color:var(--green);font-weight:600;">Täglich</span></div>
@@ -150,7 +150,9 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 <section class="cta-banner">
   <h2>P2P tracken – mit Monvesto den Überblick behalten.</h2>
   <p>Trage deine P2P-Investments ein und sieh wie sie zum Rest deines Vermögens passen.</p>
+  <!--
   <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Jetzt kostenlos starten →</a>
+-->
 </section>
 
 <section class="section-sm" style="padding:80px 32px;max-width:760px;margin:0 auto;">

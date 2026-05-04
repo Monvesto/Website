@@ -128,6 +128,7 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan ab</span><span style="font-weight:600;color:var(--green);">1 €</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan-Gebühr</span><span style="font-weight:600;color:var(--green);">Kostenlos</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Besonderheit</span><span style="font-weight:600;">2 % Zinsen aufs Guthaben</span></div>
+        <a href="/" class="btn btn-primary" style="margin-top:24px;">Zu Traderepublic</a>
       </div>
     </div>
 
@@ -139,6 +140,7 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan ab</span><span style="font-weight:600;color:var(--green);">1 €</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan-Gebühr</span><span style="font-weight:600;color:var(--green);">Kostenlos</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Besonderheit</span><span style="font-weight:600;">Robo-Advisor inklusive</span></div>
+        <a href="/" class="btn btn-primary" style="margin-top:24px;">Zu Scalable Capital</a>
       </div>
     </div>
 
@@ -150,6 +152,7 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan ab</span><span style="font-weight:600;color:var(--green);">1 €</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan-Gebühr</span><span style="font-weight:600;color:var(--green);">Kostenlos</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Besonderheit</span><span style="font-weight:600;">Girokonto + Depot</span></div>
+        <a href="/" class="btn btn-primary" style="margin-top:24px;">Zu ING</a>
       </div>
     </div>
 
@@ -161,6 +164,7 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan ab</span><span style="font-weight:600;color:var(--green);">1 €</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan-Gebühr</span><span style="font-weight:600;color:var(--green);">Kostenlos</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Besonderheit</span><span style="font-weight:600;">Viele Aktions-ETFs</span></div>
+        <a href="/" class="btn btn-primary" style="margin-top:24px;">Zur Consorsbank</a>
       </div>
     </div>
 
@@ -207,7 +211,9 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
 <section class="cta-banner">
   <h2>Sparplan einrichten – Automatisch Vermögen aufbauen.</h2>
   <p>Sieh jederzeit wie viel du eingezahlt hast, was er heute wert ist und wie deine Performance aussieht.</p>
+  <!--
   <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Jetzt kostenlos starten →</a>
+-->
 </section>
 
 <section class="section-sm" style="padding:80px 32px; max-width:760px; margin:0 auto;">

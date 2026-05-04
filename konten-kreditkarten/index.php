@@ -61,11 +61,12 @@
       <div style="position:absolute;top:-12px;left:20px;background:var(--green);color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;">Sollte jeder haben</div>
       <div class="card-icon">💳</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Girokonto</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Das Alltagskonto: Hier geht dein Gehalt ein, hier zahlst du Miete und Einkäufe. Heute bei Direktbanken kostenlos.</p>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Das Alltagskonto: Hier geht dein Gehalt ein, und hier zahlst du deine Miete, Fixkosten und Einkäufe. Heute sind Girokonten bei Direktbanken fast immer kostenlos.</p>
       <div style="display:flex;flex-direction:column;gap:0;">
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Kosten/Monat</span><span style="font-weight:600;color:var(--green);">0 – 15 €</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Verfügbarkeit</span><span style="font-weight:600;">Täglich</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">DKB, ING, N26</span></div>
+        <a href="/" class="btn btn-primary" style="margin-top:24px;">Kostenloses Girokonto anschauen</a>
       </div>
     </div>
 
@@ -77,6 +78,7 @@
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Kosten/Monat</span><span style="font-weight:600;color:var(--green);">0 – 15 €</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Verfügbarkeit</span><span style="font-weight:600;">Täglich</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">DKB, ING, N26</span></div>
+        <a href="/" class="btn btn-primary" style="margin-top:24px;">Gemeinschaftskonto anschauen</a>
       </div>
     </div>
 
@@ -88,6 +90,7 @@
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Kosten</span><span style="font-weight:600;color:var(--green);">Kostenlos</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Zinsen (2025)</span><span style="font-weight:600;">2,5 – 4,0 %</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">Trade Republic, ING</span></div>
+        <a href="/" class="btn btn-primary" style="margin-top:24px;">Tagesgeldkonto anschauen</a>
       </div>
     </div>
 
@@ -99,6 +102,7 @@
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Kosten</span><span style="font-weight:600;color:var(--green);">Kostenlos</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Zinsen (2025)</span><span style="font-weight:600;">3,0 – 4,5 %</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">Weltsparen, Raisin</span></div>
+        <a href="/" class="btn btn-primary" style="margin-top:24px;">Festgeldkonto anschauen</a>
       </div>
     </div>
 
@@ -133,6 +137,9 @@
     Dein Kind kann damit Geld empfangen, erste Zahlungen tätigen und den Umgang mit Budget und Ausgaben lernen – ohne Risiko, sich zu verschulden.
     Typisch sind ein integrierter Überziehungsschutz sowie Funktionen, mit denen du als Elternteil den Überblick behältst und bei Bedarf eingreifen kannst. 
     So entsteht Schritt für Schritt finanzielle Verantwortung – in einem sicheren Rahmen.</p>
+
+    
+    <a href="/" class="btn btn-primary" style="margin-top:24px;">Hier Jugendkonto eröffnen</a>
 </section>
 
 <hr class="divider" />
@@ -194,7 +201,7 @@
   <div class="section-label">Tipps</div>
   <h2 class="section-title">So optimierst du deine Kontostruktur</h2>
   <div class="grid-3 mt-40">
-    <div class="card"><div class="card-tag">Sofortmaßnahme</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;">Wechsle zur kostenlosen Direktbank</div><p class="text-muted" style="font-size:14px;line-height:1.65;">DKB, ING und N26 bieten kostenlose Konten. Das spart bis zu 180 € pro Jahr gegenüber Sparkassen-Gebühren.</p></div>
+    <div class="card"><div class="card-tag">Sofortmaßnahme</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;">Wechsle zur <a href="/">kostenlosen Direktbank</a></div><p class="text-muted" style="font-size:14px;line-height:1.65;">DKB, ING und N26 bieten kostenlose Konten. Das spart bis zu 180 € pro Jahr gegenüber Sparkassen-Gebühren.</p></div>
     <div class="card"><div class="card-tag">Notgroschen</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;">3 Monatsgehälter als Reserve</div><p class="text-muted" style="font-size:14px;line-height:1.65;">Unerwartete Ausgaben treffen jeden. 3–6 Monatsgehälter auf Tagesgeld geben Sicherheit ohne Investments aufzulösen.</p></div>
     <div class="card"><div class="card-tag">Überblick</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;">Alle Konten in Monvesto</div><p class="text-muted" style="font-size:14px;line-height:1.65;">Statt täglich bei 4 Banking-Apps einzuloggen: Monvesto zeigt alle Konten und den Gesamtstand in Echtzeit.</p></div>
   </div>
@@ -204,7 +211,9 @@
 <section class="cta-banner">
   <h2>Alle Konten. Ein Überblick. Mit Monvesto.</h2>
   <p>Trag deine Konten einmalig ein oder verbinde sie per Bank-API. Monvesto zeigt dir deinen Gesamtkontostand in Echtzeit.</p>
+ <!--
   <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Jetzt kostenlos starten →</a>
+-->
 </section>
 
 <section class="section-sm" style="padding:80px 32px; max-width:760px; margin:0 auto;">

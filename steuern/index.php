@@ -76,7 +76,9 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/head.php";
 <section class="cta-banner" style="margin-top:0;">
   <h2>Deine Steuern. Automatisch zusammengefasst.</h2>
   <p>Kapitalerträge, Sparerpauschbetrag und Krypto-Haltefristen auf einen Blick.</p>
+  <!--
   <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Steuerübersicht öffnen →</a>
+-->
 </section>
 
 <div class="notice notice-yellow" style="max-width:760px;margin:32px auto;">⚠️ Alle Angaben ohne Gewähr. Für individuelle Steuerberatung bitte einen Steuerberater kontaktieren.</div>
