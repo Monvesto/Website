@@ -26,3 +26,9 @@ return [
         'url' => 'https://DEIN-AFFILIATE-LINK-MINTOS',
     ],
 ];
+
+//  Beispiel für eine Verlinkung mit den Daten von oben...
+
+//  <a href="/go/trade-republic/" class="btn btn-primary" rel="sponsored nofollow">
+//    Trade Republic ansehen
+//  </a>

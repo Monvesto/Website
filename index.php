@@ -168,7 +168,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
     <div style="padding:24px;">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--green);color:white;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">4</div>
       <div style="font-size:16px;font-weight:700;margin-bottom:8px;">KI-Analyse nutzen</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.6;">KI-Analyse über das Portfolio aufgestellt inkl. Ideen zur Optimierung.</p>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;">Die KI unterstützt dich mit Hinweisen zu Struktur, Risiken und Optimierungspotenzialen.</p>
     </div>
   </div>
 </section>
