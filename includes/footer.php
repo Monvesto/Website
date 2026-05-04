@@ -16,15 +16,14 @@
         <a href="/p2p-kredite/" class="footer-link">P2P-Kredite</a>
         <a href="/steuern/" class="footer-link">Steuerübersicht</a>
         <a href="/portfolio/" class="footer-link">Portfolio & Aktien</a>
-        <a href="/transaktionen/" class="footer-link">Transaktionen</a>
       </div>
     </div>
     <div>
       <div class="footer-col-title">Produkt</div>
       <div class="footer-links">
         <a href="https://app.monvesto.de" class="footer-link">App starten</a>
-        <a href="/#preise" class="footer-link">Preise</a>
-        <a href="/module/" class="footer-link">Alle Module</a>
+        <a href="https://monvesto.de/" class="footer-link">Preise</a>
+        <a href="https://monvesto.de/" class="footer-link">Alle Module</a>
         <a href="/ki-analyse/" class="footer-link">KI-Analyse</a>
         <a href="https://app.monvesto.de" class="footer-link">Kostenlos registrieren</a>
       </div>
@@ -34,7 +33,8 @@
       <div class="footer-links">
         <a href="/impressum-datenschutz/" class="footer-link">Impressum</a>
         <a href="/impressum-datenschutz/" class="footer-link">Datenschutz</a>
-        <a href="/agb/" class="footer-link">AGB</a>
+        <a href="/impressum-datenschutz/" class="footer-link">AGB</a>
+        <a href="/kontakt/" class="footer-link">Kontaktformular</a>
       </div>
     </div>
   </div>
