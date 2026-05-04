@@ -1,5 +1,5 @@
 <?php
-$title    = "P2P-Kredite erklärt – Renditen, Risiken & Plattformen | Monvesto";
+$title    = "P2P-Kredite erklärt: Rendite, Risiken & Plattformvergleich";
 $meta     = "Was sind P2P-Kredite? Renditen 6–14 %, Plattformvergleich und Tracking mit Monvesto.";
 $canonical = "https://monvesto.de/p2p-kredite/";
 $schema   = '{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was sind P2P-Kredite?","acceptedAnswer":{"@type":"Answer","text":"Peer-to-Peer Kredite ohne Bank als Mittler."}}]}';
@@ -30,7 +30,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 <section class="section" id="inhalt">
   <div class="section-label">Grundlagen</div>
   <h2 class="section-title">Was sind P2P-Kredite?</h2>
-  <p class="section-intro">Privatpersonen leihen Geld direkt an andere – ohne Bank als klassischen Vermittler. Als Anleger erhältst du Zinsen, meist monatlich ausgezahlt und als Kreditnehmer erhälst du oft leichter, aber dafür mit höheren Zinsen, einen Kredit.</p>
+  <p class="section-intro">Privatpersonen leihen Geld direkt an andere – ohne Bank als klassischen Vermittler. Als Anleger erhältst du Zinsen, meist monatlich ausgezahlt und als Kreditnehmer erhältst du oft leichter, aber dafür mit höheren Zinsen, einen Kredit.</p>
   <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">P2P eignet sich als Beimischung (5–15 % des Portfolios) neben ETFs. Die Renditen sind höher als bei Tagesgeld – aber das Risiko ebenfalls. P2P-Kredite sollte man somit nie als Hauptinvestment sehen.</p>
 </section>
 
@@ -40,7 +40,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   <div class="section-label">Plattformen</div>
   <h2 class="section-title">Seriöse P2P-Plattformen</h2>
 
-<p class="section-intro">Privatpersonen leihen Geld direkt an andere – ohne Bank als klassischen Vermittler. Als Anleger erhältst du Zinsen, meist monatlich ausgezahlt und als Kreditnehmer erhälst du oft leichter, aber dafür mit höheren Zinsen, einen Kredit.</p>
+<p class="section-intro">Privatpersonen leihen Geld direkt an andere – ohne Bank als klassischen Vermittler. Als Anleger erhältst du Zinsen, meist monatlich ausgezahlt und als Kreditnehmer erhältst du oft leichter, aber dafür mit höheren Zinsen, einen Kredit.</p>
   <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">P2P eignet sich als Beimischung (5–15 % des Portfolios) neben ETFs. Die Renditen sind höher als bei Tagesgeld – aber das Risiko ebenfalls. P2P-Kredite sollte man somit nie als Hauptinvestment sehen.</p>
 
 
@@ -67,7 +67,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Liquidität</span><span style="color:var(--green);font-weight:600;">Täglich</span></div>
     </div>
   </div>
-  <div class="grid-3 mt-40">
+<!--  <div class="grid-3 mt-40">
     <div class="card" style="border:2px solid var(--green);">
       <div class="card-tag">Marktführer Europa</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Mintos</div>
@@ -90,6 +90,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Liquidität</span><span style="color:var(--green);font-weight:600;">Täglich</span></div>
     </div>
   </div>
+-->
 
   <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">P2P eignet sich als Beimischung (5–15 % des Portfolios) neben ETFs. Die Renditen sind höher als bei Tagesgeld – aber das Risiko ebenfalls. P2P-Kredite sollte man somit nie als Hauptinvestment sehen.</p>
 

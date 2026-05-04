@@ -1,5 +1,5 @@
 <?php
-$title    = "Kryptowährungen verstehen – Bitcoin, Ethereum & Co. | Monvesto";
+$title    = "Kryptowährungen verstehen: Bitcoin, Ethereum & Stablecoins";
 $meta     = "Was sind Kryptowährungen? Wie sicher ist Krypto? Bitcoin, Ethereum, Stablecoins erklärt – mit Live-Tracking in Monvesto.";
 $canonical = "https://monvesto.de/kryptowaehrungen/";
 $schema   = '{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was ist eine Kryptowährung?","acceptedAnswer":{"@type":"Answer","text":"Digitales Geld auf Blockchain-Basis ohne zentrale Kontrolle."}}]}';

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ETF-Sparpläne – Automatisches Investieren | Monvesto</title>
+  <title>ETF-Sparplan einfach erklärt: Anbieter, Kosten & Tracking</title>
   <meta name="description" content="Was ist ein ETF-Sparplan? Welcher ETF ist der richtige? Wie funktioniert der Cost-Average-Effekt? Alles erklärt – mit Tracking in Monvesto." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://monvesto.de/sparplaene/" />

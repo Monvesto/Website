@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KI-Finanzanalyse – Dein persönlicher KI-Berater | Monvesto</title>
+  <title>KI-Finanzanalyse für dein Portfolio | Monvesto</title>
   <meta name="description" content="Monvesto analysiert dein Vermögen mit KI und gibt konkrete Empfehlungen. Powered by Anthropic Claude." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://monvesto.de/ki-analyse/" />

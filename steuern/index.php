@@ -1,5 +1,5 @@
 <?php
-$title    = "Steuerübersicht – Kapitalerträge & Sparerpauschbetrag | Monvesto";
+$title    = "Investment-Steuern: Kapitalerträge, ETFs, Krypto & Freibetrag";
 $meta     = "Abgeltungssteuer, Sparerpauschbetrag, Krypto-Steuer: Monvesto fasst alles automatisch zusammen.";
 $canonical = "https://monvesto.de/steuern/";
 $schema   = "";

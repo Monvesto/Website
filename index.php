@@ -1,5 +1,5 @@
 <?php
-$title    = "Monvesto – Dein persönliches Finanz-Cockpit";
+$title    = "Finanz-Cockpit für Konten, ETFs & Krypto | Monvesto";
 $meta     = "Monvesto bringt alle deine Finanzen auf einen Blick: Konten, Aktien, ETFs, Krypto und P2P-Kredite. Kostenlos starten.";
 $canonical = "https://monvesto.de/";
 $schema   = '{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Monvesto","applicationCategory":"FinanceApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}';
@@ -17,7 +17,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
     <a href="#themen" class="btn btn-primary btn-lg">Alle Bereiche ansehen</a>
   </div>
   <p style="margin-top:20px;font-size:13px;color:var(--text-light);">
-    Für Einsteiger und Profis &middot; Alles auf einem Blick &middot; <!-- <span style="color:var(--green);font-weight:600;"> --> Keine Chance verpassen <!--</span>-->
+    Für Einsteiger und Profis &middot; Alles auf einen Blick &middot; <!-- <span style="color:var(--green);font-weight:600;"> --> Keine Chance verpassen <!--</span>-->
   </p>
 
   <!-- DASHBOARD MOCK -->
@@ -168,7 +168,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
     <div style="padding:24px;">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--green);color:white;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">4</div>
       <div style="font-size:16px;font-weight:700;margin-bottom:8px;">KI-Analyse nutzen</div>
-      <p class="text-muted" style="font-size:14px;line-height:1.6;">KI-Analyse über das Portfolie aufgestellt inkl. Ideen zur Optimierung.</p>
+      <p class="text-muted" style="font-size:14px;line-height:1.6;">KI-Analyse über das Portfolio aufgestellt inkl. Ideen zur Optimierung.</p>
     </div>
   </div>
 </section>

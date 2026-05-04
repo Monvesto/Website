@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Konten & Kreditkarten verstehen – Überblick, Kosten & Vergleich | Monvesto</title>
+  <title>Konten & Kreditkarten vergleichen: Kosten, Arten & Überblick</title>
   <meta name="description" content="Was sind Girokonten, Tagesgeldkonten und Kreditkarten? Kosten, Unterschiede und wie du sie mit Monvesto trackst." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://monvesto.de/konten-kreditkarten/" />
