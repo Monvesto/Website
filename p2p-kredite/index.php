@@ -12,9 +12,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   <div class="hero-badge">P2P-Kredite</div>
   <h1>P2P-Kredite –<br><span class="highlight">Renditen von 8–12 % möglich</span></h1>
   <p class="hero-sub">Was sind P2P-Kredite? Renditen 6–14 %, Plattformvergleich und Tracking mit Monvesto.</p>
+  <!--
   <div class="hero-actions">
     <a href="https://app.monvesto.de" class="btn btn-primary btn-lg">Kostenlos starten →</a>
     <a href="#inhalt" class="btn btn-secondary btn-lg">Alles erklärt ↓</a>
+-->
   </div>
 </section>
 

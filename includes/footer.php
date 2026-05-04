@@ -32,15 +32,15 @@
     <div>
       <div class="footer-col-title">Rechtliches</div>
       <div class="footer-links">
-        <a href="/impressum/" class="footer-link">Impressum</a>
-        <a href="/impressum/" class="footer-link">Datenschutz</a>
+        <a href="/impressum-datenschutz/" class="footer-link">Impressum</a>
+        <a href="/impressum-datenschutz/" class="footer-link">Datenschutz</a>
         <a href="/agb/" class="footer-link">AGB</a>
       </div>
     </div>
   </div>
   <div class="footer-bottom">
     <span>© 2026 Monvesto · Alle Rechte vorbehalten</span>
-    <span>Keine Anlageberatung · <a href="/impressum/">Impressum & Datenschutz</a></span>
+    <span>Keine Anlageberatung · <a href="/impressum-datenschutz/">Impressum & Datenschutz</a></span>
   </div>
 </footer>
 <script>

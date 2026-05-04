@@ -15,7 +15,9 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   <p class="hero-sub">Was sind Aktien und ETFs? Strategien, Broker-Vergleich und Live-Tracking mit Monvesto.</p>
   <div class="hero-actions">
     <a href="https://app.monvesto.de" class="btn btn-primary btn-lg">Kostenlos starten →</a>
-    <a href="#inhalt" class="btn btn-secondary btn-lg">Alles erklärt ↓</a>
+  <!--
+      <a href="#inhalt" class="btn btn-secondary btn-lg">Alles erklärt ↓</a>
+-->
   </div>
 </section>
 
