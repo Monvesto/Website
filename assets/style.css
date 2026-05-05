@@ -738,6 +738,7 @@ hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 0; }
     position: relative;
     grid-template-columns: 1fr auto auto; /* Logo | Burger */
   }
+}  
 
   .nav-burger {
     display: flex;
