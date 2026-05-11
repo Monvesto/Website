@@ -14,18 +14,13 @@
         <a href="/sparplaene/" class="footer-link">ETF-Sparpläne</a>
         <a href="/kryptowaehrungen/" class="footer-link">Kryptowährungen</a>
         <a href="/p2p-kredite/" class="footer-link">P2P-Kredite</a>
-        <a href="/steuern/" class="footer-link">Steuerübersicht</a>
-        <a href="/portfolio/" class="footer-link">Portfolio & Aktien</a>
       </div>
     </div>
     <div>
-      <div class="footer-col-title">Produkt</div>
+      <div class="footer-col-title">Weiteres</div>
       <div class="footer-links">
-        <a href="https://app.monvesto.de" class="footer-link">App starten</a>
-        <a href="https://monvesto.de/" class="footer-link">Preise</a>
-        <a href="https://monvesto.de/" class="footer-link">Alle Module</a>
-        <a href="/ki-analyse/" class="footer-link">KI-Analyse</a>
-        <a href="https://app.monvesto.de" class="footer-link">Kostenlos registrieren</a>
+        <a href="/trading/" class="footer-link">Trading</a>
+        <a href="/steuern/" class="footer-link">Steuerübersicht</a>
       </div>
     </div>
     <div>
