@@ -2,7 +2,46 @@
 $title    = "Finanz-Cockpit für Konten, ETFs & Krypto | Monvesto";
 $meta     = "Monvesto bringt alle deine Finanzen auf einen Blick: Konten, Aktien, ETFs, Krypto und P2P-Kredite. Kostenlos starten.";
 $canonical = "https://monvesto.de/";
-$schema   = '{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Monvesto","applicationCategory":"FinanceApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}';
+$schema   = json_encode([
+  "@context" => "https://schema.org",
+  "@graph" => [
+    [
+      "@type" => "Organization",
+      "@id" => "https://monvesto.de/#organization",
+      "name" => "Monvesto",
+      "url" => "https://monvesto.de/"
+    //  "logo" => [
+    //    "@type" => "ImageObject",
+    //    "url" => "https://monvesto.de/assets/img/logo.png"
+      ]
+    ],
+    [
+      "@type" => "WebSite",
+      "@id" => "https://monvesto.de/#website",
+      "url" => "https://monvesto.de/",
+      "name" => "Monvesto",
+      "inLanguage" => "de-DE",
+      "publisher" => ["@id" => "https://monvesto.de/#organization"]
+    ],
+    [
+      "@type" => "SoftwareApplication",
+      "@id" => "https://monvesto.de/#software",
+      "name" => "Monvesto",
+      "url" => "https://monvesto.de/",
+      "applicationCategory" => "FinanceApplication",
+      "operatingSystem" => "Web",
+      "inLanguage" => "de-DE",
+      "description" => "Monvesto ist ein Finanz-Cockpit zum Tracken und Erklären von Konten, ETFs, Aktien, Kryptowährungen, P2P-Investments, Trading und Sparplänen.",
+      "featureList" => "Konten, ETFs, Kryptowährungen, P2P-Investments, Trading, Sparpläne",
+      "offers" => [
+        "@type" => "Offer",
+        "price" => "0",
+        "priceCurrency" => "EUR"
+      ],
+      "publisher" => ["@id" => "https://monvesto.de/#organization"]
+    ]
+  ]
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 ?>
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/nav.php'; ?>

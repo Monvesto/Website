@@ -202,7 +202,7 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/includes/head.php";
   <p>Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO, wenn die KI-Analyse Teil
     der von dir genutzten App-Funktionen ist. Soweit eine gesonderte Einwilligung erforderlich ist,
     erfolgt die Verarbeitung auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO.</p>
-  <p>Hinweis: Der konkrete KI-Dienstleister wird ergänzt, sobald dieser final feststeht.</p>
+  <p>Hinweis: Der konkrete KI-Dienstleister wird ergänzt, sobald dieser final feststeht. Geplant ist die implementierung von Anthropic Claude.</p>
 
   <h2>11. Zahlungsabwicklung und Premium-Funktionen</h2>
   <p>Wenn du kostenpflichtige Premium-Funktionen nutzt, können Zahlungs- und Abrechnungsdaten verarbeitet
