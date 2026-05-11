@@ -1,6 +1,33 @@
 <?php
 
 return [
+    'check24' => [
+        'name' => 'Check24',
+        'url' => 'https://a.check24.net/misc/click.php?pid=637250&aid=18&deep=c24bank&cat=14',
+    ],
+
+    'comdirect-junior' => [
+        'name' => 'Comdirekt Junior Giro',
+        'url' => 'https://www.financeads.net/tc.php?t=38474C87087206T',
+    ],
+
+    'etoro-landing' => [
+        'name' => 'Etoro Broker',
+        'url' => 'https://www.financeads.net/tc.php?t=38474C106576478T',
+    ],
+
+    'etoro-krypto' => [
+        'name' => 'Etoro Kryptohandel',
+        'url' => 'https://www.financeads.net/tc.php?t=38474C1065121692T',
+    ],
+
+    'etoro-sparplan' => [
+        'name' => 'Etoro Sparplan',
+        'url' => 'https://www.financeads.net/tc.php?t=38474C1065127117T',
+    ],
+
+
+
     'trade-republic' => [
         'name' => 'Trade Republic',
         'url' => 'https://DEIN-AFFILIATE-LINK-TRADE-REPUBLIC',

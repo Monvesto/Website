@@ -158,13 +158,13 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
 
     <div class="card">
       <div class="card-icon">📈</div>
-      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Consorsbank</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Etoro</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:16px;">Breites Angebot mit vielen Aktions-ETFs und soliden Depotfunktionen – gut für erfahrene Anleger.</p>
       <div style="display:flex;flex-direction:column;gap:0;">
-        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan ab</span><span style="font-weight:600;color:var(--green);">1 €</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan ab</span><span style="font-weight:600;color:var(--green);">25 €</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Sparplan-Gebühr</span><span style="font-weight:600;color:var(--green);">Kostenlos</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Besonderheit</span><span style="font-weight:600;">Viele Aktions-ETFs</span></div>
-        <a href="/" class="btn btn-primary" style="margin-top:24px;">Zur Consorsbank</a>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Besonderheit</span><span style="font-weight:600;">Viele ETFs</span></div>
+        <a href="/go/etoro-sparplan/" class="btn btn-primary" style="margin-top:24px;" target="_blank">Zu Etoro</a>
       </div>
     </div>
 

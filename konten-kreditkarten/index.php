@@ -65,8 +65,8 @@
       <div style="display:flex;flex-direction:column;gap:0;">
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Kosten/Monat</span><span style="font-weight:600;color:var(--green);">0 – 15 €</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Verfügbarkeit</span><span style="font-weight:600;">Täglich</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">DKB, ING, N26</span></div>
-        <a href="/" class="btn btn-primary" style="margin-top:24px;">Kostenloses Girokonto anschauen</a>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">C24, N26</span></div>
+        <a href="/go/check24/" class="btn btn-primary" style="margin-top:24px;" target="_blank">Kostenloses Girokonto anschauen</a>
       </div>
     </div>
 
@@ -77,8 +77,8 @@
       <div style="display:flex;flex-direction:column;gap:0;">
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Kosten/Monat</span><span style="font-weight:600;color:var(--green);">0 – 15 €</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Verfügbarkeit</span><span style="font-weight:600;">Täglich</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">DKB, ING, N26</span></div>
-        <a href="/" class="btn btn-primary" style="margin-top:24px;">Gemeinschaftskonto anschauen</a>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:0.5px solid var(--border);"><span class="text-muted">Anbieter</span><span style="font-weight:600;">DKB, ING, C24</span></div>
+        <a href="/go/check24/" class="btn btn-primary" style="margin-top:24px;" target="_blank">Gemeinschaftskonto anschauen</a>
       </div>
     </div>
 
@@ -137,9 +137,7 @@
     Dein Kind kann damit Geld empfangen, erste Zahlungen tätigen und den Umgang mit Budget und Ausgaben lernen – ohne Risiko, sich zu verschulden.
     Typisch sind ein integrierter Überziehungsschutz sowie Funktionen, mit denen du als Elternteil den Überblick behältst und bei Bedarf eingreifen kannst. 
     So entsteht Schritt für Schritt finanzielle Verantwortung – in einem sicheren Rahmen.</p>
-
-    
-    <a href="/" class="btn btn-primary" style="margin-top:24px;">Hier Jugendkonto eröffnen</a>
+    <a href="/go/comdirect-junior/" class="btn btn-primary" style="margin-top:24px;" target="_blank">Hier Jugendkonto eröffnen</a>
 </section>
 
 <hr class="divider" />

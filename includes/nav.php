@@ -20,7 +20,9 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     <a href="/sparplaene/" class="nav-link <?php if(strpos($_SERVER['REQUEST_URI'],'/sparplaene/')!==false) echo 'active'; ?>">Sparpläne</a>
     <a href="/kryptowaehrungen/" class="nav-link <?php if(strpos($_SERVER['REQUEST_URI'],'/kryptowaehrungen/')!==false) echo 'active'; ?>">Kryptowährungen</a>
     <a href="/p2p-kredite/" class="nav-link <?php if(strpos($_SERVER['REQUEST_URI'],'/p2p-kredite/')!==false) echo 'active'; ?>">P2P-Kredite</a>
+    <a href="/trading/" class="nav-link <?php if(strpos($_SERVER['REQUEST_URI'],'/trading/')!==false) echo 'active'; ?>">Trading</a>
     <a href="/steuern/" class="nav-link <?php if(strpos($_SERVER['REQUEST_URI'],'/steuern/')!==false) echo 'active'; ?>">Steuern</a>
+
     <div class="nav-mobile-actions">
       <a href="https://app.monvesto.de" class="nav-login">Anmelden</a>
       <a href="https://app.monvesto.de" class="nav-cta">Kostenlos starten →</a>

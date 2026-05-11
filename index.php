@@ -175,6 +175,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 
 <hr class="divider" />
 
+<!-- Preise -->
+ <!--
 <section class="section" id="preise">
   <div class="section-center mb-40">
     <div class="section-label">Preise</div>
@@ -216,6 +218,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 
 <hr class="divider" />
 
+-->
+
 <!-- KONTAKT SECTION-->
 <section class="section" id="kontakt" style="max-width:760px;margin:0 auto;text-align:center;">
   <div class="section-label">Kontakt</div>
@@ -242,7 +246,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   </div>
   <a href="/kontakt/" class="btn btn-primary btn-lg">Zum Kontaktformular →</a>
   <p style="margin-top:16px;font-size:13px;color:var(--text-muted);">
-    Oder direkt per E-Mail: <a href="mailto:info@monvesto.de" style="color:var(--green);font-weight:600;">info@monvesto.de</a>
+    Oder direkt per E-Mail: <a href="mailto:info@monvesto.de" style="color:var(--green);font-weight:600;">Kontakt@monvesto.de</a>
   </p>
 </section>
 
