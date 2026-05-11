@@ -65,7 +65,9 @@ Bitcoin, Ethereum und Stablecoins erfüllen dabei unterschiedliche Rollen im Por
         <div style="width:48px;height:48px;border-radius:50%;background:#F7931A;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:20px;">₿</div>
         <div>
         <div style="font-size:17px;font-weight:700;">Bitcoin </div>
-        <div style="font-size:17px;font-weight:700;"><?= number_format($btc['price'], 2, ',', '.') ?> € </div>
+        <div style="font-size:17px;font-weight:700;"><?= number_format($btc['price'], 2, ',', '.') ?> € 
+      <span style="font-size:11px;font-weight:600;background:#dcfce7;color:#16a34a;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;">● Live</span>
+      </div>
         <div style="font-size:12px;color:var(--text-muted);">BTC</div>
       </div>
       </div>
@@ -79,7 +81,9 @@ Bitcoin, Ethereum und Stablecoins erfüllen dabei unterschiedliche Rollen im Por
         <div style="width:48px;height:48px;border-radius:50%;background:#627EEA;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:18px;">Ξ</div>
         <div>
         <div style="font-size:17px;font-weight:700;">Ethereum</div>
-        <div style="font-size:17px;font-weight:700;"><?= number_format($eth['price'], 2, ',', '.') ?> € </div>
+        <div style="font-size:17px;font-weight:700;"><?= number_format($eth['price'], 2, ',', '.') ?> € 
+      <span style="font-size:11px;font-weight:600;background:#dcfce7;color:#16a34a;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;">● Live</span>
+      </div>
         <div style="font-size:12px;color:var(--text-muted);">ETH</div>
       </div>
       </div>
@@ -93,7 +97,9 @@ Bitcoin, Ethereum und Stablecoins erfüllen dabei unterschiedliche Rollen im Por
         <div style="width:48px;height:48px;border-radius:50%;background:#26A17B;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:16px;">$</div>
         <div>
         <div style="font-size:17px;font-weight:700;">Stablecoins</div>
-        <div style="font-size:17px;font-weight:700;"><?= number_format($usdt['price'], 2, ',', '.') ?> € </div>
+        <div style="font-size:17px;font-weight:700;"><?= number_format($usdt['price'], 2, ',', '.') ?> € 
+        <span style="font-size:11px;font-weight:600;background:#dcfce7;color:#16a34a;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;">● Live</span>
+      </div>
         <div style="font-size:12px;color:var(--text-muted);">USDC, USDT, DAI</div>
       </div>
       </div>
@@ -103,6 +109,10 @@ Bitcoin, Ethereum und Stablecoins erfüllen dabei unterschiedliche Rollen im Por
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Risiko</span><span style="color:#F59E0B;font-weight:600;">Emittentenrisiko</span></div>
     </div>
   </div>
+
+<p style="font-size:12px;color:var(--text-muted);margin-top:12px;">
+  Preise via CoinGecko · aktualisiert beim Seitenaufruf · Keine Anlageberatung
+</p>
 
 <p class="mt-16" style="font-size:16px;color:var(--text-muted);line-height:1.7;">
   Statt auf viele kleine Projekte zu setzen, fokussieren sich viele Anleger auf wenige,

@@ -53,7 +53,9 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
     <div class="card" style="border:2px solid var(--green);">
       <div class="card-tag">Beliebtester Sparplan-ETF</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:4px;">Vanguard FTSE All-World</div>
-      <div style="font-size:17px;font-weight:700;"><?= format_price($vwce) ?> <?= format_change($vwce) ?> € </div>
+      <div style="font-size:17px;font-weight:700;"><?= format_price($vwce) ?> <?= format_change($vwce) ?> € 
+    <span style="font-size:11px;font-weight:600;background:#dcfce7;color:#16a34a;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;">● Live</span>
+    </div>
       <div style="font-family:monospace;font-size:12px;color:var(--text-muted);margin-bottom:12px;">IE00B3RBWM25 / IE00BK5BQT80</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">4.000+ Unternehmen aus 50+ Ländern. Das umfassendste Einzel-ETF-Portfolio.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">TER</span><span style="color:var(--green);font-weight:600;">0,22 % / Jahr</span></div>
@@ -63,7 +65,9 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
     <div class="card" style="border:2px solid var(--green);">
       <div class="card-tag">Industrieländer-Klassiker</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:4px;">iShares MSCI World</div>
-      <div style="font-size:17px;font-weight:700;"><?= format_price($msci) ?> <?= format_change($msci) ?> € </div>
+      <div style="font-size:17px;font-weight:700;"><?= format_price($msci) ?> <?= format_change($msci) ?> € 
+    <span style="font-size:11px;font-weight:600;background:#dcfce7;color:#16a34a;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;">● Live</span>
+    </div>
       <div style="font-family:monospace;font-size:12px;color:var(--text-muted);margin-bottom:12px;">IE00B4L5Y983</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">1.500+ Unternehmen aus 23 Industrieländern. Kombinierbar mit EM-ETF (80/20 Portfolio).</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">TER</span><span style="color:var(--green);font-weight:600;">0,20 % / Jahr</span></div>
@@ -73,7 +77,9 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
     <div class="card" style="border:2px solid var(--green);">
       <div class="card-tag">Dividenden</div>
       <div style="font-size:17px;font-weight:700;margin-bottom:4px;">Vanguard FTSE All-World High Div.</div>
-      <div style="font-size:17px;font-weight:700;"><?= format_price($vhyl) ?> <?= format_change($vhyl) ?> € </div>
+      <div style="font-size:17px;font-weight:700;"><?= format_price($vhyl) ?> <?= format_change($vhyl) ?> € 
+    <span style="font-size:11px;font-weight:600;background:#dcfce7;color:#16a34a;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;">● Live</span>
+    </div>
       <div style="font-family:monospace;font-size:12px;color:var(--text-muted);margin-bottom:12px;">IE00B8GKDB10</div>
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Fokus auf hohe Dividenden. Quartalsweise Ausschüttungen. Für Einkommensinvestoren.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">TER</span><span style="font-weight:600;">0,29 % / Jahr</span></div>
@@ -81,6 +87,11 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Volumen</span><span style="font-weight:600;">+5 Mrd $</span></div>
     </div>
   </div>
+
+  <p style="font-size:12px;color:var(--text-muted);margin-top:12px;">
+  Kurse via Yahoo Finance · aktualisiert beim Seitenaufruf · Keine Anlageberatung
+</p>
+
   <p style="font-size:16px;color:var(--text-muted);line-height:1.7;margin-top:36px;">
         Für einen ETF-Sparplan eignen sich besonders breit gestreute, kostengünstige ETFs.
         Viele Anleger setzen deshalb auf weltweite Aktienindizes wie den MSCI World,

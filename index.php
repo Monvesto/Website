@@ -9,10 +9,10 @@ $schema   = json_encode([
       "@type" => "Organization",
       "@id" => "https://monvesto.de/#organization",
       "name" => "Monvesto",
-      "url" => "https://monvesto.de/"
-    //  "logo" => [
-    //    "@type" => "ImageObject",
-    //    "url" => "https://monvesto.de/assets/img/logo.png"
+      "url" => "https://monvesto.de/",
+      "logo" => [
+        "@type" => "ImageObject",
+        "url" => "https://monvesto.de/assets/img/logo.png"
       ]
     ],
     [
@@ -80,6 +80,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
       <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● Krypto</div>
       <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● Sparpläne</div>
       <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● P2P</div>
+      <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● Trading</div>
       <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● KI-Analyse</div>
       <div style="padding:7px 10px;font-size:11px;color:rgba(255,255,255,0.5);">● Steuern</div>
     </div>
@@ -156,6 +157,12 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
       <div class="card-tag">Rendite</div><div class="card-icon">🤝</div>
       <div style="font-size:18px;font-weight:700;margin-bottom:8px;">P2P-Kredite</div>
       <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">P2P-Investments, oder auch: Kredite von Person zu Person. Kluges Investment und große Chance?</p>
+      <div style="font-size:13px;font-weight:700;color:var(--green);">Mehr erfahren →</div>
+    </a>
+    <a href="/trading/" style="text-decoration:none;" class="card card-hover">
+      <div class="card-tag">Forex, CFD & Broker</div><div class="card-icon">📈</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Trading</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Aktien, CFDs, Forex, Indices oder Commodities. Komplex aber lohnenswert.</p>
       <div style="font-size:13px;font-weight:700;color:var(--green);">Mehr erfahren →</div>
     </a>
     <a href="/steuern/" style="text-decoration:none;" class="card card-hover">
