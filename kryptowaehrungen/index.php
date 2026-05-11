@@ -12,7 +12,7 @@ $eth = get_crypto_price('ethereum');
 $usdt = get_crypto_price('tether');
 ?>
 
-<section class="hero hero-bg-orange">
+<section class="hero hero-bg-green">
   <div class="hero-badge">Kryptowährungen</div>
   <h1>Krypto verstehen –<br><span class="highlight">von Bitcoin bis DeFi</span></h1>
   <p class="hero-sub">Was sind Kryptowährungen? Wie sicher ist Krypto? Bitcoin, Ethereum, Stablecoins erklärt – mit Live-Tracking in Monvesto.</p>

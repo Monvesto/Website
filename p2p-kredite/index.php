@@ -8,7 +8,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/nav.php'; ?>
 
 
-<section class="hero hero-bg-purple">
+<section class="hero hero-bg-green">
   <div class="hero-badge">P2P-Kredite</div>
   <h1>P2P-Kredite –<br><span class="highlight">Renditen von 8–12 % möglich</span></h1>
   <p class="hero-sub">Was sind P2P-Kredite? Renditen 6–14 %, Plattformvergleich und Tracking mit Monvesto.</p>

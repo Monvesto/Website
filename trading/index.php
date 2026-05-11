@@ -241,7 +241,7 @@
 
   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:40px;">
 
-    <div class="card" style="border-left:4px solid var(--green);">
+    <div class="card" style="border:2px solid var(--green);">
       <div style="font-size:22px;font-weight:800;color:var(--green);margin-bottom:16px;">Chancen</div>
       <div style="display:flex;flex-direction:column;gap:12px;">
         <div style="display:flex;gap:12px;align-items:flex-start;">
@@ -275,7 +275,7 @@
       </div>
     </div>
 
-    <div class="card" style="border-left:4px solid #DC2626;">
+    <div class="card" style="border:2px solid #DC2626;">
       <div style="font-size:22px;font-weight:800;color:#DC2626;margin-bottom:16px;">Risiken</div>
       <div style="display:flex;flex-direction:column;gap:12px;">
         <div style="display:flex;gap:12px;align-items:flex-start;">
