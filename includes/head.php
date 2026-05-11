@@ -17,6 +17,7 @@ define('ROOT', $_SERVER['DOCUMENT_ROOT']);
   <link rel="canonical" href="<?php echo htmlspecialchars($canonical, ENT_QUOTES, 'UTF-8'); ?>" />
   <?php endif; ?>
   <link rel="stylesheet" href="/assets/style.css" />
+  <link rel="stylesheet" href="/assets/vergleich-components.css">
   <?php if (!empty($schema)): ?>
   <script type="application/ld+json"><?php echo $schema; ?></script>
   <?php endif; ?>

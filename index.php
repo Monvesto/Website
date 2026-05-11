@@ -123,7 +123,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   <div class="trust-item"><span class="trust-check">✓</span> DSGVO-konform</div>
   <div class="trust-item"><span class="trust-check">✓</span> EU-Server Frankfurt</div>
   <div class="trust-item"><span class="trust-check">✓</span> PSD2-zertifiziert</div>
-  <div class="trust-item"><span class="trust-check">✓</span> Keine Datenweitergabe</div>
+  <div class="trust-item"><span class="trust-check">✓</span> Keine Datenweitergabe für Werbezwecke</div>
   <div class="trust-item"><span class="trust-check">✓</span> Kostenlos starten</div>
 </div>
 
@@ -316,7 +316,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
   <div class="section-label">FAQ</div>
   <h2 class="section-title">Häufige Fragen</h2>
   <div class="faq-list">
-    <div class="faq-item open"><div class="faq-q">Sind meine Daten bei Monvesto sicher? <span class="faq-arrow">▾</span></div><div class="faq-a">Ja. Alle Daten werden verschlüsselt auf EU-Servern gespeichert. DSGVO-konform, keine Datenweitergabe. Bank-API hat nur Lesezugriff.</div></div>
+    <div class="faq-item open"><div class="faq-q">Sind meine Daten bei Monvesto sicher? <span class="faq-arrow">▾</span></div><div class="faq-a">Ja. Alle Daten werden verschlüsselt auf EU-Servern gespeichert. Keine Weitergabe zu Werbezwecken. Externe Dienstleister werden nur zur Bereitstellung der App eingesetzt – datenminimiert und DSGVO-konform. Bank-API hat nur Lesezugriff.</div></div>
     <div class="faq-item"><div class="faq-q">Welche Banken werden unterstützt? <span class="faq-arrow">▾</span></div><div class="faq-a">Alle großen deutschen Banken: Sparkasse, ING, DKB, Comdirect, N26, Volksbank und mehr. Investments manuell oder per Coinbase-API.</div></div>
     <div class="faq-item"><div class="faq-q">Was kostet Monvesto? <span class="faq-arrow">▾</span></div><div class="faq-a">Dauerhaft kostenlos für bis zu 2 Konten und 5 Investments. Premium kostet 7,99 € pro Monat, jederzeit kündbar.</div></div>
     <div class="faq-item"><div class="faq-q">Funktioniert Monvesto auf dem Smartphone? <span class="faq-arrow">▾</span></div><div class="faq-a">Die Web-App unter app.monvesto.de funktioniert auf allen Geräten. Eine native App ist in Planung.</div></div>

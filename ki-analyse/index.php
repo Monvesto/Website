@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KI-Finanzanalyse für dein Portfolio | Monvesto</title>
-  <meta name="description" content="Monvesto analysiert dein Vermögen mit KI und gibt konkrete Empfehlungen. Powered by Anthropic Claude." />
+  <meta name="description" content="Monvesto analysiert dein Vermögen mit KI und gibt datenbasierte Hinweise, Risikoanalysen und Optimierungsideen. Powered by Anthropic Claude." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://monvesto.de/ki-analyse/" />
   <link rel="stylesheet" href="../assets/style.css" />
@@ -15,8 +15,8 @@
 
 <section class="hero" style="background:linear-gradient(180deg,#f5f3ff 0%,#fff 70%);border-bottom:0.5px solid var(--border);">
   <div class="hero-badge" style="background:#F5F3FF;color:#6D28D9;border-color:#c4b5fd;">KI-Finanzanalyse</div>
-  <h1>Dein persönlicher<br><span style="color:#7C3AED;">KI-Finanzberater</span></h1>
-  <p class="hero-sub">Monvesto analysiert dein Vermögen und gibt dir konkrete Empfehlungen – powered by Anthropic Claude.</p>
+  <h1>Dein persönlicher<br><span style="color:#7C3AED;">KI-Finanzassistent</span></h1>
+  <p class="hero-sub">Monvesto analysiert dein Vermögen und gibt dir datenbasierte Hinweise, Risikoanalysen und Optimierungsideen – powered by Anthropic Claude.</p>
   <div class="hero-actions">
     <a href="https://app.monvesto.de" class="btn btn-primary btn-lg">KI-Analyse testen →</a>
   </div>
@@ -52,13 +52,18 @@
       </div>
     </div>
   </div>
-  <div class="notice notice-yellow mt-16">⚠️ Die KI-Analyse ist ein Informationswerkzeug und ersetzt keine professionelle Anlageberatung.</div>
+  <div class="notice notice-yellow mt-16">⚠️ <strong>Hinweis:</strong> Die KI-Analyse ist ein Informationswerkzeug, ersetzt keine professionelle Anlageberatung und 
+  dient der besseren Einordnung deiner Finanzdaten. Sie ersetzt keine Anlage-, Steuer- oder Rechtsberatung. Ergebnisse können unvollständig oder fehlerhaft sein und 
+  sollten eigenständig geprüft werden.
+  </div>
 </section>
 <section class="cta-banner">
   <h2>Lass die KI dein Portfolio analysieren.</h2>
   <p>Kostenlos starten – KI-Analyse im Free-Plan verfügbar.</p>
-  <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Jetzt kostenlos testen →</a>
-</section>
+ <!--
+   <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Jetzt kostenlos testen →</a>
+-->
+  </section>
 <section class="section-sm" style="padding:80px 32px;max-width:760px;margin:0 auto;">
   <div class="section-label" style="color:#7C3AED;">FAQ</div>
   <h2 class="section-title">KI-Analyse – deine Fragen</h2>

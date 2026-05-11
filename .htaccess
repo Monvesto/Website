@@ -1,5 +1,9 @@
 RewriteEngine On
 
+RewriteCond %{HTTPS} !=on [OR]
+RewriteCond %{HTTP_HOST} !^www\.monvesto\.de$ [NC]
+RewriteRule ^(.*)$ https://www.monvesto.de/$1 [R=301,L]
+
 # Affiliate-Weiterleitungen
 RewriteRule ^go/([a-z0-9-]+)/?$ /go/index.php?partner=$1 [L,QSA]
 
@@ -10,6 +14,8 @@ RewriteRule ^copytrading(/.*)?$ - [G,L]
 RewriteRule ^tools-partner(/.*)?$ - [G,L]
 RewriteRule ^link-hub(/.*)?$ - [G,L]
 RewriteRule ^uncategorized(/.*)?$ - [G,L]
+RewriteRule ^imprint(/.*)?$ - [G,L]
+
 
 # Duplicates entfernen, solange es keine echten Seiten sind
 RewriteRule ^module(/.*)?$ - [G,L]
