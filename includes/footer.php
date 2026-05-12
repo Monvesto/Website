@@ -44,41 +44,68 @@
     <span>Keine Anlageberatung · <a href="/impressum-datenschutz/">Impressum & Datenschutz</a></span>
   </div>
 </footer>
-<script>
-document.querySelectorAll('.faq-q').forEach(q => {
-  q.addEventListener('click', () => {
-    const item = q.closest('.faq-item');
-    item.classList.toggle('open');
-  });
-});
-</script>
+
+<footer>
+  <!-- ... dein footer-inhalt bleibt unverändert ... -->
+</footer>
 
 <script>
-  const burger = document.getElementById('navBurger');
+(function () {
+  /* ── FAQ ── */
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => q.closest('.faq-item').classList.toggle('open'));
+  });
+
+  /* ── Burger ── */
+  const burger   = document.getElementById('navBurger');
   const navLinks = document.getElementById('navLinks');
 
-  burger.addEventListener('click', () => {
-    const isOpen = navLinks.classList.toggle('is-open');
-    burger.classList.toggle('is-open', isOpen);
-    burger.setAttribute('aria-expanded', isOpen);
+  if (burger && navLinks) {
+    burger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = navLinks.classList.toggle('is-open');
+      burger.classList.toggle('is-open', isOpen);
+      burger.setAttribute('aria-expanded', isOpen);
+    });
+  }
+
+  /* ── Dropdowns ── */
+  document.querySelectorAll('.nav-dropdown-toggle').forEach((toggle) => {
+    const item = toggle.closest('.nav-item');
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = item.classList.contains('is-open');
+      closeDropdowns();
+      item.classList.toggle('is-open', !isOpen);
+      toggle.setAttribute('aria-expanded', String(!isOpen));
+    });
   });
 
+  /* Klick außerhalb schließt alles */
   document.addEventListener('click', (e) => {
-    if (!burger.contains(e.target) && !navLinks.contains(e.target)) {
+    if (navLinks && !navLinks.contains(e.target) && !burger.contains(e.target)) {
       navLinks.classList.remove('is-open');
       burger.classList.remove('is-open');
-      burger.setAttribute('aria-expanded', false);
+      burger.setAttribute('aria-expanded', 'false');
+    }
+    closeDropdowns();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeDropdowns();
+      if (navLinks) navLinks.classList.remove('is-open');
     }
   });
 
-  navLinks.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => {
-      navLinks.classList.remove('is-open');
-      burger.classList.remove('is-open');
-      burger.setAttribute('aria-expanded', false);
+  function closeDropdowns() {
+    document.querySelectorAll('.nav-item.has-dropdown').forEach((item) => {
+      item.classList.remove('is-open');
+      const t = item.querySelector('.nav-dropdown-toggle');
+      if (t) t.setAttribute('aria-expanded', 'false');
     });
-  });
+  }
+})();
 </script>
-
 </body>
 </html>

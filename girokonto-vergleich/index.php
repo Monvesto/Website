@@ -20,7 +20,7 @@
   <h1>Die besten Girokonten –<br><span class="highlight">kostenlos, mit Zinsen & für Jugendliche</span></h1>
   <p class="hero-sub">Finde das beste Girokonto für deinen Alltag – ob kostenloses Konto, Konto mit Zinsen oder das erste Konto für Jugendliche.</p>
   <div class="hero-actions">
-    <a href="#vergleich" class="btn btn-primary btn-lg">Girokonten vergleichen ↓</a>
+    <a href="#vergleich" class="btn btn-primary btn-lg">Girokonten vergleichen</a>
     <a href="#jugendkonten" class="btn btn-secondary btn-lg">Jugendkonten ansehen</a>
   </div>
 </section>
@@ -44,11 +44,11 @@
       <div class="pick-rank">#1</div>
       <div class="pick-info">
         <span class="best-badge">Testsieger Gesamtpaket</span>
-        <div class="pick-name">DKB Girokonto</div>
-        <p class="pick-desc">Kostenloses Girokonto mit kostenloser Visa-Kreditkarte, weltweitem Abheben ohne Gebühren und attraktiven Zinsen auf das Guthaben. Eines der beliebtesten Konten in Deutschland.</p>
+        <div class="pick-name">C24 Smart Girokonto</div>
+        <p class="pick-desc">Kostenloses Girokonto mit kostenloser Mastercard, weltweitem Abheben ohne Gebühren und attraktiven Zinsen auf das Guthaben. Eines der beliebtesten Konten in Deutschland.</p>
         <div class="tag-group">
           <span class="tag tag-green">0 € Kontoführung</span>
-          <span class="tag tag-green">Visa inklusive</span>
+          <span class="tag tag-green">Mastercard inklusive</span>
           <span class="tag tag-green">Weltweit abheben</span>
           <span class="tag">App: Sehr gut</span>
         </div>
@@ -170,12 +170,12 @@
       <div class="pick-rank">#1</div>
       <div class="pick-info">
         <span class="best-badge best-badge--amber">Bestes Jugendkonto</span>
-        <div class="pick-name">DKB Jugendkonto</div>
-        <p class="pick-desc">Kostenloses Girokonto ab 14 Jahren mit Visa-Karte, modernem Online-Banking und späterem nahtlosem Übergang ins reguläre DKB-Konto. Keine Gebühren, kein Mindestgeldeingang.</p>
+        <div class="pick-name">Comdirect Junior Giro</div>
+        <p class="pick-desc">Kostenloses Girokonto ab 7 Jahren mit Visa-Karte, modernem Online-Banking und späterem nahtlosem Übergang ins reguläre GiroKonto. Keine Gebühren, kein Mindestgeldeingang.</p>
         <div class="tag-group">
-          <span class="tag tag-green">Ab 14 Jahren</span>
+          <span class="tag tag-green">Ab 7 Jahren</span>
           <span class="tag tag-green">0 € dauerhaft</span>
-          <span class="tag tag-green">Visa inklusive</span>
+          <span class="tag tag-green">25€ Startguthaben</span>
           <span class="tag">App: Sehr gut</span>
         </div>
       </div>
@@ -185,7 +185,7 @@
         <span class="pick-score-label">/ 5,0</span>
       </div>
       <div class="pick-actions">
-        <a href="https://www.dkb.de/jugendkonto/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
+        <a href="/go/comdirect-junior/" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
         <a href="#dkb-jugend-detail" class="btn-outline-sm">Details ansehen</a>
       </div>
     </div>
@@ -287,14 +287,14 @@
       </thead>
       <tbody>
         <tr>
-          <td><strong>DKB</strong><br><small>Direktbank</small></td>
+          <td><strong>C24</strong><br><small>Neobank</small></td>
           <td><span class="tag tag-green">0 €</span></td>
           <td><span class="check">✓</span></td>
-          <td><span class="check">✓</span> Visa</td>
+          <td><span class="check">✓</span> Mastercard</td>
           <td><span class="tag tag-green">Weltweit gratis</span></td>
           <td><span class="tag">Alle</span></td>
           <td><span class="tag tag-green">Sehr gut</span></td>
-          <td><a href="https://www.dkb.de/girokonto/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Öffnen</a></td>
+          <td><a href="/go/check24/" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Öffnen</a></td>
         </tr>
         <tr>
           <td><strong>ING</strong><br><small>Direktbank</small></td>
@@ -353,8 +353,8 @@
       <span class="type-tag type-tag--green">Bestes Gesamtpaket</span>
       <h3>Alles inklusive</h3>
       <p>Kostenloses Konto, Kreditkarte und weltweites Abheben ohne Gebühren.</p>
-      <ul><li>0 € Kontoführung</li><li>Visa inklusive</li><li>Weltweit abheben</li></ul>
-      <a href="https://www.dkb.de/girokonto/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Zum DKB Konto →</a>
+      <ul><li>0 € Kontoführung</li><li>Mastercard inklusive</li><li>Weltweit abheben</li></ul>
+      <a href="/go/check24/" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Zum C24 Konto →</a>
     </div>
     <div class="type-card">
       <span class="type-tag type-tag--green">Zinsen + Konto</span>

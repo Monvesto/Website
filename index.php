@@ -308,7 +308,9 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
     <div class="cta-feat">Jederzeit kündbar</div>
     <div class="cta-feat">EU-Server</div>
   </div>
+  <!--
   <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Jetzt kostenlos starten →</a>
+-->
 </section>
 
 <!-- FAQ-->
