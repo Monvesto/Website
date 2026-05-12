@@ -676,7 +676,7 @@ hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 0; }
 .legal-content h2 {
   font-size: 19px;
   font-weight: 700;
-  margin: 32px 0 12px;
+  margin: 22px 0 12px;
   padding-bottom: 10px;
   border-bottom: 0.5px solid var(--border);
 }

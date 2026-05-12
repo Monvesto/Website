@@ -68,6 +68,7 @@ function e($value) {
   <div class="section-label">Unsere Empfehlungen</div>
   <h2 class="section-title">Die besten Girokonten 2026</h2>
   <p class="section-intro">Bewertet nach Kontoführungsgebühr, Zinsen, Kreditkarte, App-Qualität und Gesamtpaket.</p>
+  <p style="font-size:16px;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">Das passende Konto ist heute Voraussetzung bei der Optimierung von Kosten und Leistung. So kann man nicht nur ordentlich Geld sparen, sondern sich mit einigen Funktionen auch das Leben stark erleichtern.</p>
 
   <div class="pick-list mt-32">
   <?php foreach ($topGirokontoAnbieter as $anbieter): ?>
@@ -108,6 +109,8 @@ function e($value) {
   <?php endforeach; ?>
 </div>
 
+<hr class="divider" style="margin-top:25px;"/>
+
   <!-- ── JUGENDKONTEN ── -->
   <div class="section-divider" id="jugendkonten">
     <span class="section-divider-label">
@@ -115,6 +118,9 @@ function e($value) {
     </span>
   </div>
 
+  <div class="section-label">Unsere Empfehlungen</div>
+  <h2 class="section-title">Die besten Jugendkonten 2026</h2>
+  <p class="section-intro">Bewertet nach Gebühren, Zinsen, Handhabung, App-Qualität und Gesamtpaket.</p>
   <p style="font-size:16px;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">Das erste eigene Konto ist ein wichtiger Schritt. Die besten Jugendkonten sind kostenlos, einfach zu bedienen und helfen beim Erlernen von finanziellem Verantwortungsbewusstsein.</p>
 
   <div class="pick-list">
@@ -158,7 +164,7 @@ function e($value) {
 
   <div class="affiliate-disclosure">
     <i class="ti ti-info-circle"></i>
-    <span><strong>Hinweis:</strong> Diese Seite enthält Affiliate-Links. Bei Kontoeröffnung über unsere Links erhalten wir eine Provision – für dich entstehen keine Mehrkosten. Unsere Bewertungen sind redaktionell unabhängig.</span>
+    <span><strong>Hinweis:</strong> Diese Seite enthält Affiliate-Links. Bei Kontoeröffnung über unsere Links erhalten wir eine Provision – für dich entstehen keine Mehrkosten. Die Reihenfolge basiert auf redaktionellen Kriterien und nicht allein auf möglichen Provisionen.</span>
   </div>
 </section>
 
@@ -168,6 +174,10 @@ function e($value) {
 <section class="section">
   <div class="section-label">Entscheidungshilfe</div>
   <h2 class="section-title">Welches Konto passt zu dir?</h2>
+  <p style="font-size:16px;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">
+    Welches Girokonto für dich das beste ist, hängt stark davon ab, wie du dein Konto im Alltag nutzt.<br>
+    Manche Nutzer legen Wert auf kostenlose Kontoführung und eine gute App, andere auf uneingeschränkte Bargeldversorgung, kostenlose Unterkonten oder weltweite Zahlungen ohne Gebühren. 
+    Deshalb lohnt sich ein Blick darauf, welcher Kontotyp am besten zu deinem Nutzungsverhalten passt.</p>
 
   <div class="type-grid mt-32">
     <div class="type-card type-card--featured">
@@ -206,6 +216,40 @@ function e($value) {
       <a href="https://www.commerzbank.de/girokonto/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Zur Commerzbank →</a>
     </div>
   </div>
+
+<div class="legal-content" style="padding:32px 0 0; max-width:900px; margin:0;">
+  <h2>So findest du das passende Girokonto:</h2>
+
+  <p>
+    Ein Girokonto sollte nicht nur kostenlos sein, sondern zu deinem Alltag passen.
+    Wer das Konto als Hauptkonto nutzt, braucht vor allem eine zuverlässige App, eine gute Karte und einfache Bargeldversorgung.
+    Für Reisende sind dagegen Fremdwährungsgebühren, Abhebelimits und weltweite Akzeptanz wichtiger.
+  </p>
+
+  <h3>Für Studenten und junge Erwachsene</h3>
+  <p>
+    Wichtig sind kostenlose Kontoführung, eine einfache App, schnelle Kontoeröffnung und möglichst wenige Bedingungen.
+    Ein gutes Studentenkonto sollte ohne komplizierte Gebührenstruktur auskommen und auch mit geringem Einkommen nutzbar sein.
+  </p>
+
+  <h3>Für Familien und Haushalte</h3>
+  <p>
+    Hilfreich sind Unterkonten, Budgetfunktionen, Gemeinschaftskonto-Optionen und eine gute Übersicht über regelmäßige Ausgaben.
+    Gerade bei gemeinsamen Finanzen ist Transparenz wichtiger als ein einzelner Bonus oder Aktionsvorteil.
+  </p>
+
+  <h3>Für Reisende</h3>
+  <p>
+    Entscheidend sind kostenlose Zahlungen im Ausland, niedrige Fremdwährungsgebühren und zuverlässige Kartenakzeptanz.
+    Auch eine schnelle Kartensperre per App und transparente Abhebelimits sind wichtig.
+  </p>
+
+  <h3>Für klassische Bankkunden</h3>
+  <p>
+    Eine Filialbank kann sinnvoll sein, wenn persönliche Beratung, Bargeldeinzahlung oder ein breites Bankangebot wichtig sind.
+    Direktbanken und Neobanken sind dagegen oft günstiger und digital besser aufgestellt.
+  </p>
+</div>
 </section>
 
 <hr class="divider" />
@@ -213,7 +257,7 @@ function e($value) {
 <!-- ── VERGLEICHSTABELLE ── -->
 <section class="section" style="background:var(--bg);">
   <div class="section-label">Vergleich</div>
-  <h2 class="section-title">Alle Girokonten im direkten Überblick</h2>
+  <h2 class="section-title">Alle Giro- und Jugendkonten im direkten Überblick</h2>
 
   <div class="table-responsive">
     <table class="compare-table mt-32">
@@ -275,6 +319,46 @@ function e($value) {
 
 <hr class="divider" />
 
+<!-- ── BEWERTUNGSMETHODE ── -->
+<section class="section">
+  <div class="section-label">Unsere Bewertung</div>
+  <h2 class="section-title">Wie wir Girokonten bewerten</h2>
+
+  <p class="section-intro">
+    Nicht jedes kostenlose Girokonto ist automatisch die beste Wahl. Wir bewerten Girokonten nach Kosten, Karten, Bargeldversorgung, App-Funktionen, Zusatznutzen und Alltagstauglichkeit.
+  </p>
+
+  <div class="legal-content" style="padding:32px 0 0; max-width:900px; margin:0;">
+  <h2>Kosten & Bedingungen <span class="badge badge-green">30 %</span></h2>
+  <p>Wir prüfen, ob das Girokonto dauerhaft kostenlos ist oder nur unter bestimmten Bedingungen wie Mindestgeldeingang, Aktivnutzung oder Altersgrenzen.
+    Zusätzlich bewerten wir mögliche Zusatzkosten für Karten, Bargeldabhebungen, Fremdwährungen oder optionale Premium-Funktionen.
+    Besonders wichtig ist dabei, wie transparent und nachvollziehbar die Gebührenstruktur im Alltag wirklich ist.</p>
+  <h2>Karten & Bargeld <span class="badge badge-green">20 %</span></h2>
+  <p>Bewertet werden Art und Qualität der enthaltenen Karten – etwa Visa, Mastercard oder Girocard – sowie die Möglichkeiten zur Bargeldversorgung.
+    Dazu zählen kostenlose Bargeldabhebungen im Inland und Ausland, Bargeldeinzahlungen, Akzeptanz im Alltag und mögliche Einschränkungen bei Fremdwährungen oder Automaten.
+    Gerade für Reisende und Vielnutzer spielt die Kartenqualität eine wichtige Rolle.</p>
+  <h2>App & digitale Funktionen <span class="badge badge-green">20 %</span></h2>
+  <p>Ein modernes Girokonto sollte im Alltag einfach und zuverlässig funktionieren.
+    Deshalb fließen die Qualität der Banking-App, Echtzeit-Benachrichtigungen, Unterkonten, Budgetfunktionen, Apple Pay, Google Pay sowie die digitale Kontoeröffnung in unsere Bewertung ein.
+    Auch Bedienbarkeit, Stabilität und die Übersichtlichkeit der App werden berücksichtigt.</p>
+  <h2>Zinsen & Zusatznutzen <span class="badge badge-green">15 %</span></h2>
+  <p>Einige Anbieter kombinieren Girokonto, Tagesgeld oder sogar einen Broker in einer App.
+    Deshalb bewerten wir Guthabenzinsen, Cashback-Programme, Sparfunktionen, Wechselservices und weitere Extras, die einen echten Mehrwert bieten.
+    Wichtig ist dabei nicht nur die Höhe möglicher Vorteile, sondern auch deren langfristige Nutzbarkeit im Alltag.</p>
+  <h2>Sicherheit & Anbieterqualität <span class="badge badge-green">15 %</span></h2>
+  <p>Sicherheit und Vertrauen sind bei Finanzprodukten entscheidend.
+    Wir berücksichtigen daher die Einlagensicherung, Regulierung, Banklizenz, Transparenz des Anbieters sowie dessen Reputation und langfristige Stabilität.
+    Zusätzlich fließen Erfahrungen bei Support, Erreichbarkeit und Zuverlässigkeit der Systeme in die Gesamtbewertung ein.</p>
+</div>
+
+  <div class="notice notice-yellow mt-32">
+    <strong>Redaktioneller Hinweis:</strong>
+    Unsere Bewertungen entstehen unabhängig von möglichen Provisionen. Konditionen können sich ändern – prüfe vor Abschluss immer die Angaben beim Anbieter.
+  </div>
+</section>
+
+<hr class="divider" />
+
 <section class="cta-banner">
   <h2>Alle Konten. Ein Überblick. Mit Monvesto.</h2>
   <p>Verbinde deine Girokonten und behalte Guthaben, Ausgaben und Gesamtvermögen jederzeit im Blick.</p>
@@ -290,7 +374,7 @@ function e($value) {
   <div class="faq-list">
     <div class="faq-item">
       <div class="faq-q">Welches Girokonto ist wirklich dauerhaft kostenlos? <span class="faq-arrow">▾</span></div>
-      <div class="faq-a">DKB und ING bieten dauerhaft kostenlose Girokonten ohne Mindestgeldeingang. N26 Standard ist ebenfalls kostenlos. Bei Commerzbank entfallen Gebühren nur mit monatlichem Mindesteingang von 700 €. Achte stets auf das Kleingedruckte.</div>
+      <div class="faq-a">Viele Direktbanken und Neobanken bieten kostenlose Girokonten an. Entscheidend ist, ob die Kostenfreiheit dauerhaft gilt oder an Bedingungen wie Mindestgeldeingang, Alter oder Aktivstatus geknüpft ist.</div>
     </div>
     <div class="faq-item">
       <div class="faq-q">Ab welchem Alter kann man ein Jugendkonto eröffnen? <span class="faq-arrow">▾</span></div>

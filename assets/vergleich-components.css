@@ -693,3 +693,11 @@
      });
    });
    ─────────────────────────────────────────────────────────────────────────── */
+
+
+   
+   /* Platz #1 Karte: grüner Hintergrund
+   Gilt für featured Cards in beiden Listen (Girokonten + Jugendkonten) */
+.pick-card--featured {
+  background: #bbffbf0e;
+}

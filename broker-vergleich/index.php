@@ -37,7 +37,7 @@ function e($value) {
   <h1>Die besten Broker –<br><span class="highlight">ETF, Krypto & Depot im Überblick</span></h1>
   <p class="hero-sub">Vergleiche die besten Broker für ETF-Sparpläne, Aktien und Kryptowährungen – transparent, unabhängig und kostenlos.</p>
   <div class="hero-actions">
-    <a href="#vergleich" class="btn btn-primary btn-lg">Broker vergleichen ↓</a>
+    <a href="#vergleich" class="btn btn-primary btn-lg">Broker vergleichen</a>
     <a href="#alle-anbieter" class="btn btn-secondary btn-lg">Alle Anbieter ansehen</a>
   </div>
 </section>
