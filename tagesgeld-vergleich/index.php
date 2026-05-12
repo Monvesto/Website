@@ -12,15 +12,30 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was ist Tagesgeld genau?","acceptedAnswer":{"@type":"Answer","text":"Tagesgeld ist ein Sparkonto mit variablem Zinssatz, bei dem du täglich über dein Geld verfügen kannst."}},{"@type":"Question","name":"Ist mein Geld auf Tagesgeldkonten sicher?","acceptedAnswer":{"@type":"Answer","text":"Ja. Alle EU-Banken sind gesetzlich verpflichtet, Einlagen bis 100.000 € pro Person und Bank abzusichern."}}]}</script>
 </head>
 <body>
+<?php $tagesgeldAnbieter = require $_SERVER['DOCUMENT_ROOT'] . '/anbieter/tagesgeld-anbieter.php';
+
+usort($tagesgeldAnbieter, function ($a, $b) {
+  return ($a['rank'] ?? 999) <=> ($b['rank'] ?? 999);
+});
+
+$topTagesgeldAnbieter = array_values(array_filter($tagesgeldAnbieter, function ($anbieter) {
+  return !empty($anbieter['show_top']);
+}));
+
+$topTagesgeldAnbieter = array_slice($topTagesgeldAnbieter, 0, 3);
+
+function e($value) {
+  return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+} ?>
 
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/nav.php'; ?>
 
 <section class="hero hero-bg-green">
-  <div class="hero-badge">Zinsen aktuell – Juni 2026</div>
+  <div class="hero-badge">Zinsen aktuell – 2026</div>
   <h1>Tagesgeld Vergleich 2026 –<br><span class="highlight">die besten Zinsen für dein Erspartes</span></h1>
   <p class="hero-sub">Vergleiche aktuelle Tagesgeldkonten und finde den Anbieter mit den höchsten Zinsen – flexibel, sicher und täglich verfügbar.</p>
   <div class="hero-actions">
-    <a href="#vergleich" class="btn btn-primary btn-lg">Zinsen vergleichen ↓</a>
+    <a href="#vergleich" class="btn btn-primary btn-lg">Zinsen vergleichen</a>
     <a href="#alle-anbieter" class="btn btn-secondary btn-lg">Alle Anbieter ansehen</a>
   </div>
 </section>
@@ -28,7 +43,7 @@
 <div class="trust-bar">
   <div class="trust-item"><span class="trust-check">✓</span> Täglich verfügbar</div>
   <div class="trust-item"><span class="trust-check">✓</span> Einlagensicherung bis 100k €</div>
-  <div class="trust-item"><span class="trust-check">✓</span> Bis 3,75 % p.a.</div>
+  <div class="trust-item"><span class="trust-check">✓</span> Aktuelle Tagesgeldzinsen</div>
   <div class="trust-item"><span class="trust-check">✓</span> Flexibel kündbar</div>
 </div>
 
@@ -77,94 +92,47 @@
   <p class="section-intro">Bewertet nach aktuellem Zinssatz, Einlagensicherung, Flexibilität und Konditionen.</p>
 
   <div class="pick-list mt-32">
+  <?php foreach ($topTagesgeldAnbieter as $anbieter): ?>
+    <div class="pick-card<?= !empty($anbieter['featured']) ? ' pick-card--featured' : '' ?>">
+      <div class="pick-rank">#<?= e($anbieter['rank']) ?></div>
 
-    <div class="pick-card pick-card--featured">
-      <div class="pick-rank">#1</div>
       <div class="pick-info">
-        <span class="best-badge">Höchste Zinsen</span>
-        <div class="pick-name">Trade Republic Konto</div>
-        <p class="pick-desc">3,75 % Zinsen auf das gesamte Guthaben – täglich verfügbar, keine Mindestanlage und direkt mit dem Broker-Konto verknüpft. Einer der höchsten Zinssätze am Markt.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">3,75 % p.a.</span>
-          <span class="tag tag-green">Täglich verfügbar</span>
-          <span class="tag">Keine Mindestanlage</span>
-          <span class="tag">EU-Einlagensicherung</span>
-        </div>
+        <?php if (!empty($anbieter['badge'])): ?>
+          <span class="best-badge"><?= e($anbieter['badge']) ?></span>
+        <?php endif; ?>
+
+        <div class="pick-name"><?= e($anbieter['name']) ?></div>
+
+        <?php if (!empty($anbieter['description'])): ?>
+          <p class="pick-desc"><?= e($anbieter['description']) ?></p>
+        <?php endif; ?>
+
+        <?php if (!empty($anbieter['tags'])): ?>
+          <div class="tag-group">
+            <?php foreach ($anbieter['tags'] as $tag): ?>
+              <span class="tag <?= e($tag['class'] ?? '') ?>"><?= e($tag['text'] ?? '') ?></span>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
       </div>
+
       <div class="pick-rate-badge">
-        <div class="pick-rate-num">3,75 %</div>
+        <div class="pick-rate-num"><?= e($anbieter['rate_num']) ?></div>
         <div class="pick-rate-unit">p.a.</div>
       </div>
+
       <div class="pick-actions">
-        <a href="https://ref.trade.re/monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
-        <a href="#tr-detail" class="btn-outline-sm">Details ansehen</a>
+        <a href="<?= e($anbieter['url']) ?>" target="_blank" rel="nofollow sponsored" class="btn-affiliate">
+          <?= e($anbieter['button'] ?? 'Jetzt eröffnen →') ?>
+        </a>
+
+        <?php if (!empty($anbieter['detail_anchor']) && $anbieter['detail_anchor'] !== '#'): ?>
+          <a href="<?= e($anbieter['detail_anchor']) ?>" class="btn-outline-sm">Details ansehen</a>
+        <?php endif; ?>
       </div>
     </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#2</div>
-      <div class="pick-info">
-        <div class="pick-name">ING Extra-Konto</div>
-        <p class="pick-desc">Etablierte Direktbank mit attraktivem Neukunden-Angebot. Kombinierbar mit dem ING-Girokonto – alles aus einer Hand.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">Bis 3,5 % p.a.</span>
-          <span class="tag tag-amber">4 Monate Aktionszins</span>
-          <span class="tag">DE-Einlagensicherung</span>
-        </div>
-      </div>
-      <div class="pick-rate-badge">
-        <div class="pick-rate-num">3,5 %</div>
-        <div class="pick-rate-unit">p.a.</div>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.ing.de/sparen/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
-        <a href="#ing-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#3</div>
-      <div class="pick-info">
-        <div class="pick-name">DKB Tagesgeld</div>
-        <p class="pick-desc">Dauerhaft solider Zinssatz ohne Aktionsfrist. Für DKB-Bestandskunden besonders attraktiv, da alles in einem Konto verwaltet wird.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">3,3 % p.a.</span>
-          <span class="tag">Kein Aktionszins</span>
-          <span class="tag">DE-Einlagensicherung</span>
-        </div>
-      </div>
-      <div class="pick-rate-badge">
-        <div class="pick-rate-num">3,3 %</div>
-        <div class="pick-rate-unit">p.a.</div>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.dkb.de/sparen/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
-        <a href="#dkb-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#4</div>
-      <div class="pick-info">
-        <div class="pick-name">Scalable Capital Zinsen</div>
-        <p class="pick-desc">Cash-Zinsen auf nicht investiertes Guthaben direkt im Broker-Konto. Praktisch für Anleger, die Tagesgeld und ETF-Sparplan kombinieren wollen.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">Bis 3,0 % p.a.</span>
-          <span class="tag tag-blue">Im Broker integriert</span>
-          <span class="tag">Für Prime-Kunden</span>
-        </div>
-      </div>
-      <div class="pick-rate-badge">
-        <div class="pick-rate-num">3,0 %</div>
-        <div class="pick-rate-unit">p.a.</div>
-      </div>
-      <div class="pick-actions">
-        <a href="https://scalable.capital/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
-        <a href="#scalable-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-  </div>
+  <?php endforeach; ?>
+</div>
 
   <div class="infobox infobox--green mt-24">
     <i class="ti ti-shield-check"></i>
@@ -198,43 +166,58 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td><strong>Trade Republic</strong><br><small>Neo-Broker</small></td>
-          <td><span class="rate-highlight">3,75 %</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="check">✓</span> täglich</td>
-          <td><span class="tag tag-blue">EU 100k €</span></td>
-          <td><span class="tag tag-green">Keine</span></td>
-          <td><a href="https://ref.trade.re/monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Öffnen</a></td>
-        </tr>
-        <tr>
-          <td><strong>ING Extra-Konto</strong><br><small>Direktbank</small></td>
-          <td><span class="rate-highlight">3,5 %</span></td>
-          <td><span class="tag tag-amber">4 Monate</span></td>
-          <td><span class="check">✓</span> täglich</td>
-          <td><span class="tag tag-green">DE 100k €</span></td>
-          <td><span class="tag tag-green">Keine</span></td>
-          <td><a href="https://www.ing.de/sparen/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Öffnen</a></td>
-        </tr>
-        <tr>
-          <td><strong>DKB Tagesgeld</strong><br><small>Direktbank</small></td>
-          <td><span class="rate-highlight">3,3 %</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="check">✓</span> täglich</td>
-          <td><span class="tag tag-green">DE 100k €</span></td>
-          <td><span class="tag tag-green">Keine</span></td>
-          <td><a href="https://www.dkb.de/sparen/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Öffnen</a></td>
-        </tr>
-        <tr>
-          <td><strong>Scalable Zinsen</strong><br><small>Neo-Broker</small></td>
-          <td><span class="rate-highlight">3,0 %</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="check">✓</span> täglich</td>
-          <td><span class="tag tag-blue">EU 100k €</span></td>
-          <td><span class="tag tag-green">Keine</span></td>
-          <td><a href="https://scalable.capital/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Öffnen</a></td>
-        </tr>
-      </tbody>
+  <?php foreach ($tagesgeldAnbieter as $anbieter): ?>
+    <?php
+      $promo = trim($anbieter['promo'] ?? '–');
+      $hasPromo = ($promo !== '' && $promo !== '–');
+    ?>
+
+    <tr>
+      <td>
+        <strong><?= e($anbieter['table_name'] ?? $anbieter['name']) ?></strong><br>
+        <small><?= e($anbieter['type']) ?></small>
+      </td>
+
+      <td>
+        <span class="rate-highlight"><?= e($anbieter['rate']) ?></span>
+      </td>
+
+      <td>
+        <?php if ($hasPromo): ?>
+          <span class="tag tag-amber"><?= e($promo) ?></span>
+        <?php else: ?>
+          <span class="dash">–</span>
+        <?php endif; ?>
+      </td>
+
+      <td>
+        <span class="check">✓</span> <?= e($anbieter['availability']) ?>
+      </td>
+
+      <td>
+        <span class="tag <?= e($anbieter['deposit_class']) ?>">
+          <?= e($anbieter['deposit_protection']) ?>
+        </span>
+      </td>
+
+      <td>
+        <span class="tag tag-green"><?= e($anbieter['minimum']) ?></span>
+      </td>
+
+      <td>
+        <a
+          href="<?= e($anbieter['url']) ?>"
+          target="_blank"
+          rel="nofollow sponsored"
+          class="btn-affiliate"
+          style="font-size:12px;padding:7px 12px;"
+        >
+          <?= e($anbieter['table_button'] ?? 'Öffnen') ?>
+        </a>
+      </td>
+    </tr>
+  <?php endforeach; ?>
+</tbody>
     </table>
   </div>
 </section>
@@ -280,18 +263,23 @@
 <script>
 (function () {
   function calc() {
-    var a  = parseInt(document.getElementById('calc-amount').value);
-    var r  = parseFloat(document.getElementById('calc-rate').value);
-    var mo = parseInt(document.getElementById('calc-months').value);
-    document.getElementById('calc-amount-out').textContent  = a.toLocaleString('de-DE') + ' €';
-    document.getElementById('calc-rate-out').textContent    = r.toFixed(1).replace('.', ',') + ' %';
-    document.getElementById('calc-months-out').textContent  = mo + ' Monat' + (mo === 1 ? '' : 'e');
-    var gross = Math.round(a * (r / 100) * (mo / 12));
-    var net   = Math.round(gross * 0.7375);
-    document.getElementById('calc-out').textContent  = gross.toLocaleString('de-DE') + ' €';
-    document.getElementById('calc-net').textContent  = 'nach Abgeltungssteuer: ~' + net.toLocaleString('de-DE') + ' €';
-    document.getElementById('calc-note').textContent = 'bei ' + a.toLocaleString('de-DE') + ' € · ' + r.toFixed(1).replace('.', ',') + ' % · ' + mo + ' Mon.';
-  }
+  var a  = parseInt(document.getElementById('calc-amount').value);
+  var r  = parseFloat(document.getElementById('calc-rate').value);
+  var mo = parseInt(document.getElementById('calc-months').value);
+
+  document.getElementById('calc-amount-out').textContent = a.toLocaleString('de-DE') + ' €';
+  document.getElementById('calc-rate-out').textContent   = r.toFixed(1).replace('.', ',') + ' %';
+  document.getElementById('calc-months-out').textContent = mo + ' Monat' + (mo === 1 ? '' : 'e');
+
+  // Zinseszins: Endkapital = Kapital × (1 + Jahreszins)^(Monate/12)
+  var endkapital = a * Math.pow(1 + (r / 100), mo / 12);
+  var gross = Math.round(endkapital - a);
+  var net   = Math.round(gross * 0.7375);
+
+  document.getElementById('calc-out').textContent  = gross.toLocaleString('de-DE') + ' €';
+  document.getElementById('calc-net').textContent  = 'nach Abgeltungssteuer: ~' + net.toLocaleString('de-DE') + ' €';
+  document.getElementById('calc-note').textContent = 'bei ' + a.toLocaleString('de-DE') + ' € · ' + r.toFixed(1).replace('.', ',') + ' % · ' + mo + ' Mon.';
+}
   document.getElementById('calc-amount').addEventListener('input', calc);
   document.getElementById('calc-rate').addEventListener('input', calc);
   document.getElementById('calc-months').addEventListener('input', calc);
