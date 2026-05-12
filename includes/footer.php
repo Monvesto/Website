@@ -45,18 +45,14 @@
   </div>
 </footer>
 
-<footer>
-  <!-- ... dein footer-inhalt bleibt unverändert ... -->
-</footer>
-
 <script>
 (function () {
-  /* ── FAQ ── */
+  /* FAQ */
   document.querySelectorAll('.faq-q').forEach(q => {
     q.addEventListener('click', () => q.closest('.faq-item').classList.toggle('open'));
   });
 
-  /* ── Burger ── */
+  /* Burger */
   const burger   = document.getElementById('navBurger');
   const navLinks = document.getElementById('navLinks');
 
@@ -69,7 +65,7 @@
     });
   }
 
-  /* ── Dropdowns ── */
+  /* Dropdowns */
   document.querySelectorAll('.nav-dropdown-toggle').forEach((toggle) => {
     const item = toggle.closest('.nav-item');
     toggle.addEventListener('click', (e) => {
@@ -81,9 +77,8 @@
     });
   });
 
-  /* Klick außerhalb schließt alles */
   document.addEventListener('click', (e) => {
-    if (navLinks && !navLinks.contains(e.target) && !burger.contains(e.target)) {
+    if (navLinks && burger && !navLinks.contains(e.target) && !burger.contains(e.target)) {
       navLinks.classList.remove('is-open');
       burger.classList.remove('is-open');
       burger.setAttribute('aria-expanded', 'false');
