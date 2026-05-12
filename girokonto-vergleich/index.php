@@ -13,6 +13,37 @@
 </head>
 <body>
 
+<?php
+$girokontoAnbieter = require $_SERVER['DOCUMENT_ROOT'] . '/anbieter/girokonto-anbieter.php';
+
+usort($girokontoAnbieter, function ($a, $b) {
+  return ($a['rank'] ?? 999) <=> ($b['rank'] ?? 999);
+});
+
+$topGirokontoLimit = 3;
+$jugendkontoLimit = 3;
+
+$topGirokontoAnbieter = array_values(array_filter($girokontoAnbieter, function ($anbieter) {
+  return !empty($anbieter['show_top']) && ($anbieter['category'] ?? 'girokonto') === 'girokonto';
+}));
+
+$topGirokontoAnbieter = array_slice($topGirokontoAnbieter, 0, $topGirokontoLimit);
+
+$jugendkontoAnbieter = array_values(array_filter($girokontoAnbieter, function ($anbieter) {
+  return ($anbieter['category'] ?? '') === 'jugendkonto';
+}));
+
+usort($jugendkontoAnbieter, function ($a, $b) {
+  return ($a['youth_rank'] ?? $a['rank'] ?? 999) <=> ($b['youth_rank'] ?? $b['rank'] ?? 999);
+});
+
+$jugendkontoAnbieter = array_slice($jugendkontoAnbieter, 0, $jugendkontoLimit);
+
+function e($value) {
+  return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+}
+?>
+
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/nav.php'; ?>
 
 <section class="hero hero-bg-green">
@@ -39,121 +70,43 @@
   <p class="section-intro">Bewertet nach Kontoführungsgebühr, Zinsen, Kreditkarte, App-Qualität und Gesamtpaket.</p>
 
   <div class="pick-list mt-32">
+  <?php foreach ($topGirokontoAnbieter as $anbieter): ?>
+    <div class="pick-card<?= !empty($anbieter['featured']) ? ' pick-card--featured' : '' ?>">
+      <div class="pick-rank">#<?= e($anbieter['rank']) ?></div>
 
-    <div class="pick-card pick-card--featured">
-      <div class="pick-rank">#1</div>
       <div class="pick-info">
-        <span class="best-badge">Testsieger Gesamtpaket</span>
-        <div class="pick-name">C24 Smart Girokonto</div>
-        <p class="pick-desc">Kostenloses Girokonto mit kostenloser Mastercard, weltweitem Abheben ohne Gebühren und attraktiven Zinsen auf das Guthaben. Eines der beliebtesten Konten in Deutschland.</p>
+        <?php if (!empty($anbieter['badge'])): ?>
+          <span class="best-badge"><?= e($anbieter['badge']) ?></span>
+        <?php endif; ?>
+
+        <div class="pick-name"><?= e($anbieter['name']) ?></div>
+        <p class="pick-desc"><?= e($anbieter['description']) ?></p>
+
         <div class="tag-group">
-          <span class="tag tag-green">0 € Kontoführung</span>
-          <span class="tag tag-green">Mastercard inklusive</span>
-          <span class="tag tag-green">Weltweit abheben</span>
-          <span class="tag">App: Sehr gut</span>
+          <?php foreach ($anbieter['tags'] as $tag): ?>
+            <span class="tag <?= e($tag['class'] ?? '') ?>"><?= e($tag['text']) ?></span>
+          <?php endforeach; ?>
         </div>
       </div>
+
       <div class="pick-rating">
-        <span class="pick-stars">★★★★★</span>
-        <span class="pick-score">4,8</span>
+        <span class="pick-stars"><?= e($anbieter['stars']) ?></span>
+        <span class="pick-score"><?= e($anbieter['score']) ?></span>
         <span class="pick-score-label">/ 5,0</span>
       </div>
+
       <div class="pick-actions">
-        <a href="https://www.dkb.de/girokonto/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
-        <a href="#dkb-detail" class="btn-outline-sm">Details ansehen</a>
+        <a href="<?= e($anbieter['url']) ?>" target="_blank" rel="nofollow sponsored" class="btn-affiliate">
+          <?= e($anbieter['button']) ?>
+        </a>
+
+        <?php if (!empty($anbieter['detail_anchor']) && $anbieter['detail_anchor'] !== '#'): ?>
+          <a href="<?= e($anbieter['detail_anchor']) ?>" class="btn-outline-sm">Details ansehen</a>
+        <?php endif; ?>
       </div>
     </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#2</div>
-      <div class="pick-info">
-        <div class="pick-name">ING Girokonto</div>
-        <p class="pick-desc">Dauerhaft kostenloses Konto ohne Mindesteingang, inklusive Visa-Debitkarte und optionalem Tagesgeldkonto. Sehr einfache Bedienung, starke App.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">0 € ohne Bedingungen</span>
-          <span class="tag tag-green">Visa Debit</span>
-          <span class="tag">Tagesgeld kombinierbar</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★★</span>
-        <span class="pick-score">4,6</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.ing.de/girokonto/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
-        <a href="#ing-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#3</div>
-      <div class="pick-info">
-        <div class="pick-name">Trade Republic Konto</div>
-        <p class="pick-desc">Kombination aus Girokonto, Broker und 3,75 % Zinsen auf das gesamte Guthaben. Ideal für Anleger, die alles in einer App verwalten wollen.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">3,75 % Zinsen</span>
-          <span class="tag tag-green">0 € Kontoführung</span>
-          <span class="tag tag-blue">Broker integriert</span>
-          <span class="tag">Visa Debit</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★★</span>
-        <span class="pick-score">4,5</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://ref.trade.re/monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
-        <a href="#tr-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#4</div>
-      <div class="pick-info">
-        <div class="pick-name">N26 Standard</div>
-        <p class="pick-desc">Modernes Smartphone-Konto mit schlichtem Design, Echtzeit-Benachrichtigungen und optionalen Premium-Paketen. Sehr beliebt bei jungen Erwachsenen.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">0 € Grundkonto</span>
-          <span class="tag tag-blue">Mastercard Debit</span>
-          <span class="tag">Spaces / Unterkonten</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★☆</span>
-        <span class="pick-score">4,2</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://n26.com/de-de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
-        <a href="#n26-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#5</div>
-      <div class="pick-info">
-        <div class="pick-name">Commerzbank Girokonto</div>
-        <p class="pick-desc">Klassisches Konto einer deutschen Großbank mit Filialnetz, Kreditkarte und breitem Produktangebot. Für Nutzer, die persönliche Beratung schätzen.</p>
-        <div class="tag-group">
-          <span class="tag">Filialnetz vorhanden</span>
-          <span class="tag tag-blue">Visa Kreditkarte</span>
-          <span class="tag tag-amber">Ab 0 € (mit Bedingung)</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★☆</span>
-        <span class="pick-score">3,9</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.commerzbank.de/girokonto/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
-        <a href="#cb-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-  </div>
+  <?php endforeach; ?>
+</div>
 
   <!-- ── JUGENDKONTEN ── -->
   <div class="section-divider" id="jugendkonten">
@@ -165,179 +118,47 @@
   <p style="font-size:16px;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">Das erste eigene Konto ist ein wichtiger Schritt. Die besten Jugendkonten sind kostenlos, einfach zu bedienen und helfen beim Erlernen von finanziellem Verantwortungsbewusstsein.</p>
 
   <div class="pick-list">
+  <?php foreach ($jugendkontoAnbieter as $anbieter): ?>
+    <div class="pick-card<?= !empty($anbieter['featured']) ? ' pick-card--featured' : '' ?>">
+      <div class="pick-rank">#<?= e($anbieter['youth_rank'] ?? $anbieter['rank']) ?></div>
 
-    <div class="pick-card pick-card--featured">
-      <div class="pick-rank">#1</div>
       <div class="pick-info">
-        <span class="best-badge best-badge--amber">Bestes Jugendkonto</span>
-        <div class="pick-name">Comdirect Junior Giro</div>
-        <p class="pick-desc">Kostenloses Girokonto ab 7 Jahren mit Visa-Karte, modernem Online-Banking und späterem nahtlosem Übergang ins reguläre GiroKonto. Keine Gebühren, kein Mindestgeldeingang.</p>
+        <?php if (!empty($anbieter['badge'])): ?>
+          <span class="best-badge best-badge--amber"><?= e($anbieter['badge']) ?></span>
+        <?php endif; ?>
+
+        <div class="pick-name"><?= e($anbieter['name']) ?></div>
+        <p class="pick-desc"><?= e($anbieter['description']) ?></p>
+
         <div class="tag-group">
-          <span class="tag tag-green">Ab 7 Jahren</span>
-          <span class="tag tag-green">0 € dauerhaft</span>
-          <span class="tag tag-green">25€ Startguthaben</span>
-          <span class="tag">App: Sehr gut</span>
+          <?php foreach ($anbieter['tags'] as $tag): ?>
+            <span class="tag <?= e($tag['class'] ?? '') ?>"><?= e($tag['text']) ?></span>
+          <?php endforeach; ?>
         </div>
       </div>
+
       <div class="pick-rating">
-        <span class="pick-stars">★★★★★</span>
-        <span class="pick-score">4,8</span>
+        <span class="pick-stars"><?= e($anbieter['stars']) ?></span>
+        <span class="pick-score"><?= e($anbieter['score']) ?></span>
         <span class="pick-score-label">/ 5,0</span>
       </div>
+
       <div class="pick-actions">
-        <a href="/go/comdirect-junior/" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
-        <a href="#dkb-jugend-detail" class="btn-outline-sm">Details ansehen</a>
+        <a href="<?= e($anbieter['url']) ?>" target="_blank" rel="nofollow sponsored" class="btn-affiliate">
+          <?= e($anbieter['button']) ?>
+        </a>
+
+        <?php if (!empty($anbieter['detail_anchor']) && $anbieter['detail_anchor'] !== '#'): ?>
+          <a href="<?= e($anbieter['detail_anchor']) ?>" class="btn-outline-sm">Details ansehen</a>
+        <?php endif; ?>
       </div>
     </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#2</div>
-      <div class="pick-info">
-        <div class="pick-name">Tomorrow Konto</div>
-        <p class="pick-desc">Nachhaltiges Konto mit Fokus auf Klimaschutz. Jede Transaktion pflanzt Bäume. Beliebt bei jungen, umweltbewussten Nutzern. Kostenlos in der Basisversion.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">0 € Basisversion</span>
-          <span class="tag tag-purple">Nachhaltig</span>
-          <span class="tag">Ab 18 Jahren</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★☆</span>
-        <span class="pick-score">4,3</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://tomorrow.one/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
-        <a href="#tomorrow-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#3</div>
-      <div class="pick-info">
-        <div class="pick-name">Commerzbank Young Account</div>
-        <p class="pick-desc">Kostenloses Konto für Schüler und Studenten bis 22 Jahre mit Visa-Karte und Filialnetz im Rücken. Für Jugendliche, die Wert auf persönliche Beratung legen.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">0 € bis 22 Jahre</span>
-          <span class="tag tag-blue">Visa Kreditkarte</span>
-          <span class="tag">Filialnetz</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★☆</span>
-        <span class="pick-score">4,1</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.commerzbank.de/youngaccount/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt eröffnen →</a>
-        <a href="#cb-young-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#4</div>
-      <div class="pick-info">
-        <div class="pick-name">Sparkasse JuniorKonto</div>
-        <p class="pick-desc">Das erste Konto für Kinder ab 7 Jahren mit Elternkontrolle und Taschengeldkonto-Funktion. Ideal als Einstieg mit Begleitung durch vertraute Sparkassen-Infrastruktur.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">Ab 7 Jahren</span>
-          <span class="tag">Elternkontrolle</span>
-          <span class="tag">Regional verfügbar</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★☆</span>
-        <span class="pick-score">3,9</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.sparkasse.de/juniorkonto/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Zur Sparkasse →</a>
-        <a href="#sparkasse-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-  </div>
+  <?php endforeach; ?>
+</div>
 
   <div class="affiliate-disclosure">
     <i class="ti ti-info-circle"></i>
     <span><strong>Hinweis:</strong> Diese Seite enthält Affiliate-Links. Bei Kontoeröffnung über unsere Links erhalten wir eine Provision – für dich entstehen keine Mehrkosten. Unsere Bewertungen sind redaktionell unabhängig.</span>
-  </div>
-</section>
-
-<hr class="divider" />
-
-<!-- ── VERGLEICHSTABELLE ── -->
-<section class="section" style="background:var(--bg);">
-  <div class="section-label">Vergleich</div>
-  <h2 class="section-title">Alle Girokonten im direkten Überblick</h2>
-
-  <div class="table-responsive">
-    <table class="compare-table mt-32">
-      <thead>
-        <tr>
-          <th>Anbieter</th>
-          <th>Gebühr</th>
-          <th>Zinsen</th>
-          <th>Kreditkarte</th>
-          <th>Abheben</th>
-          <th>Geeignet für</th>
-          <th>App</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>C24</strong><br><small>Neobank</small></td>
-          <td><span class="tag tag-green">0 €</span></td>
-          <td><span class="check">✓</span></td>
-          <td><span class="check">✓</span> Mastercard</td>
-          <td><span class="tag tag-green">Weltweit gratis</span></td>
-          <td><span class="tag">Alle</span></td>
-          <td><span class="tag tag-green">Sehr gut</span></td>
-          <td><a href="/go/check24/" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Öffnen</a></td>
-        </tr>
-        <tr>
-          <td><strong>ING</strong><br><small>Direktbank</small></td>
-          <td><span class="tag tag-green">0 €</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="check">✓</span> Visa</td>
-          <td><span class="tag tag-green">DE gratis</span></td>
-          <td><span class="tag">Alle</span></td>
-          <td><span class="tag tag-green">Sehr gut</span></td>
-          <td><a href="https://www.ing.de/girokonto/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Öffnen</a></td>
-        </tr>
-        <tr>
-          <td><strong>Trade Republic</strong><br><small>Neo-Broker</small></td>
-          <td><span class="tag tag-green">0 €</span></td>
-          <td><span class="tag tag-green">3,75 %</span></td>
-          <td><span class="check">✓</span> Visa</td>
-          <td><span class="tag tag-green">Weltweit gratis</span></td>
-          <td><span class="tag">Anleger</span></td>
-          <td><span class="tag tag-green">Sehr gut</span></td>
-          <td><a href="https://ref.trade.re/monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Öffnen</a></td>
-        </tr>
-        <tr>
-          <td><strong>N26</strong><br><small>Neobank</small></td>
-          <td><span class="tag tag-green">0 €</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="check">✓</span> MC</td>
-          <td><span class="tag tag-amber">3x/Monat gratis</span></td>
-          <td><span class="tag">Jung · Digital</span></td>
-          <td><span class="tag tag-green">Sehr gut</span></td>
-          <td><a href="https://n26.com/de-de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Öffnen</a></td>
-        </tr>
-        <tr>
-          <td><strong>Commerzbank</strong><br><small>Großbank</small></td>
-          <td><span class="tag tag-amber">0–12,90 €</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="check">✓</span> Visa</td>
-          <td><span class="tag">DE Filialen</span></td>
-          <td><span class="tag">Beratung</span></td>
-          <td><span class="tag">Gut</span></td>
-          <td><a href="https://www.commerzbank.de/girokonto/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Öffnen</a></td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 </section>
 
@@ -384,6 +205,71 @@
       <ul><li>Filialnetz vorhanden</li><li>Persönliche Beratung</li><li>Komplettpaket</li></ul>
       <a href="https://www.commerzbank.de/girokonto/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Zur Commerzbank →</a>
     </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── VERGLEICHSTABELLE ── -->
+<section class="section" style="background:var(--bg);">
+  <div class="section-label">Vergleich</div>
+  <h2 class="section-title">Alle Girokonten im direkten Überblick</h2>
+
+  <div class="table-responsive">
+    <table class="compare-table mt-32">
+      <thead>
+        <tr>
+          <th>Anbieter</th>       
+          <th>Kontoart</th>
+          <th>Gebühr</th>
+          <th>Zinsen</th>
+          <th>Kreditkarte</th>
+          <th>Abheben</th>
+          <th>Geeignet für</th>
+          <th>App</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+  <?php foreach ($girokontoAnbieter as $anbieter): ?>
+    <tr>
+      <td>
+        <strong><?= e($anbieter['table_name']) ?></strong><br>
+        <small><?= e($anbieter['type']) ?></small>
+      </td>
+
+      <td>
+        <?php if (($anbieter['category'] ?? 'girokonto') === 'jugendkonto'): ?>
+          <span class="tag tag-amber">Jugendkonto</span>
+        <?php else: ?>
+          <span class="tag tag-green">Girokonto</span>
+        <?php endif; ?>
+      </td>
+
+      <td><span class="tag <?= e($anbieter['fee_class']) ?>"><?= e($anbieter['fee']) ?></span></td>
+
+      <td>
+        <?php if (!empty($anbieter['interest']) && $anbieter['interest'] !== '–'): ?>
+          <span class="tag tag-green"><?= e($anbieter['interest']) ?></span>
+        <?php else: ?>
+          <span class="dash">–</span>
+        <?php endif; ?>
+      </td>
+
+      <td><span class="check">✓</span> <?= e($anbieter['card']) ?></td>
+      <td><span class="tag <?= e($anbieter['withdraw_class']) ?>"><?= e($anbieter['withdraw']) ?></span></td>
+      <td><span class="tag"><?= e($anbieter['suitable_for']) ?></span></td>
+      <td><span class="tag <?= e($anbieter['app_class']) ?>"><?= e($anbieter['app']) ?></span></td>
+
+      <td>
+        <a href="<?= e($anbieter['url']) ?>" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">
+          <?= e($anbieter['table_button']) ?>
+        </a>
+      </td>
+    </tr>
+  <?php endforeach; ?>
+</tbody>
+    </table>
   </div>
 </section>
 

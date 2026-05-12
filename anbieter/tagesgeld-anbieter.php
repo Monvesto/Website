@@ -24,7 +24,7 @@ return [
     'deposit_protection' => 'EU 100k €',
     'deposit_class'      => 'tag-blue',
 
-    'badge'       => 'Broker-Cash',
+    'badge'       => 'Testsieger Gesamtpaket',
     'description' => 'Tagesgeldähnliche Verzinsung auf nicht investiertes Guthaben. Besonders interessant für Anleger, die Cash, ETFs und Wertpapiere in einer App verwalten möchten.',
     'tags' => [
       ['text' => '2,00 % p.a.',          'class' => 'tag-green'],

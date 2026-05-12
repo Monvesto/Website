@@ -12,6 +12,23 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Welcher Broker eignet sich für ETF-Sparpläne?","acceptedAnswer":{"@type":"Answer","text":"Für ETF-Sparpläne empfehlen wir Trade Republic oder Scalable Capital. Beide bieten kostenlose Sparpläne ab 1 € und eine große Auswahl."}},{"@type":"Question","name":"Kann ich mehrere Broker gleichzeitig nutzen?","acceptedAnswer":{"@type":"Answer","text":"Ja, das ist vollkommen legal und oft empfehlenswert, um die besten Konditionen verschiedener Anbieter zu kombinieren."}}]}</script>
 </head>
 <body>
+<?php
+$brokerAnbieter = require $_SERVER['DOCUMENT_ROOT'] . '/anbieter/broker-anbieter.php';
+
+usort($brokerAnbieter, function ($a, $b) {
+  return ($a['rank'] ?? 999) <=> ($b['rank'] ?? 999);
+});
+
+$topBrokerAnbieter = array_values(array_filter($brokerAnbieter, function ($anbieter) {
+  return !empty($anbieter['show_top']);
+}));
+
+$topBrokerAnbieter = array_slice($topBrokerAnbieter, 0, 3);
+
+function e($value) {
+  return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+}
+?>
 
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/nav.php'; ?>
 
@@ -39,197 +56,47 @@
   <p class="section-intro">Bewertet nach Gebühren, Sparplan-Angebot, App-Qualität und Nutzerfreundlichkeit.</p>
 
   <div class="pick-list mt-32">
+  <?php foreach ($topBrokerAnbieter as $anbieter): ?>
+    <div class="pick-card<?= !empty($anbieter['featured']) ? ' pick-card--featured' : '' ?>">
+      <div class="pick-rank">#<?= e($anbieter['rank']) ?></div>
 
-    <div class="pick-card pick-card--featured">
-      <div class="pick-rank">#1</div>
       <div class="pick-info">
-        <span class="best-badge">Testsieger ETF-Sparplan</span>
-        <div class="pick-name">Trade Republic</div>
-        <p class="pick-desc">Kostenlose ETF-Sparpläne ab 1 €, integriertes Girokonto mit 3,75 % Zinsen und einfache Bedienung. Ideal für Einsteiger und Langfristanleger.</p>
+        <?php if (!empty($anbieter['badge'])): ?>
+          <span class="best-badge"><?= e($anbieter['badge']) ?></span>
+        <?php endif; ?>
+
+        <div class="pick-name"><?= e($anbieter['name']) ?></div>
+        <p class="pick-desc"><?= e($anbieter['description']) ?></p>
+
         <div class="tag-group">
-          <span class="tag tag-green">Sparplan ab 1 €</span>
-          <span class="tag tag-green">Krypto verfügbar</span>
-          <span class="tag">3,75 % auf Cash</span>
-          <span class="tag">App: Sehr gut</span>
+          <?php foreach ($anbieter['tags'] as $tag): ?>
+            <span class="tag <?= e($tag['class'] ?? '') ?>"><?= e($tag['text']) ?></span>
+          <?php endforeach; ?>
         </div>
       </div>
+
       <div class="pick-rating">
-        <span class="pick-stars">★★★★★</span>
-        <span class="pick-score">4,8</span>
+        <span class="pick-stars"><?= e($anbieter['stars']) ?></span>
+        <span class="pick-score"><?= e($anbieter['score']) ?></span>
         <span class="pick-score-label">/ 5,0</span>
       </div>
+
       <div class="pick-actions">
-        <a href="https://ref.trade.re/monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt zu Trade Republic →</a>
-        <a href="#trade-republic-detail" class="btn-outline-sm">Details ansehen</a>
+        <a href="<?= e($anbieter['url']) ?>" target="_blank" rel="nofollow sponsored" class="btn-affiliate">
+          <?= e($anbieter['button']) ?>
+        </a>
+
+        <?php if (!empty($anbieter['detail_anchor']) && $anbieter['detail_anchor'] !== '#'): ?>
+          <a href="<?= e($anbieter['detail_anchor']) ?>" class="btn-outline-sm">Details ansehen</a>
+        <?php endif; ?>
       </div>
     </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#2</div>
-      <div class="pick-info">
-        <div class="pick-name">Scalable Capital</div>
-        <p class="pick-desc">Große ETF-Auswahl, Prime-Flatrate für aktive Anleger und ein modernes Interface. Besonders stark für Vieltrader.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">Sparplan ab 1 €</span>
-          <span class="tag tag-blue">Prime Broker</span>
-          <span class="tag">8.000+ ETFs</span>
-          <span class="tag">App: Sehr gut</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★★</span>
-        <span class="pick-score">4,6</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://scalable.capital/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt zu Scalable →</a>
-        <a href="#scalable-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#3</div>
-      <div class="pick-info">
-        <div class="pick-name">ING</div>
-        <p class="pick-desc">Etablierte Direktbank mit großem ETF-Angebot, Tagesgeldkonto und hoher Vertrauenswürdigkeit. Gut für konservative Anleger.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">Sparplan ab 1 €</span>
-          <span class="tag">Tagesgeld kombinierbar</span>
-          <span class="tag tag-amber">Klassische Bank</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★☆</span>
-        <span class="pick-score">4,2</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.ing.de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt zur ING →</a>
-        <a href="#ing-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#4</div>
-      <div class="pick-info">
-        <div class="pick-name">Consorsbank</div>
-        <p class="pick-desc">Breites Produktangebot, starke Analyse-Tools und etabliertes Handelssystem. Für erfahrene Anleger mit aktivem Handelsansatz.</p>
-        <div class="tag-group">
-          <span class="tag">Sparplan ab 10 €</span>
-          <span class="tag tag-blue">Aktien & Fonds</span>
-          <span class="tag">Analyse-Tools</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★☆</span>
-        <span class="pick-score">4,0</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.consorsbank.de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Zur Consorsbank →</a>
-        <a href="#consors-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#5</div>
-      <div class="pick-info">
-        <div class="pick-name">comdirect</div>
-        <p class="pick-desc">Kombination aus Depot, Girokonto und Tagesgeld – alles aus einer Hand. Gut für Nutzer, die alles bei einem Anbieter bündeln möchten.</p>
-        <div class="tag-group">
-          <span class="tag">Sparplan ab 25 €</span>
-          <span class="tag tag-amber">All-in-One</span>
-          <span class="tag">Girokonto</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★☆</span>
-        <span class="pick-score">3,9</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.comdirect.de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Zur comdirect →</a>
-        <a href="#comdirect-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-  </div>
+  <?php endforeach; ?>
+</div>
 
   <div class="affiliate-disclosure">
     <i class="ti ti-info-circle"></i>
     <span><strong>Hinweis:</strong> Diese Seite enthält Affiliate-Links. Wenn du über unsere Links einen Account erstellst, erhalten wir eine Provision – für dich entstehen keine Mehrkosten. Unsere Empfehlungen basieren auf redaktioneller Bewertung.</span>
-  </div>
-</section>
-
-<hr class="divider" />
-
-<!-- ── VERGLEICHSTABELLE ── -->
-<section class="section" style="background:var(--bg);" id="alle-anbieter">
-  <div class="section-label">Vergleich</div>
-  <h2 class="section-title">Alle Broker im direkten Vergleich</h2>
-  <p class="section-intro">Gebühren, ETF-Auswahl, Krypto und App-Qualität auf einen Blick.</p>
-
-  <div class="table-responsive">
-    <table class="compare-table mt-32">
-      <thead>
-        <tr>
-          <th>Anbieter</th>
-          <th>ETF-Sparplan</th>
-          <th>Gebühren</th>
-          <th>Krypto</th>
-          <th>App</th>
-          <th>Geeignet für</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Trade Republic</strong><br><small>Neo-Broker</small></td>
-          <td><span class="check">✓</span> Ab 1 €</td>
-          <td><span class="tag tag-green">Kostenlos</span></td>
-          <td><span class="check">✓</span></td>
-          <td><span class="tag tag-green">Sehr gut</span></td>
-          <td><span class="tag">Einsteiger · ETF</span></td>
-          <td><a href="https://ref.trade.re/monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Zum Anbieter</a></td>
-        </tr>
-        <tr>
-          <td><strong>Scalable Capital</strong><br><small>Neo-Broker</small></td>
-          <td><span class="check">✓</span> Ab 1 €</td>
-          <td><span class="tag">0 € / Free Plan</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="tag tag-green">Sehr gut</span></td>
-          <td><span class="tag">ETF · Aktiv</span></td>
-          <td><a href="https://scalable.capital/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Zum Anbieter</a></td>
-        </tr>
-        <tr>
-          <td><strong>ING</strong><br><small>Direktbank</small></td>
-          <td><span class="check">✓</span> Ab 1 €</td>
-          <td><span class="tag">Ab 0 €</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="tag tag-green">Gut</span></td>
-          <td><span class="tag">Langfrist · Sicher</span></td>
-          <td><a href="https://www.ing.de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Zum Anbieter</a></td>
-        </tr>
-        <tr>
-          <td><strong>Consorsbank</strong><br><small>Onlinebank</small></td>
-          <td><span class="check">✓</span> Ab 10 €</td>
-          <td><span class="tag">Ab 3,95 €</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="tag">Gut</span></td>
-          <td><span class="tag">Aktiv · Erfahren</span></td>
-          <td><a href="https://www.consorsbank.de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Zum Anbieter</a></td>
-        </tr>
-        <tr>
-          <td><strong>comdirect</strong><br><small>Onlinebank</small></td>
-          <td><span class="check">✓</span> Ab 25 €</td>
-          <td><span class="tag">Ab 3,90 €</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="tag">Gut</span></td>
-          <td><span class="tag">Langfrist · Konto</span></td>
-          <td><a href="https://www.comdirect.de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Zum Anbieter</a></td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 </section>
 
@@ -277,6 +144,57 @@
       <ul><li>Ab 1 € Sparplan</li><li>Keine Vorkenntnisse nötig</li><li>Top-App-Bewertungen</li></ul>
       <a href="https://ref.trade.re/monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt starten →</a>
     </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── VERGLEICHSTABELLE ── -->
+<section class="section" style="background:var(--bg);" id="alle-anbieter">
+  <div class="section-label">Vergleich</div>
+  <h2 class="section-title">Alle Broker im direkten Vergleich</h2>
+  <p class="section-intro">Gebühren, ETF-Auswahl, Krypto und App-Qualität auf einen Blick.</p>
+
+  <div class="table-responsive">
+    <table class="compare-table mt-32">
+      <thead>
+        <tr>
+          <th>Anbieter</th>
+          <th>ETF-Sparplan</th>
+          <th>Gebühren</th>
+          <th>Krypto</th>
+          <th>App</th>
+          <th>Geeignet für</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+  <?php foreach ($brokerAnbieter as $anbieter): ?>
+    <tr>
+      <td>
+        <strong><?= e($anbieter['table_name']) ?></strong><br>
+        <small><?= e($anbieter['type']) ?></small>
+      </td>
+      <td><span class="check">✓</span> <?= e($anbieter['etf_plan']) ?></td>
+      <td><span class="tag <?= e($anbieter['fee_class']) ?>"><?= e($anbieter['fees']) ?></span></td>
+      <td>
+        <?php if (!empty($anbieter['crypto'])): ?>
+          <span class="check">✓</span>
+        <?php else: ?>
+          <span class="dash">–</span>
+        <?php endif; ?>
+      </td>
+      <td><span class="tag <?= e($anbieter['app_class']) ?>"><?= e($anbieter['app']) ?></span></td>
+      <td><span class="tag"><?= e($anbieter['suitable_for']) ?></span></td>
+      <td>
+        <a href="<?= e($anbieter['url']) ?>" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">
+          <?= e($anbieter['table_button']) ?>
+        </a>
+      </td>
+    </tr>
+  <?php endforeach; ?>
+</tbody>
+    </table>
   </div>
 </section>
 

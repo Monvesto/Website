@@ -12,6 +12,23 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Welche Kreditkarte ist wirklich kostenlos?","acceptedAnswer":{"@type":"Answer","text":"Dauerhaft kostenlose Kreditkarten ohne Jahresgebühr sind z. B. die Barclays Visa und die DKB Visa."}},{"@type":"Question","name":"Lohnt sich eine Kreditkarte mit Jahresgebühr?","acceptedAnswer":{"@type":"Answer","text":"Wer viel reist oder häufig einkauft, kann mit Cashback, Meilen oder Versicherungsleistungen die Jahresgebühr schnell reinholen."}}]}</script>
 </head>
 <body>
+<?php
+$kreditkartenAnbieter = require $_SERVER['DOCUMENT_ROOT'] . '/anbieter/kreditkarten-anbieter.php';
+
+usort($kreditkartenAnbieter, function ($a, $b) {
+  return ($a['rank'] ?? 999) <=> ($b['rank'] ?? 999);
+});
+
+$topKreditkartenAnbieter = array_values(array_filter($kreditkartenAnbieter, function ($anbieter) {
+  return !empty($anbieter['show_top']);
+}));
+
+$topKreditkartenAnbieter = array_slice($topKreditkartenAnbieter, 0, 3);
+
+function e($value) {
+  return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+}
+?>
 
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/nav.php'; ?>
 
@@ -20,7 +37,7 @@
   <h1>Die besten Kreditkarten –<br><span class="highlight">kostenlos, Cashback & Reise</span></h1>
   <p class="hero-sub">Finde die beste Kreditkarte für deinen Alltag – ob kostenlose Basiskarte, Cashback-Karte oder Premium-Reisekarte mit Lounge-Zugang.</p>
   <div class="hero-actions">
-    <a href="#vergleich" class="btn btn-primary btn-lg">Kreditkarten vergleichen ↓</a>
+    <a href="#vergleich" class="btn btn-primary btn-lg">Kreditkarten vergleichen</a>
     <a href="#alle-karten" class="btn btn-secondary btn-lg">Alle Karten ansehen</a>
   </div>
 </section>
@@ -39,196 +56,47 @@
   <p class="section-intro">Bewertet nach Jahresgebühr, Cashback, Reisevorteilen, Fremdwährungsgebühren und App-Qualität.</p>
 
   <div class="pick-list mt-32">
+  <?php foreach ($topKreditkartenAnbieter as $anbieter): ?>
+    <div class="pick-card<?= !empty($anbieter['featured']) ? ' pick-card--featured' : '' ?>">
+      <div class="pick-rank">#<?= e($anbieter['rank']) ?></div>
 
-    <div class="pick-card pick-card--featured">
-      <div class="pick-rank">#1</div>
       <div class="pick-info">
-        <span class="best-badge">Testsieger Kostenlos</span>
-        <div class="pick-name">Barclays Visa</div>
-        <p class="pick-desc">Dauerhaft kostenlose Kreditkarte ohne Jahresgebühr, weltweite Akzeptanz und keine Fremdwährungsgebühren. Ideal für Reisende und Alltagsnutzer.</p>
+        <?php if (!empty($anbieter['badge'])): ?>
+          <span class="best-badge"><?= e($anbieter['badge']) ?></span>
+        <?php endif; ?>
+
+        <div class="pick-name"><?= e($anbieter['name']) ?></div>
+        <p class="pick-desc"><?= e($anbieter['description']) ?></p>
+
         <div class="tag-group">
-          <span class="tag tag-green">0 € Jahresgebühr</span>
-          <span class="tag tag-green">Keine FX-Gebühren</span>
-          <span class="tag">Weltweit nutzbar</span>
-          <span class="tag">App: Gut</span>
+          <?php foreach ($anbieter['tags'] as $tag): ?>
+            <span class="tag <?= e($tag['class'] ?? '') ?>"><?= e($tag['text']) ?></span>
+          <?php endforeach; ?>
         </div>
       </div>
+
       <div class="pick-rating">
-        <span class="pick-stars">★★★★★</span>
-        <span class="pick-score">4,8</span>
+        <span class="pick-stars"><?= e($anbieter['stars']) ?></span>
+        <span class="pick-score"><?= e($anbieter['score']) ?></span>
         <span class="pick-score-label">/ 5,0</span>
       </div>
+
       <div class="pick-actions">
-        <a href="https://www.barclays.de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt beantragen →</a>
-        <a href="#barclays-detail" class="btn-outline-sm">Details ansehen</a>
+        <a href="<?= e($anbieter['url']) ?>" target="_blank" rel="nofollow sponsored" class="btn-affiliate">
+          <?= e($anbieter['button']) ?>
+        </a>
+
+        <?php if (!empty($anbieter['detail_anchor']) && $anbieter['detail_anchor'] !== '#'): ?>
+          <a href="<?= e($anbieter['detail_anchor']) ?>" class="btn-outline-sm">Details ansehen</a>
+        <?php endif; ?>
       </div>
     </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#2</div>
-      <div class="pick-info">
-        <div class="pick-name">DKB Visa</div>
-        <p class="pick-desc">Kostenlose Kreditkarte mit kostenlosem Girokonto. Weltweit gebührenfrei abheben bei aktivem Konto. Sehr beliebt bei Studenten und Reisenden.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">0 € Jahresgebühr</span>
-          <span class="tag tag-green">Kostenloses Girokonto</span>
-          <span class="tag">Weltweit abheben</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★★</span>
-        <span class="pick-score">4,6</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.dkb.de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt beantragen →</a>
-        <a href="#dkb-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#3</div>
-      <div class="pick-info">
-        <div class="pick-name">American Express Gold</div>
-        <p class="pick-desc">Cashback und Membership Rewards auf jeden Einkauf, starke Reiseversicherungen und Willkommensbonus. Ideal für Vielkäufer und Reisende.</p>
-        <div class="tag-group">
-          <span class="tag tag-amber">Cashback / Punkte</span>
-          <span class="tag tag-blue">Reiseversicherung</span>
-          <span class="tag">152 € Jahresgebühr</span>
-          <span class="tag">Willkommensbonus</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★☆</span>
-        <span class="pick-score">4,4</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.americanexpress.com/de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt beantragen →</a>
-        <a href="#amex-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#4</div>
-      <div class="pick-info">
-        <div class="pick-name">Payback Visa</div>
-        <p class="pick-desc">Punkte sammeln bei jedem Einkauf, doppelte Punkte bei Payback-Partnern. Kostenlose Basis-Karte mit starkem Alltagsvorteil.</p>
-        <div class="tag-group">
-          <span class="tag tag-green">0 € Jahresgebühr</span>
-          <span class="tag tag-amber">Payback-Punkte</span>
-          <span class="tag">Partner-Vorteile</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★☆</span>
-        <span class="pick-score">4,2</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.payback.de/karte/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt beantragen →</a>
-        <a href="#payback-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-    <div class="pick-card">
-      <div class="pick-rank">#5</div>
-      <div class="pick-info">
-        <div class="pick-name">Lufthansa Miles & More</div>
-        <p class="pick-desc">Meilen sammeln auf jeden Einkauf, direkt anrechenbar auf Flüge und Upgrades. Inklusive Reise- und Gepäckversicherung.</p>
-        <div class="tag-group">
-          <span class="tag tag-blue">Meilen sammeln</span>
-          <span class="tag tag-blue">Lounge-Zugang</span>
-          <span class="tag">109 € Jahresgebühr</span>
-        </div>
-      </div>
-      <div class="pick-rating">
-        <span class="pick-stars">★★★★☆</span>
-        <span class="pick-score">4,1</span>
-        <span class="pick-score-label">/ 5,0</span>
-      </div>
-      <div class="pick-actions">
-        <a href="https://www.miles-and-more.com/kreditkarte/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Jetzt beantragen →</a>
-        <a href="#mam-detail" class="btn-outline-sm">Details ansehen</a>
-      </div>
-    </div>
-
-  </div>
+  <?php endforeach; ?>
+</div>
 
   <div class="affiliate-disclosure">
     <i class="ti ti-info-circle"></i>
     <span><strong>Hinweis:</strong> Diese Seite enthält Affiliate-Links. Bei Kartenbeantragung über unsere Links erhalten wir eine Provision – für dich entstehen keine Mehrkosten. Unsere Bewertungen sind redaktionell unabhängig.</span>
-  </div>
-</section>
-
-<hr class="divider" />
-
-<!-- ── VERGLEICHSTABELLE ── -->
-<section class="section" style="background:var(--bg);" id="alle-karten">
-  <div class="section-label">Vergleich</div>
-  <h2 class="section-title">Alle Kreditkarten im Überblick</h2>
-
-  <div class="table-responsive">
-    <table class="compare-table mt-32">
-      <thead>
-        <tr>
-          <th>Karte</th>
-          <th>Jahresgebühr</th>
-          <th>Cashback</th>
-          <th>FX-frei</th>
-          <th>Versicherung</th>
-          <th>Geeignet für</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Barclays Visa</strong><br><small>Visa</small></td>
-          <td><span class="tag tag-green">0 €</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="check">✓</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="tag">Reise · Alltag</span></td>
-          <td><a href="https://www.barclays.de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Beantragen</a></td>
-        </tr>
-        <tr>
-          <td><strong>DKB Visa</strong><br><small>Visa</small></td>
-          <td><span class="tag tag-green">0 €</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="check">✓</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="tag">Studenten · Reise</span></td>
-          <td><a href="https://www.dkb.de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Beantragen</a></td>
-        </tr>
-        <tr>
-          <td><strong>Amex Gold</strong><br><small>American Express</small></td>
-          <td><span class="tag tag-amber">152 €</span></td>
-          <td><span class="check">✓</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="check">✓</span></td>
-          <td><span class="tag">Vielkäufer · Reise</span></td>
-          <td><a href="https://www.americanexpress.com/de/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Beantragen</a></td>
-        </tr>
-        <tr>
-          <td><strong>Payback Visa</strong><br><small>Amex / Visa</small></td>
-          <td><span class="tag tag-green">0 €</span></td>
-          <td><span class="check">✓</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="tag">Alltag · Punkte</span></td>
-          <td><a href="https://www.payback.de/karte/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Beantragen</a></td>
-        </tr>
-        <tr>
-          <td><strong>Miles & More</strong><br><small>Mastercard</small></td>
-          <td><span class="tag tag-amber">109 €</span></td>
-          <td><span class="check">✓</span></td>
-          <td><span class="dash">–</span></td>
-          <td><span class="check">✓</span></td>
-          <td><span class="tag">Vielflieger</span></td>
-          <td><a href="https://www.miles-and-more.com/kreditkarte/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate" style="font-size:12px;padding:7px 12px;">Beantragen</a></td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 </section>
 
@@ -275,6 +143,100 @@
       <ul><li>Payback-Punkte</li><li>Partner-Vorteile</li><li>0 € Jahresgebühr</li></ul>
       <a href="https://www.payback.de/karte/?ref=monvesto" target="_blank" rel="nofollow sponsored" class="btn-affiliate">Zur Payback Visa →</a>
     </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── VERGLEICHSTABELLE ── -->
+<section class="section" style="background:var(--bg);" id="alle-karten">
+  <div class="section-label">Vergleich</div>
+  <h2 class="section-title">Alle Kreditkarten im Überblick</h2>
+
+  <div class="table-responsive">
+    <table class="compare-table mt-32">
+      <thead>
+        <tr>
+          <th>Karte</th>
+          <th>Jahresgebühr</th>
+          <th>Cashback</th>
+          <th>FX-frei</th>
+          <th>Versicherung</th>
+          <th>Geeignet für</th>
+          <th></th>
+        </tr>
+      </thead>
+      <div class="pick-list mt-32">
+  <tbody>
+  <?php foreach ($kreditkartenAnbieter as $anbieter): ?>
+    <tr>
+      <td>
+        <strong><?= e($anbieter['table_name']) ?></strong><br>
+        <small><?= e($anbieter['type']) ?></small>
+      </td>
+
+      <td>
+        <span class="tag <?= e($anbieter['annual_fee_class']) ?>">
+          <?= e($anbieter['annual_fee']) ?>
+        </span>
+      </td>
+
+      <td>
+        <?php if (($anbieter['table_cashback_class'] ?? '') === 'check'): ?>
+          <span class="check">✓</span>
+        <?php elseif (($anbieter['table_cashback_class'] ?? '') === 'dash'): ?>
+          <span class="dash">–</span>
+        <?php else: ?>
+          <span class="tag <?= e($anbieter['table_cashback_class'] ?? '') ?>">
+            <?= e($anbieter['table_cashback'] ?? '–') ?>
+          </span>
+        <?php endif; ?>
+      </td>
+
+      <td>
+        <?php if (($anbieter['table_fx_class'] ?? '') === 'check'): ?>
+          <span class="check">✓</span>
+        <?php elseif (($anbieter['table_fx_class'] ?? '') === 'dash'): ?>
+          <span class="dash">–</span>
+        <?php else: ?>
+          <span class="tag <?= e($anbieter['table_fx_class'] ?? '') ?>">
+            <?= e($anbieter['table_fx'] ?? '–') ?>
+          </span>
+        <?php endif; ?>
+      </td>
+
+      <td>
+        <?php if (($anbieter['table_insurance_class'] ?? '') === 'check'): ?>
+          <span class="check">✓</span>
+        <?php elseif (($anbieter['table_insurance_class'] ?? '') === 'dash'): ?>
+          <span class="dash">–</span>
+        <?php else: ?>
+          <span class="tag <?= e($anbieter['table_insurance_class'] ?? '') ?>">
+            <?= e($anbieter['table_insurance'] ?? '–') ?>
+          </span>
+        <?php endif; ?>
+      </td>
+
+      <td>
+        <span class="tag"><?= e($anbieter['suitable_for']) ?></span>
+      </td>
+
+      <td>
+        <a
+          href="<?= e($anbieter['url']) ?>"
+          target="_blank"
+          rel="nofollow sponsored"
+          class="btn-affiliate"
+          style="font-size:12px;padding:7px 12px;"
+        >
+          <?= e($anbieter['table_button']) ?>
+        </a>
+      </td>
+    </tr>
+  <?php endforeach; ?>
+</tbody>
+</div>
+    </table>
   </div>
 </section>
 
