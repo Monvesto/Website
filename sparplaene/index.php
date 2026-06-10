@@ -180,6 +180,45 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
     </div>
 
   </div>
+
+  <!-- Oskar VL Highlight -->
+    <div style="margin-top:32px;padding:28px;background:var(--bg);border:1.5px solid var(--green);border-radius:var(--radius);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <span style="font-size:11px;font-weight:700;background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:20px;letter-spacing:0.04em;">Besonders</span>
+        <span style="font-size:11px;color:var(--text-muted);">Vermögenswirksame Leistungen (VL)</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;">
+        <div>
+          <div style="font-size:19px;font-weight:700;margin-bottom:8px;">🏆 Oskar VL – VL-Sparplan in ETFs</div>
+          <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:16px;">
+            Dein Arbeitgeber zahlt vermögenswirksame Leistungen? Statt sie in einem klassischen Bausparvertrag verschwinden zu lassen, investierst du sie mit Oskar VL automatisch in ETFs – professionell verwaltet, ohne Sperrfrist-Nachteile des klassischen VL-Sparens.
+          </p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;">
+            <div style="padding:10px 14px;border-right:0.5px solid var(--border);">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">Sparplan ab</div>
+              <div style="font-size:14px;font-weight:700;color:var(--green);">25 €</div>
+            </div>
+            <div style="padding:10px 14px;border-right:0.5px solid var(--border);">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">Sparplan-Gebühr</div>
+              <div style="font-size:14px;font-weight:700;color:var(--green);">Kostenlos</div>
+            </div>
+            <div style="padding:10px 14px;">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">Besonderheit</div>
+              <div style="font-size:14px;font-weight:700;">VL + Robo-Advisor</div>
+            </div>
+          </div>
+          <a href="DEIN-AFFILIATE-LINK" class="btn btn-primary" target="_blank" rel="sponsored noopener">Zu Oskar VL →</a>
+        </div>
+        <div style="min-width:160px;display:flex;flex-direction:column;gap:8px;font-size:13px;">
+          <div style="font-weight:600;color:var(--text-muted);margin-bottom:2px;">Warum Oskar VL?</div>
+          <div>✓ 100 % Aktien-ETFs</div>
+          <div>✓ Arbeitgeber zahlt direkt ein</div>
+          <div>✓ Keine klassische Sperrfrist</div>
+          <div>✓ Robo-Advisor verwaltet alles</div>
+          <div>✓ Ab 25 € / Monat</div>
+        </div>
+      </div>
+    </div>
 </section>
 
 <hr class="divider" />

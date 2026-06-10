@@ -11,9 +11,7 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     <span></span><span></span><span></span>
   </button>
   <div class="nav-links" id="navLinks">
-
     <a href="/" class="nav-link <?php if($uri === '/') echo 'active'; ?>">Startseite</a>
-
     <div class="nav-item has-dropdown <?php if(strpos($uri,'/konten-kreditkarten/')!==false||strpos($uri,'/girokonto-vergleich/')!==false||strpos($uri,'/kreditkarten-vergleich/')!==false||strpos($uri,'/tagesgeld-vergleich/')!==false) echo 'active'; ?>">
       <button class="nav-dropdown-toggle" aria-expanded="false">
         Konten &amp; Kreditkarten
@@ -26,11 +24,9 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         <li><a href="/tagesgeld-vergleich/" <?php if(strpos($uri,'/tagesgeld-vergleich/')!==false) echo 'class="active"'; ?>>Tagesgeld vergleichen</a></li>
       </ul>
     </div>
-
     <a href="/sparplaene/" class="nav-link <?php if(strpos($uri,'/sparplaene/')!==false) echo 'active'; ?>">Sparpläne</a>
     <a href="/kryptowaehrungen/" class="nav-link <?php if(strpos($uri,'/kryptowaehrungen/')!==false) echo 'active'; ?>">Kryptowährungen</a>
     <a href="/p2p-kredite/" class="nav-link <?php if(strpos($uri,'/p2p-kredite/')!==false) echo 'active'; ?>">P2P-Kredite</a>
-
     <div class="nav-item has-dropdown <?php if(strpos($uri,'/trading/')!==false||strpos($uri,'/broker-vergleich/')!==false) echo 'active'; ?>">
       <button class="nav-dropdown-toggle" aria-expanded="false">
         Trading
@@ -41,15 +37,13 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         <li><a href="/broker-vergleich/" <?php if(strpos($uri,'/broker-vergleich/')!==false) echo 'class="active"'; ?>>Broker vergleichen</a></li>
       </ul>
     </div>
-
     <a href="/steuern/" class="nav-link <?php if(strpos($uri,'/steuern/')!==false) echo 'active'; ?>">Steuern</a>
-
+    <a href="/track-record/" class="nav-link <?php if(strpos($uri,'/track-record/')!==false) echo 'active'; ?>">Track Record</a>
     <div class="nav-mobile-actions">
       <a href="https://app.monvesto.de" class="nav-login">Anmelden</a>
       <a href="https://app.monvesto.de" class="nav-cta">Kostenlos starten →</a>
     </div>
   </div>
-
   <div class="nav-actions">
     <a href="https://app.monvesto.de" class="nav-login">Anmelden</a>
     <a href="https://app.monvesto.de" class="nav-cta">Kostenlos starten →</a>

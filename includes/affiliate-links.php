@@ -50,7 +50,12 @@ return [
 
     'mintos' => [
         'name' => 'Mintos',
-        'url' => 'https://DEIN-AFFILIATE-LINK-MINTOS',
+        'url' => 'https://www.financeads.net/tc.php?t=38474C4968115016T',
+    ],
+
+    'estateguru' => [
+        'name' => 'Estateguru',
+        'url' => 'https://DEIN-AFFILIATE-LINK-ESTATEGURU',
     ],
 ];
 

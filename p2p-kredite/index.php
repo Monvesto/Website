@@ -51,6 +51,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Größte europäische P2P-Plattform. Seit 2023 BaFin-reguliert. Autoinvest und Sekundärmarkt.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Rendite</span><span style="color:var(--green);font-weight:600;">9–14 %</span></div>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Regulierung</span><span style="color:var(--green);font-weight:600;">BaFin</span></div>
+      <a href="/go/mintos/" class="btn btn-primary" style="margin-top:20px;" target="_blank" rel="sponsored noopener">Zu Mintos →</a>
     </div>
     <div class="card">
       <div class="card-tag">Immobilienfokus</div>
@@ -58,6 +59,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">Durch Immobilien besicherte Kredite. Grundschuld als Sicherheit.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Rendite</span><span style="color:var(--green);font-weight:600;">8–12 %</span></div>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Besicherung</span><span style="font-weight:600;">Immobilien</span></div>
+      <a href="/go/estateguru/" class="btn btn-primary" style="margin-top:20px;" target="_blank" rel="sponsored noopener">Zu Estateguru →</a>
     </div>
     <div class="card">
       <div class="card-tag">Einsteigerfreundlich</div>
@@ -65,6 +67,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
       <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:14px;">6,75 % p.a., täglich liquide. Ideal für Einsteiger.</p>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Rendite</span><span style="font-weight:600;">6,75 %</span></div>
       <div style="font-size:13px;padding:6px 0;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><span class="text-muted">Liquidität</span><span style="color:var(--green);font-weight:600;">Täglich</span></div>
+      <a href="/go/bondora/" class="btn btn-primary" style="margin-top:20px;" target="_blank" rel="sponsored noopener">Zu Bondora →</a>
     </div>
   </div>
 <!--  <div class="grid-3 mt-40">

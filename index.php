@@ -171,6 +171,13 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/head.php';
       <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Steuern, Kapitalerträge, Gewinne und Verluste übersichtlich im Blick behalten.</p>
       <div style="font-size:13px;font-weight:700;color:var(--green);">Mehr erfahren →</div>
     </a>
+    <a href="/track-record/" style="text-decoration:none;" class="card card-hover">
+      <div class="card-tag">Live-Ergebnisse</div>
+      <div class="card-icon">📊</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Track Record</div>
+      <p class="text-muted" style="font-size:14px;line-height:1.65;margin-bottom:14px;">Verifizierte Handelsergebnisse, Drawdown und Performance aller Strategien auf einen Blick.</p>
+      <div style="font-size:13px;font-weight:700;color:var(--green);">Mehr erfahren →</div>
+    </a>
     <a href="/portfolio/" style="text-decoration:none;" class="card card-hover card-disabled">
       <div class="coming-badge">Coming soon</div>
       <div class="card-tag">Investments</div><div class="card-icon">📈</div>
