@@ -1,36 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <url>
     <loc>https://monvesto.de/</loc>
   </url>
+
   <url>
     <loc>https://monvesto.de/konten-kreditkarten/</loc>
   </url>
+
+  <url>
+    <loc>https://monvesto.de/girokonto-vergleich/</loc>
+  </url>
+
+  <url>
+    <loc>https://monvesto.de/kreditkarten-vergleich/</loc>
+  </url>
+
+  <url>
+    <loc>https://monvesto.de/tagesgeld-vergleich/</loc>
+  </url>
+
   <url>
     <loc>https://monvesto.de/sparplaene/</loc>
   </url>
-  <url>
-    <loc>https://monvesto.de/portfolio/</loc>
-  </url>
+
   <url>
     <loc>https://monvesto.de/kryptowaehrungen/</loc>
   </url>
+
   <url>
     <loc>https://monvesto.de/p2p-kredite/</loc>
   </url>
-  <url>
-    <loc>https://monvesto.de/steuern/</loc>
-  </url>
-  <url>
-    <loc>https://monvesto.de/ki-analyse/</loc>
-  </url>
-  <url>
-    <loc>https://monvesto.de/kontakt/</loc>
-  </url>
-  <url>
-    <loc>https://monvesto.de/impressum-datenschutz/</loc>
-  </url>
+
   <url>
     <loc>https://monvesto.de/trading/</loc>
   </url>
+
+  <url>
+    <loc>https://monvesto.de/broker-vergleich/</loc>
+  </url>
+
+  <url>
+    <loc>https://monvesto.de/track-record/</loc>
+  </url>
+
+  <url>
+    <loc>https://monvesto.de/steuern/</loc>
+  </url>
+
+  <url>
+    <loc>https://monvesto.de/kontakt/</loc>
+  </url>
+
+  <url>
+    <loc>https://monvesto.de/impressum-datenschutz/</loc>
+  </url>
+
 </urlset>
