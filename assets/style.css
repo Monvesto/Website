@@ -1192,3 +1192,407 @@ hr.divider { border: none; border-top: 0.5px solid var(--border); margin: 0; }
     font-weight: 600;
   }
 }
+/* ════════════════════════════════════════════════
+   TRACK RECORD – Seitenspezifische Styles
+   Ergänzung zu style.css – keine Duplikate.
+   Variablen: --green, --green-dark, --green-light,
+   --green-mid, --text, --text-muted, --border,
+   --bg, --white, --radius, --shadow, --shadow-md
+   ════════════════════════════════════════════════ */
+
+/* ── TRUST BAR (Track Record Variante) ─────────────────────────── */
+/* Nutzt .trust-bar / .trust-item aus style.css.
+   Diese Klassen hier ergänzen nur die TR-spezifische Darstellung. */
+.tr-trust-bar {
+  background: var(--bg);
+  border-top: 0.5px solid var(--border);
+  border-bottom: 0.5px solid var(--border);
+  padding: 1rem 0;
+}
+
+.tr-trust-items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem 2.5rem;
+}
+
+.tr-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.tr-trust-icon { font-size: 1.1rem; }
+
+/* ── SECTION HEADER (Track Record) ─────────────────────────────── */
+/* Nutzt .section-title, .section-intro aus style.css.
+   Nur zentrierter Wrapper mit Abstand. */
+.tr-section-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.tr-section-header h2 { margin-bottom: 0.5rem; }
+
+.tr-meta-line {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Abwechselnder Hintergrund (ergänzt .section) */
+.tr-section-alt { background: var(--bg); }
+
+/* ── KPI GRID ───────────────────────────────────────────────────── */
+.tr-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* Nutzt .card aus style.css als Basis, aber ohne den grünen 2px-Border.
+   Deshalb eigene leichtere Variante: */
+.tr-kpi-card {
+  background: var(--white);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--shadow);
+}
+
+.tr-kpi-highlight {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+
+/* Nutzt .section-label-Stil aus style.css */
+.tr-kpi-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.tr-kpi-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+
+.tr-kpi-value--sm { font-size: 20px; }
+
+.tr-kpi-pair {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tr-kpi-pair > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Rendite-Farben – ergänzt .pos / .neg aus style.css mit spezifischer Benennung */
+.tr-pos { color: var(--green); font-weight: 700; }
+.tr-neg { color: #DC2626;      font-weight: 700; }
+
+/* ── EQUITY CURVE PLATZHALTER ───────────────────────────────────── */
+.tr-chart-placeholder {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--white);
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tr-chart-placeholder-inner {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.tr-chart-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.tr-chart-label {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.tr-chart-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ── PERFORMANCE-TABELLE ────────────────────────────────────────── */
+/* Ergänzt .data-table aus style.css.
+   Eigene Variante weil .data-table grüne Header hat –
+   hier dezenterer Look passend zur Finanzoptik. */
+.tr-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.tr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: var(--white);
+}
+
+.tr-table thead { background: var(--bg); }
+
+.tr-table th {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 0.5px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.tr-table td {
+  padding: 13px 16px;
+  border-bottom: 0.5px solid var(--border);
+  white-space: nowrap;
+}
+
+.tr-table tbody tr:last-child td { border-bottom: none; }
+.tr-table tbody tr:hover td      { background: var(--bg); }
+
+.tr-num {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.tr-comment {
+  color: var(--text-muted);
+  font-size: 13px;
+  white-space: normal !important;
+  min-width: 180px;
+}
+
+.tr-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 2rem !important;
+}
+
+/* ── ALLOCATION CARDS ───────────────────────────────────────────── */
+.tr-alloc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.tr-alloc-card {
+  background: var(--white);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+}
+
+.tr-alloc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tr-alloc-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+}
+
+/* Nutzt .badge-Struktur aus style.css */
+.tr-alloc-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Nutzt Farben der bestehenden .badge-Varianten */
+.tr-status-aktiv   { background: var(--green-light); color: var(--green-dark); }
+.tr-status-aufbau  { background: #DBEAFE;            color: #1D4ED8;           }
+.tr-status-neutral { background: #F3F4F6;            color: var(--text-muted); }
+
+.tr-alloc-bar-wrap {
+  background: var(--border);
+  border-radius: 4px;
+  height: 6px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.tr-alloc-bar {
+  height: 100%;
+  background: var(--green);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.tr-alloc-weight {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 10px;
+}
+
+.tr-alloc-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── METHODIK ───────────────────────────────────────────────────── */
+.tr-methodik-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.tr-methodik-block {
+  background: var(--white);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.tr-methodik-block h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.tr-methodik-block p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .tr-methodik-block--wide { grid-column: 1 / -1; }
+}
+
+/* ── RISIKOHINWEIS ──────────────────────────────────────────────── */
+/* Nutzt .notice-yellow aus style.css als Basis,
+   aber eigene Sektion für Layout und max-width. */
+.tr-disclaimer-section {
+  padding: 32px 0;
+  background: var(--bg);
+  border-top: 0.5px solid var(--border);
+}
+
+.tr-disclaimer-box {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: #FFFBEB;
+  border: 0.5px solid #FDE68A;
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.tr-disclaimer-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tr-disclaimer-box p {
+  font-size: 14px;
+  color: #92400E;
+  line-height: 1.75;
+  margin: 0;
+}
+
+/* ── HERO: CTAs (track-record-spezifisch) ───────────────────────── */
+/* Nutzt .hero-actions aus style.css, aber eigenes Alias
+   damit der HTML-Name sprechender ist */
+.hero-ctas {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* btn-outline = visuell identisch mit btn-secondary */
+.btn-outline {
+  background: var(--white);
+  color: var(--text);
+  border: 1.5px solid var(--border);
+}
+
+.btn-outline:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .tr-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tr-kpi-pair {
+    grid-column: 1 / -1;
+  }
+
+  .tr-kpi-value {
+    font-size: 22px;
+  }
+
+  .tr-trust-items {
+    gap: 12px 20px;
+    justify-content: flex-start;
+  }
+
+  .tr-alloc-grid,
+  .tr-methodik-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tr-table th,
+  .tr-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .tr-chart-placeholder {
+    min-height: 200px;
+  }
+}
