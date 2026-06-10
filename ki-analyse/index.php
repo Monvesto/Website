@@ -59,7 +59,7 @@
 </section>
 <section class="cta-banner">
   <h2>Lass die KI dein Portfolio analysieren.</h2>
-  <p>Kostenlos starten – KI-Analyse im Free-Plan verfügbar.</p>
+  <p>Kostenlos starten – KI-Analyse im Premium-Plan verfügbar.</p>
  <!--
    <a href="https://app.monvesto.de" class="btn btn-white btn-lg">Jetzt kostenlos testen →</a>
 -->
