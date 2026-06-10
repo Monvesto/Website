@@ -57,6 +57,11 @@ return [
         'name' => 'Estateguru',
         'url' => 'https://DEIN-AFFILIATE-LINK-ESTATEGURU',
     ],
+
+    'oskar' => [
+        'name' => 'Oskar',
+        'url' => 'https://www.oskar.de/gutscheincode/',
+    ],
 ];
 
 //  Beispiel für eine Verlinkung mit den Daten von oben...

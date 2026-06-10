@@ -207,7 +207,16 @@ $vhyl = get_etf('vhyl');  // High Dividend → VHYL.AS
               <div style="font-size:14px;font-weight:700;">VL + Robo-Advisor</div>
             </div>
           </div>
-          <a href="DEIN-AFFILIATE-LINK" class="btn btn-primary" target="_blank" rel="sponsored noopener">Zu Oskar VL →</a>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+            <p class="text-muted" style="font-size:14px;line-height:1.65;margin:0;">
+              Mit dem folgenden Gutscheincode erhältst du <strong>10 € Startguthaben!</strong>
+            </p>
+            <div onclick="navigator.clipboard.writeText('marcelh555747-g');this.innerText='✓ Kopiert!';setTimeout(()=>this.innerText='marcelh555747-g',2000)"
+              style="display:inline-flex;align-items:center;gap:8px;background:#dcfce7;color:#16a34a;font-size:13px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;border:1px solid #86efac;user-select:none;white-space:nowrap;">
+              marcelh555747-g
+            </div>
+          </div>
+          <a href="/go/oskar/" class="btn btn-primary" target="_blank" rel="sponsored noopener">Zu Oskar VL →</a>
         </div>
         <div style="min-width:160px;display:flex;flex-direction:column;gap:8px;font-size:13px;">
           <div style="font-weight:600;color:var(--text-muted);margin-bottom:2px;">Warum Oskar VL?</div>
