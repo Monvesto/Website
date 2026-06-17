@@ -1,0 +1,26 @@
+# Sicherheitsregeln für /privat/
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/ - [F,L]
+</IfModule>
+
+<FilesMatch "^(config\.php|db\.php|auth\.php|csrf\.php|bootstrap\.php)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "DENY"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "no-referrer"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:;"
+</IfModule>
+
+Options -Indexes
+
+# OPTIONAL Basic Auth – Zeilen einkommentieren und Pfad anpassen:
+# AuthType Basic
+# AuthName "Privater Bereich"
+# AuthUserFile /home/DEIN_CPANEL_USER/.htpasswd
+# Require valid-user
