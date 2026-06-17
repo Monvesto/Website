@@ -57,6 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $action = ($act === 'create') ? 'new' : 'edit';
     }
+
+    if (defined('HANDLE_POST_ONLY')) return;
 }
 
 $msgs = ['saved' => 'Aufgabe gespeichert.', 'done' => 'Als erledigt markiert.', 'deleted' => 'Aufgabe gelöscht.'];

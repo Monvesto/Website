@@ -1,8 +1,12 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'DEIN_DATENBANKNAME');
-define('DB_USER', 'DEIN_DB_BENUTZER');
-define('DB_PASS', 'DEIN_DB_PASSWORT');
+define('DB_NAME', 'private_dashboard');
+define('DB_USER', 'dashboard_user');
+define('DB_PASS', 'Deluxeer123!');
 define('DB_CHARSET', 'utf8mb4');
 
 define('APP_NAME', 'Monvesto Privat');

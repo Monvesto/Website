@@ -1,131 +1,230 @@
 <?php
-$db = get_db();
+$db     = get_db();
+$person = $_GET['person'] ?? 'Marcel';
+if (!in_array($person, ['Marcel','Kim','Beide'], true)) $person = 'Marcel';
 
-$open_tasks     = $db->query("SELECT COUNT(*) FROM tasks WHERE status='Offen'")->fetchColumn();
-$overdue_tasks  = $db->query("SELECT COUNT(*) FROM tasks WHERE status='Offen' AND due_date < CURDATE()")->fetchColumn();
-$overdue_maint  = $db->query("SELECT COUNT(*) FROM maintenance WHERE status='Überfällig'")->fetchColumn();
-$next_maint_row = $db->query("SELECT object_name, task, next_due FROM maintenance WHERE next_due IS NOT NULL AND status != 'Überfällig' ORDER BY next_due ASC LIMIT 1")->fetch();
+// KPIs gefiltert nach Person
+function db_sum(PDO $db, string $table, string $person, string $extra = ''): float {
+    if ($person === 'Beide') {
+        return (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM $table WHERE aktiv=1 $extra")->fetchColumn();
+    }
+    $s = $db->prepare("SELECT COALESCE(SUM(betrag),0) FROM $table WHERE person=? AND aktiv=1 $extra");
+    $s->execute([$person]);
+    return (float)$s->fetchColumn();
+}
 
-$next_tasks = $db->query(
-    "SELECT task, category, priority, due_date, responsible
-     FROM tasks WHERE status='Offen'
-     ORDER BY due_date ASC LIMIT 7"
-)->fetchAll();
+$einnahmen = db_sum($db, 'einnahmen', $person, "AND turnus='Monatlich'");
+$ausgaben  = db_sum($db, 'ausgaben',  $person, "AND turnus='Monatlich'");
+$ueberschuss = $einnahmen - $ausgaben;
+$sparquote   = $einnahmen > 0 ? $ueberschuss / $einnahmen : 0;
 
-$next_maintenances = $db->query(
-    "SELECT object_name, task, next_due, status
-     FROM maintenance
-     WHERE next_due IS NOT NULL
-     ORDER BY next_due ASC LIMIT 7"
-)->fetchAll();
+$immo_cashflow      = (float)$db->query("SELECT COALESCE(SUM(kaltmiete+nebenkosten-fixkosten-kreditkosten),0) FROM immobilien WHERE aktiv=1")->fetchColumn();
+$investments_monat  = (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE DATE_FORMAT(datum,'%Y-%m')=DATE_FORMAT(NOW(),'%Y-%m')")->fetchColumn();
+$investments_gesamt = (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM investments")->fetchColumn();
+$schulden_gesamt    = (float)$db->query("SELECT COALESCE(SUM(restsumme),0) FROM verbindlichkeiten")->fetchColumn();
 
+$invest_bereiche = $db->query("SELECT bereich, SUM(betrag) as gesamt FROM investments GROUP BY bereich ORDER BY gesamt DESC")->fetchAll();
+$invest_total    = array_sum(array_column($invest_bereiche, 'gesamt'));
+
+$open_tasks    = (int)$db->query("SELECT COUNT(*) FROM tasks WHERE status='Offen'")->fetchColumn();
+$overdue_tasks = (int)$db->query("SELECT COUNT(*) FROM tasks WHERE status='Offen' AND due_date < CURDATE()")->fetchColumn();
+
+$db->exec("UPDATE maintenance SET status = CASE
+    WHEN next_due < CURDATE() THEN 'Überfällig'
+    WHEN next_due >= CURDATE() AND next_due <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 'Bald fällig'
+    ELSE 'OK' END WHERE next_due IS NOT NULL");
+$overdue_maint  = (int)$db->query("SELECT COUNT(*) FROM maintenance WHERE status='Überfällig'")->fetchColumn();
+$ziele          = $db->query("SELECT * FROM ziele ORDER BY zieltermin ASC")->fetchAll();
+$next_tasks     = $db->query("SELECT task, category, priority, due_date FROM tasks WHERE status='Offen' ORDER BY due_date ASC LIMIT 5")->fetchAll();
+$next_maint_all = $db->query("SELECT object_name, task, next_due, status FROM maintenance WHERE next_due IS NOT NULL ORDER BY next_due ASC LIMIT 5")->fetchAll();
+
+function fmt(float $v, bool $sign = false): string {
+    $s = number_format(abs($v), 2, ',', '.');
+    if ($sign) return ($v >= 0 ? '+' : '–') . $s . ' €';
+    return ($v < 0 ? '–' : '') . $s . ' €';
+}
+function pct(float $v): string { return number_format($v * 100, 1, ',', '.') . '%'; }
+function progress_color(float $p): string {
+    if ($p >= 0.75) return '#1D9E75';
+    if ($p >= 0.4)  return '#F59E0B';
+    return '#EF4444';
+}
+function days_left(?string $d): string {
+    if (!$d) return '';
+    $diff = (strtotime($d) - strtotime('today')) / 86400;
+    if ($diff < 0)  return '<span class="date-overdue">überfällig</span>';
+    if ($diff == 0) return '<span class="date-overdue">heute</span>';
+    if ($diff <= 7) return '<span class="date-soon">' . (int)$diff . ' Tage</span>';
+    return '<span class="text-muted">' . date('d.m.Y', strtotime($d)) . '</span>';
+}
 function priority_badge(string $p): string {
-    $classes = ['Hoch' => 'badge-danger', 'Mittel' => 'badge-warning', 'Niedrig' => 'badge-neutral'];
-    $cls = $classes[$p] ?? 'badge-neutral';
-    return '<span class="badge ' . $cls . '">' . htmlspecialchars($p, ENT_QUOTES, 'UTF-8') . '</span>';
+    $map = ['Hoch'=>'badge-danger','Mittel'=>'badge-warning','Niedrig'=>'badge-neutral'];
+    return '<span class="badge '.($map[$p]??'badge-neutral').'">'.htmlspecialchars($p).'</span>';
 }
-
 function status_badge_m(string $s): string {
-    $classes = ['OK' => 'badge-ok', 'Bald fällig' => 'badge-warning', 'Überfällig' => 'badge-danger'];
-    $cls = $classes[$s] ?? 'badge-neutral';
-    return '<span class="badge ' . $cls . '">' . htmlspecialchars($s, ENT_QUOTES, 'UTF-8') . '</span>';
+    $map = ['OK'=>'badge-ok','Bald fällig'=>'badge-warning','Überfällig'=>'badge-danger'];
+    return '<span class="badge '.($map[$s]??'badge-neutral').'">'.htmlspecialchars($s).'</span>';
 }
-
 function format_date(?string $d): string {
-    if (!$d) return '<span class="muted">–</span>';
-    $ts = strtotime($d);
-    $today = strtotime('today');
-    $diff  = ($ts - $today) / 86400;
-    $fmt   = date('d.m.Y', $ts);
-    if ($diff < 0)  return '<span class="date-overdue">' . $fmt . '</span>';
-    if ($diff <= 7) return '<span class="date-soon">' . $fmt . '</span>';
+    if (!$d) return '<span class="text-muted">–</span>';
+    $ts = strtotime($d); $diff = ($ts - strtotime('today')) / 86400; $fmt = date('d.m.Y', $ts);
+    if ($diff < 0)  return '<span class="date-overdue">'.$fmt.'</span>';
+    if ($diff <= 7) return '<span class="date-soon">'.$fmt.'</span>';
     return $fmt;
 }
+$bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld'=>'🏦','Krypto'=>'₿','Copy Trading'=>'📊'];
 ?>
 
-<div class="kpi-grid">
+<!-- Person Switcher -->
+<div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+    <div class="person-switcher">
+        <?php foreach (['Marcel','Kim','Beide'] as $p): ?>
+        <a href="?page=dashboard&person=<?= $p ?>" class="person-btn <?= $person===$p?'active':'' ?>"><?= $p ?></a>
+        <?php endforeach; ?>
+    </div>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-grid kpi-grid--6">
     <div class="kpi-card">
-        <div class="kpi-label">Offene Aufgaben</div>
-        <div class="kpi-value"><?= (int)$open_tasks ?></div>
+        <div class="kpi-label">📥 Einnahmen<?= $person!=='Beide'?' '.$person:'' ?></div>
+        <div class="kpi-value kpi-value--md text-green"><?= fmt($einnahmen) ?></div>
+        <div class="kpi-sub">monatlich</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">📤 Ausgaben<?= $person!=='Beide'?' '.$person:'' ?></div>
+        <div class="kpi-value kpi-value--md text-red"><?= fmt($ausgaben) ?></div>
+        <div class="kpi-sub">monatlich</div>
+    </div>
+    <div class="kpi-card <?= $ueberschuss>=0?'kpi-card--info':'kpi-card--alert' ?>">
+        <div class="kpi-label">💰 Überschuss</div>
+        <div class="kpi-value kpi-value--md <?= $ueberschuss>=0?'text-green':'text-red' ?>"><?= fmt($ueberschuss, true) ?></div>
+        <div class="kpi-sub">Sparquote <?= pct($sparquote) ?></div>
+    </div>
+    <div class="kpi-card <?= $immo_cashflow>=0?'':'kpi-card--alert' ?>">
+        <div class="kpi-label">🏠 Immo-Cashflow</div>
+        <div class="kpi-value kpi-value--md <?= $immo_cashflow>=0?'text-green':'text-red' ?>"><?= fmt($immo_cashflow, true) ?></div>
+        <div class="kpi-sub">monatlich</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">📈 Investments</div>
+        <div class="kpi-value kpi-value--md"><?= fmt($investments_monat) ?></div>
+        <div class="kpi-sub">Gesamt <?= fmt($investments_gesamt) ?></div>
     </div>
     <div class="kpi-card kpi-card--alert">
-        <div class="kpi-label">Überfällige Aufgaben</div>
-        <div class="kpi-value"><?= (int)$overdue_tasks ?></div>
+        <div class="kpi-label">🏦 Schulden</div>
+        <div class="kpi-value kpi-value--md text-red"><?= fmt($schulden_gesamt) ?></div>
+        <div class="kpi-sub"><a href="?page=finanzen&tab=schulden" class="link-subtle">Details →</a></div>
     </div>
-    <div class="kpi-card kpi-card--alert">
-        <div class="kpi-label">Überfällige Wartungen</div>
-        <div class="kpi-value"><?= (int)$overdue_maint ?></div>
+</div>
+
+<!-- Ziele + Investments -->
+<div class="dashboard-row mt-4">
+    <div class="card">
+        <div class="card-head">
+            <h2 class="card-title">🎯 Ziele & Fortschritt</h2>
+            <a href="?page=ziele" class="link-subtle">Alle bearbeiten →</a>
+        </div>
+        <div class="goals-list">
+            <?php foreach ($ziele as $z):
+                $range = abs((float)$z['zielwert'] - (float)$z['startwert']);
+                $curr  = abs((float)$z['aktueller_wert'] - (float)$z['startwert']);
+                $prog  = $range > 0 ? min(1, $curr / $range) : 0;
+                $color = progress_color($prog);
+            ?>
+            <div class="goal-row">
+                <div class="goal-header">
+                    <div class="goal-name"><?= htmlspecialchars($z['ziel']) ?></div>
+                    <div class="goal-meta">
+                        <span class="goal-pct" style="color:<?= $color ?>"><?= pct($prog) ?></span>
+                        <?php if ($z['zieltermin']): ?><span class="goal-date"><?= days_left($z['zieltermin']) ?></span><?php endif; ?>
+                    </div>
+                </div>
+                <div class="goal-bar-track"><div class="goal-bar-fill" style="width:<?= pct($prog) ?>;background:<?= $color ?>"></div></div>
+                <div class="goal-values">
+                    <span><?= number_format((float)$z['aktueller_wert'],0,',','.') ?></span>
+                    <span class="text-muted">von <?= number_format((float)$z['zielwert'],0,',','.') ?></span>
+                </div>
+            </div>
+            <?php endforeach; ?>
+            <?php if (empty($ziele)): ?><p class="empty-state">Noch keine Ziele.</p><?php endif; ?>
+        </div>
     </div>
-    <div class="kpi-card kpi-card--info">
-        <div class="kpi-label">Nächste Wartung</div>
-        <div class="kpi-value kpi-value--sm">
-            <?php if ($next_maint_row): ?>
-                <?= htmlspecialchars($next_maint_row['object_name'], ENT_QUOTES, 'UTF-8') ?>
-                <div class="kpi-sub"><?= format_date($next_maint_row['next_due']) ?></div>
-            <?php else: ?>
-                <span class="muted">–</span>
+
+    <div class="card">
+        <div class="card-head">
+            <h2 class="card-title">📊 Investments nach Bereich</h2>
+            <a href="?page=investments" class="link-subtle">Details →</a>
+        </div>
+        <div class="invest-list">
+            <?php foreach ($invest_bereiche as $b):
+                $anteil = $invest_total > 0 ? ($b['gesamt'] / $invest_total) : 0;
+                $icon   = $bereich_icons[$b['bereich']] ?? '💼';
+            ?>
+            <div class="invest-row">
+                <div class="invest-label"><span class="invest-icon"><?= $icon ?></span><span><?= htmlspecialchars($b['bereich']) ?></span></div>
+                <div class="invest-bar-wrap"><div class="invest-bar" style="width:<?= pct($anteil) ?>"></div></div>
+                <div class="invest-value"><?= fmt((float)$b['gesamt']) ?></div>
+            </div>
+            <?php endforeach; ?>
+            <?php if (!empty($invest_bereiche)): ?>
+            <div class="invest-total"><span>Gesamt</span><span><?= fmt($invest_total) ?></span></div>
             <?php endif; ?>
+            <?php if (empty($invest_bereiche)): ?><p class="empty-state">Keine Daten.</p><?php endif; ?>
         </div>
     </div>
 </div>
 
-<div class="card mt-4">
-    <div class="card-head">
-        <h2 class="card-title">Nächste Aufgaben</h2>
-        <a href="?page=tasks" class="link-subtle">Alle ansehen →</a>
-    </div>
-    <?php if (empty($next_tasks)): ?>
-        <p class="empty-state">Keine offenen Aufgaben.</p>
-    <?php else: ?>
-    <div class="table-wrap">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Aufgabe</th><th>Kategorie</th><th>Priorität</th><th>Fällig</th><th>Verantwortlich</th>
-                </tr>
-            </thead>
-            <tbody>
+<!-- Aufgaben + Wartungen -->
+<div class="dashboard-row mt-4">
+    <div class="card">
+        <div class="card-head">
+            <div>
+                <h2 class="card-title">✅ Aufgaben</h2>
+                <div style="display:flex;gap:8px;margin-top:4px">
+                    <span class="badge badge-neutral"><?= $open_tasks ?> offen</span>
+                    <?php if ($overdue_tasks > 0): ?><span class="badge badge-danger"><?= $overdue_tasks ?> überfällig</span><?php endif; ?>
+                </div>
+            </div>
+            <a href="?page=tasks&action=new" class="btn btn-primary btn-sm">+ Neu</a>
+        </div>
+        <?php if (empty($next_tasks)): ?>
+            <p class="empty-state">Keine offenen Aufgaben.</p>
+        <?php else: ?>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Aufgabe</th><th>Priorität</th><th>Fällig</th></tr></thead>
+                <tbody>
                 <?php foreach ($next_tasks as $t): ?>
-                <tr>
-                    <td><?= htmlspecialchars($t['task'], ENT_QUOTES, 'UTF-8') ?></td>
-                    <td><?= htmlspecialchars($t['category'] ?? '–', ENT_QUOTES, 'UTF-8') ?></td>
-                    <td><?= priority_badge($t['priority']) ?></td>
-                    <td><?= format_date($t['due_date']) ?></td>
-                    <td><?= htmlspecialchars($t['responsible'] ?? '–', ENT_QUOTES, 'UTF-8') ?></td>
-                </tr>
+                <tr><td><?= htmlspecialchars($t['task']) ?></td><td><?= priority_badge($t['priority']) ?></td><td><?= format_date($t['due_date']) ?></td></tr>
                 <?php endforeach; ?>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
     </div>
-    <?php endif; ?>
-</div>
 
-<div class="card mt-4">
-    <div class="card-head">
-        <h2 class="card-title">Nächste Wartungen</h2>
-        <a href="?page=maintenance" class="link-subtle">Alle ansehen →</a>
-    </div>
-    <?php if (empty($next_maintenances)): ?>
-        <p class="empty-state">Keine Wartungen eingetragen.</p>
-    <?php else: ?>
-    <div class="table-wrap">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Objekt</th><th>Aufgabe</th><th>Nächste Fälligkeit</th><th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($next_maintenances as $m): ?>
-                <tr>
-                    <td><?= htmlspecialchars($m['object_name'], ENT_QUOTES, 'UTF-8') ?></td>
-                    <td><?= htmlspecialchars($m['task'], ENT_QUOTES, 'UTF-8') ?></td>
-                    <td><?= format_date($m['next_due']) ?></td>
-                    <td><?= status_badge_m($m['status']) ?></td>
-                </tr>
+    <div class="card">
+        <div class="card-head">
+            <div>
+                <h2 class="card-title">🔧 Wartungen</h2>
+                <?php if ($overdue_maint > 0): ?><div style="margin-top:4px"><span class="badge badge-danger"><?= $overdue_maint ?> überfällig</span></div><?php endif; ?>
+            </div>
+            <a href="?page=maintenance&action=new" class="btn btn-primary btn-sm">+ Neu</a>
+        </div>
+        <?php if (empty($next_maint_all)): ?>
+            <p class="empty-state">Keine Wartungen.</p>
+        <?php else: ?>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Objekt</th><th>Aufgabe</th><th>Fällig</th><th>Status</th></tr></thead>
+                <tbody>
+                <?php foreach ($next_maint_all as $m): ?>
+                <tr><td><?= htmlspecialchars($m['object_name']) ?></td><td><?= htmlspecialchars($m['task']) ?></td><td><?= format_date($m['next_due']) ?></td><td><?= status_badge_m($m['status']) ?></td></tr>
                 <?php endforeach; ?>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
     </div>
-    <?php endif; ?>
 </div>
