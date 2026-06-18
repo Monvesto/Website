@@ -3,7 +3,7 @@ require_once __DIR__ . '/config/bootstrap.php';
 require_login();
 
 $page = $_GET['page'] ?? 'dashboard';
-$allowed = ['dashboard','finanzen','checkliste','tasks','maintenance','ziele','investments','immobilien'];
+$allowed = ['dashboard','finanzen','checkliste','tasks','maintenance','ziele','investments','immobilien','trading'];
 if (!in_array($page, $allowed, true)) $page = 'dashboard';
 
 $page_file = __DIR__ . '/pages/' . $page . '.php';
@@ -37,6 +37,7 @@ $nav = [
     'ziele'       => ['icon' => '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>', 'label' => 'Ziele'],
     'investments' => ['icon' => '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>', 'label' => 'Investments'],
     'immobilien'  => ['icon' => '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>', 'label' => 'Immobilien'],
+    'trading' => ['icon' => '<polyline points="2 20 7 10 12 15 17 5 22 10"/>', 'label' => 'Trading'],
 ];
 ?>
 <!DOCTYPE html>

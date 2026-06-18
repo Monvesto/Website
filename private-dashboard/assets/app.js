@@ -1,6 +1,11 @@
 (function () {
     'use strict';
 
+    // ── Fortschrittsbalken via data-width ──
+    document.querySelectorAll('[data-width]').forEach(function(el) {
+        el.style.width = el.getAttribute('data-width') + '%';
+    });
+
     // ── Mobile Sidebar Toggle ──
     var toggle  = document.getElementById('menuToggle');
     var sidebar = document.getElementById('sidebar');

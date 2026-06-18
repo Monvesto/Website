@@ -1,228 +1,168 @@
 <?php
-$db      = get_db();
-$action  = $_GET['action'] ?? 'list';
-$task_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$errors  = [];
-$success = '';
+$db = get_db();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
     $act = $_POST['act'] ?? '';
 
-    if ($act === 'done' && isset($_POST['id'])) {
-        $stmt = $db->prepare("UPDATE tasks SET status='Erledigt', last_done=CURDATE() WHERE id=?");
-        $stmt->execute([(int)$_POST['id']]);
-        header('Location: ?page=tasks&msg=done');
-        exit;
-    }
-
-    if ($act === 'delete' && isset($_POST['id'])) {
-        $stmt = $db->prepare('DELETE FROM tasks WHERE id=?');
-        $stmt->execute([(int)$_POST['id']]);
-        header('Location: ?page=tasks&msg=deleted');
-        exit;
-    }
-
-    if (in_array($act, ['create', 'update'], true)) {
-        $task_val    = trim($_POST['task']          ?? '');
-        $category    = trim($_POST['category']      ?? '');
-        $priority    = $_POST['priority']            ?? 'Mittel';
-        $responsible = trim($_POST['responsible']   ?? '');
-        $interval    = trim($_POST['interval_type'] ?? '');
-        $last_done   = $_POST['last_done']           ?: null;
-        $due_date    = $_POST['due_date']            ?: null;
-        $status      = $_POST['status']              ?? 'Offen';
-        $notes       = trim($_POST['notes']         ?? '');
-
-        if ($task_val === '') $errors[] = 'Aufgabe darf nicht leer sein.';
-        if (!in_array($priority, ['Hoch','Mittel','Niedrig'], true)) $errors[] = 'Ungültige Priorität.';
-        if (!in_array($status,   ['Offen','Erledigt'],         true)) $errors[] = 'Ungültiger Status.';
-
-        if (empty($errors)) {
-            if ($act === 'create') {
-                $stmt = $db->prepare(
-                    'INSERT INTO tasks (task,category,priority,responsible,interval_type,last_done,due_date,status,notes)
-                     VALUES (?,?,?,?,?,?,?,?,?)'
-                );
-                $stmt->execute([$task_val,$category,$priority,$responsible,$interval,$last_done,$due_date,$status,$notes]);
-            } else {
-                $stmt = $db->prepare(
-                    'UPDATE tasks SET task=?,category=?,priority=?,responsible=?,interval_type=?,
-                     last_done=?,due_date=?,status=?,notes=? WHERE id=?'
-                );
-                $stmt->execute([$task_val,$category,$priority,$responsible,$interval,$last_done,$due_date,$status,$notes,(int)$_POST['edit_id']]);
-            }
-            header('Location: ?page=tasks&msg=saved');
-            exit;
+    if ($act === 'save') {
+        $task = trim($_POST['task'] ?? '');
+        $cat  = trim($_POST['category'] ?? '');
+        $prio = $_POST['priority'] ?? 'Mittel';
+        $resp = trim($_POST['responsible'] ?? '');
+        $it   = $_POST['interval_type'] ?? '';
+        $due  = $_POST['due_date'] !== '' ? $_POST['due_date'] : null;
+        $no   = trim($_POST['notes'] ?? '');
+        $id   = (int)($_POST['edit_id'] ?? 0);
+        if ($id > 0) {
+            $db->prepare("UPDATE tasks SET task=?,category=?,priority=?,responsible=?,interval_type=?,due_date=?,notes=? WHERE id=?")->execute([$task,$cat,$prio,$resp,$it,$due,$no,$id]);
+        } else {
+            $db->prepare("INSERT INTO tasks (task,category,priority,responsible,interval_type,due_date,notes,status) VALUES (?,?,?,?,?,?,?,'Offen')")->execute([$task,$cat,$prio,$resp,$it,$due,$no]);
         }
-        $action = ($act === 'create') ? 'new' : 'edit';
+        header("Location: ?page=tasks&msg=saved"); exit;
     }
 
-    if (defined('HANDLE_POST_ONLY')) return;
+    if ($act === 'set_status') {
+        $db->prepare("UPDATE tasks SET status=? WHERE id=?")->execute([$_POST['status'], (int)$_POST['id']]);
+        header("Location: ?page=tasks&msg=saved"); exit;
+    }
+
+    if ($act === 'delete') {
+        $db->prepare("DELETE FROM tasks WHERE id=?")->execute([(int)$_POST['id']]);
+        header("Location: ?page=tasks&msg=saved"); exit;
+    }
+}
+if (defined('HANDLE_POST_ONLY')) return;
+
+$offen    = $db->query("SELECT * FROM tasks WHERE status='Offen' ORDER BY due_date ASC")->fetchAll();
+$erledigt = $db->query("SELECT * FROM tasks WHERE status='Erledigt' ORDER BY updated_at DESC LIMIT 20")->fetchAll();
+
+$overdue = [];
+foreach ($offen as $t) {
+    if ($t['due_date'] && $t['due_date'] < date('Y-m-d')) $overdue[] = $t;
 }
 
-$msgs = ['saved' => 'Aufgabe gespeichert.', 'done' => 'Als erledigt markiert.', 'deleted' => 'Aufgabe gelöscht.'];
-if (isset($_GET['msg'], $msgs[$_GET['msg']])) {
-    $success = $msgs[$_GET['msg']];
+function he_t(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); }
+function prio_badge_t(string $p): string {
+    $map = ['Hoch'=>'badge-danger','Mittel'=>'badge-warning','Niedrig'=>'badge-neutral'];
+    return '<span class="badge '.($map[$p]??'badge-neutral').'">'.he_t($p).'</span>';
 }
-
-$edit_row = null;
-if ($action === 'edit' && $task_id) {
-    $stmt     = $db->prepare('SELECT * FROM tasks WHERE id=?');
-    $stmt->execute([$task_id]);
-    $edit_row = $stmt->fetch();
-    if (!$edit_row) { $action = 'list'; }
-}
-
-$filter_status = $_GET['filter'] ?? 'Offen';
-$allowed_filters = ['Offen','Erledigt','alle'];
-if (!in_array($filter_status, $allowed_filters, true)) $filter_status = 'Offen';
-
-if ($filter_status === 'alle') {
-    $tasks = $db->query('SELECT * FROM tasks ORDER BY due_date ASC, priority ASC')->fetchAll();
-} else {
-    $stmt = $db->prepare('SELECT * FROM tasks WHERE status=? ORDER BY due_date ASC');
-    $stmt->execute([$filter_status]);
-    $tasks = $stmt->fetchAll();
-}
-
-function val(array $row, string $k, string $default = ''): string {
-    $v = isset($_POST[$k]) ? $_POST[$k] : ($row[$k] ?? $default);
-    return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
+function fmt_due_t(?string $d): string {
+    if (!$d) return '<span class="text-muted">–</span>';
+    $diff = (strtotime($d) - strtotime('today')) / 86400;
+    $fmt  = date('d.m.Y', strtotime($d));
+    if ($diff < 0)  return '<span class="date-overdue">'.$fmt.'</span>';
+    if ($diff <= 7) return '<span class="date-soon">'.$fmt.'</span>';
+    return $fmt;
 }
 ?>
 
-<?php if ($success): ?>
-    <div class="alert alert-success"><?= htmlspecialchars($success, ENT_QUOTES, 'UTF-8') ?></div>
-<?php endif; ?>
-<?php if ($errors): ?>
-    <div class="alert alert-error"><?= implode('<br>', array_map(fn($e) => htmlspecialchars($e, ENT_QUOTES, 'UTF-8'), $errors)) ?></div>
-<?php endif; ?>
+<?php if (isset($_GET['msg'])): ?><div class="alert alert-success">Gespeichert.</div><?php endif; ?>
 
-<?php if ($action === 'new' || $action === 'edit'): ?>
+<!-- Offene Aufgaben -->
 <div class="card">
     <div class="card-head">
-        <h2 class="card-title"><?= $action === 'new' ? 'Neue Aufgabe' : 'Aufgabe bearbeiten' ?></h2>
-        <a href="?page=tasks" class="link-subtle">← Zurück</a>
+        <h2 class="card-title">✅ Offene Aufgaben</h2>
+        <div class="bulk-bar">
+            <span class="badge badge-neutral"><?= count($offen) ?> offen</span>
+            <?php if (count($overdue)): ?><span class="badge badge-danger"><?= count($overdue) ?> überfällig</span><?php endif; ?>
+        </div>
     </div>
-    <form method="POST" action="?page=tasks" class="form-grid">
-        <?= csrf_field() ?>
-        <input type="hidden" name="act"     value="<?= $action === 'new' ? 'create' : 'update' ?>">
-        <input type="hidden" name="edit_id" value="<?= $task_id ?>">
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Aufgabe</th><th>Kategorie</th><th>Priorität</th><th>Zuständig</th><th>Fällig</th><th></th></tr></thead>
+        <tbody>
+        <?php foreach ($offen as $t): ?>
+        <tr>
+            <td><?= he_t($t['task']) ?></td>
+            <td><?= he_t($t['category'] ?? '–') ?></td>
+            <td><?= prio_badge_t($t['priority']) ?></td>
+            <td><?= he_t($t['responsible'] ?? '–') ?></td>
+            <td><?= fmt_due_t($t['due_date']) ?></td>
+            <td class="col-actions">
+                <form method="POST" action="?page=tasks" class="form-inline">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_status">
+                    <input type="hidden" name="id" value="<?= $t['id'] ?>">
+                    <input type="hidden" name="status" value="Erledigt">
+                    <button type="submit" class="btn btn-ok btn-xs">✓ Erledigt</button>
+                </form>
+                <form method="POST" action="?page=tasks" class="form-inline">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="act" value="delete">
+                    <input type="hidden" name="id" value="<?= $t['id'] ?>">
+                    <button type="submit" class="btn btn-danger btn-xs btn-delete-confirm">✕</button>
+                </form>
+            </td>
+        </tr>
+        <?php if (!empty($t['notes'])): ?>
+        <tr class="row-notiz">
+            <td colspan="6" class="notiz-cell">💬 <?= he_t($t['notes']) ?></td>
+        </tr>
+        <?php endif; ?>
+        <?php endforeach; ?>
+        <?php if (empty($offen)): ?>
+        <tr><td colspan="7" class="empty-state">Keine offenen Aufgaben.</td></tr>
+        <?php endif; ?>
+        </tbody>
+    </table></div>
+</div>
 
-        <div class="form-group fg-wide">
-            <label>Aufgabe *</label>
-            <input type="text" name="task" value="<?= val($edit_row ?? [], 'task') ?>" required>
+<!-- Neue Aufgabe -->
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">Neue Aufgabe</h2></div>
+    <form method="POST" action="?page=tasks">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="save">
+        <input type="hidden" name="edit_id" value="0">
+        <div class="form-grid">
+            <div class="form-group fg-wide"><label>Aufgabe</label><input type="text" name="task" required></div>
+            <div class="form-group"><label>Kategorie</label><input type="text" name="category" placeholder="z.B. Haushalt"></div>
+            <div class="form-group"><label>Priorität</label>
+                <select name="priority"><option>Hoch</option><option selected>Mittel</option><option>Niedrig</option></select>
+            </div>
+            <div class="form-group"><label>Zuständig</label><input type="text" name="responsible"></div>
+            <div class="form-group"><label>Fällig am</label><input type="date" name="due_date"></div>
+            <div class="form-group"><label>Intervall</label>
+                <select name="interval_type">
+                    <option value="">einmalig</option>
+                    <option>monatlich</option>
+                    <option>quartalsweise</option>
+                    <option>jährlich</option>
+                </select>
+            </div>
+            <div class="form-group fg-wide"><label>Notiz</label><textarea name="notes" rows="2"></textarea></div>
         </div>
-        <div class="form-group">
-            <label>Kategorie</label>
-            <input type="text" name="category" value="<?= val($edit_row ?? [], 'category') ?>">
-        </div>
-        <div class="form-group">
-            <label>Priorität</label>
-            <select name="priority">
-                <?php foreach (['Hoch','Mittel','Niedrig'] as $p): ?>
-                <option value="<?= $p ?>" <?= val($edit_row ?? [], 'priority', 'Mittel') === $p ? 'selected' : '' ?>><?= $p ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Verantwortlich</label>
-            <input type="text" name="responsible" value="<?= val($edit_row ?? [], 'responsible') ?>">
-        </div>
-        <div class="form-group">
-            <label>Intervall</label>
-            <input type="text" name="interval_type" placeholder="z.B. monatlich" value="<?= val($edit_row ?? [], 'interval_type') ?>">
-        </div>
-        <div class="form-group">
-            <label>Fällig am</label>
-            <input type="date" name="due_date" value="<?= val($edit_row ?? [], 'due_date') ?>">
-        </div>
-        <div class="form-group">
-            <label>Zuletzt erledigt</label>
-            <input type="date" name="last_done" value="<?= val($edit_row ?? [], 'last_done') ?>">
-        </div>
-        <div class="form-group">
-            <label>Status</label>
-            <select name="status">
-                <?php foreach (['Offen','Erledigt'] as $s): ?>
-                <option value="<?= $s ?>" <?= val($edit_row ?? [], 'status', 'Offen') === $s ? 'selected' : '' ?>><?= $s ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="form-group fg-wide">
-            <label>Notizen</label>
-            <textarea name="notes" rows="3"><?= val($edit_row ?? [], 'notes') ?></textarea>
-        </div>
-        <div class="form-actions fg-wide">
-            <button type="submit" class="btn btn-primary">Speichern</button>
-            <a href="?page=tasks" class="btn btn-ghost">Abbrechen</a>
+        <div class="form-actions form-actions--pad">
+            <button type="submit" class="btn btn-primary">Aufgabe anlegen</button>
         </div>
     </form>
 </div>
 
-<?php else: ?>
-<div class="card">
-    <div class="card-head">
-        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
-            <h2 class="card-title" style="margin:0">Aufgaben</h2>
-            <div class="filter-tabs">
-                <?php foreach (['Offen','Erledigt','alle'] as $f): ?>
-                <a href="?page=tasks&filter=<?= $f ?>" class="filter-tab <?= $filter_status === $f ? 'active' : '' ?>">
-                    <?= $f === 'alle' ? 'Alle' : $f ?>
-                </a>
-                <?php endforeach; ?>
-            </div>
-        </div>
-        <a href="?page=tasks&action=new" class="btn btn-primary btn-sm">+ Neue Aufgabe</a>
-    </div>
-
-    <?php if (empty($tasks)): ?>
-        <p class="empty-state">Keine Aufgaben vorhanden.</p>
-    <?php else: ?>
-    <div class="table-wrap">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Aufgabe</th><th>Kategorie</th><th>Priorität</th><th>Fällig</th><th>Status</th><th>Aktionen</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($tasks as $t): ?>
-                <tr class="<?= $t['status'] === 'Erledigt' ? 'row-done' : '' ?>">
-                    <td>
-                        <?= htmlspecialchars($t['task'], ENT_QUOTES, 'UTF-8') ?>
-                        <?php if ($t['notes']): ?>
-                            <span class="has-notes" title="<?= htmlspecialchars($t['notes'], ENT_QUOTES, 'UTF-8') ?>">●</span>
-                        <?php endif; ?>
-                    </td>
-                    <td><?= htmlspecialchars($t['category'] ?? '–', ENT_QUOTES, 'UTF-8') ?></td>
-                    <td><?= priority_badge($t['priority']) ?></td>
-                    <td><?= format_date($t['due_date']) ?></td>
-                    <td><?= htmlspecialchars($t['status'], ENT_QUOTES, 'UTF-8') ?></td>
-                    <td class="actions-cell">
-                        <a href="?page=tasks&action=edit&id=<?= $t['id'] ?>" class="btn btn-ghost btn-xs">Bearbeiten</a>
-                        <?php if ($t['status'] === 'Offen'): ?>
-                        <form method="POST" action="?page=tasks" style="display:inline">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="act" value="done">
-                            <input type="hidden" name="id"  value="<?= $t['id'] ?>">
-                            <button type="submit" class="btn btn-ok btn-xs">✓</button>
-                        </form>
-                        <?php endif; ?>
-                        <form method="POST" action="?page=tasks" style="display:inline"
-                              onsubmit="return confirm('Aufgabe wirklich löschen?')">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="act" value="delete">
-                            <input type="hidden" name="id"  value="<?= $t['id'] ?>">
-                            <button type="submit" class="btn btn-danger btn-xs">✕</button>
-                        </form>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-    <?php endif; ?>
+<!-- Erledigte Aufgaben -->
+<?php if (!empty($erledigt)): ?>
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">Erledigte Aufgaben</h2><span class="badge badge-ok">Letzte 20</span></div>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Aufgabe</th><th>Kategorie</th><th>Priorität</th><th>Erledigt am</th><th></th></tr></thead>
+        <tbody>
+        <?php foreach ($erledigt as $t): ?>
+        <tr class="row-done">
+            <td><?= he_t($t['task']) ?></td>
+            <td><?= he_t($t['category'] ?? '–') ?></td>
+            <td><?= prio_badge_t($t['priority']) ?></td>
+            <td><?= $t['updated_at'] ? date('d.m.Y', strtotime($t['updated_at'])) : '–' ?></td>
+            <td class="col-actions">
+                <form method="POST" action="?page=tasks" class="form-inline">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_status">
+                    <input type="hidden" name="id" value="<?= $t['id'] ?>">
+                    <input type="hidden" name="status" value="Offen">
+                    <button type="submit" class="btn btn-ghost btn-xs">↩ Offen</button>
+                </form>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table></div>
 </div>
 <?php endif; ?>

@@ -32,6 +32,11 @@ function initFinanzen() {
         var btnSave = document.getElementById('btn-save-' + type);
         if (btnEdit) btnEdit.setAttribute('hidden', '');
         if (btnSave) btnSave.removeAttribute('hidden');
+
+        // Zeilen-Hintergrund
+        card.querySelectorAll('tbody tr:not(.new-row):not(.new-row-label) td').forEach(function(td) {
+            td.classList.add('edit-highlight');
+        });
     }
 
     ['e', 'a', 's'].forEach(function(type) {
@@ -45,7 +50,7 @@ function initFinanzen() {
         });
     });
 
-    ['e', 'a', 's'].forEach(function(type) {
+    ['e', 'a', 's', 'z'].forEach(function(type) {
         var btn = document.getElementById('btn-new-' + type);
         if (btn) btn.addEventListener('click', function() {
             var frm = document.getElementById('frm-' + type + '-new');

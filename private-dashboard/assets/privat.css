@@ -899,10 +899,114 @@ select { cursor: pointer; }
     text-align: right !important;
 }
 
-/* Col-right: auch Inputs und Spans darin ausrichten */
-.data-table td.col-right input,
-.data-table td.col-right span {
-    text-align: right;
+/* Col-right: Spans darin ausrichten, aber nicht hidden Inputs aufheben */
+.data-table td.col-right span.ft-bulk {
     display: block;
     width: 100%;
+    text-align: right;
+}
+
+.data-table td.col-right input.fi-bulk {
+    text-align: right;
+    width: 100%;
+    display: none; /* überschrieben durch hidden-Attribut-Entfernung per JS */
+}
+
+/* ── Dashboard: Ziele Fortschrittsfarben ── */
+.progress-green { color: #1D9E75; }
+.progress-amber { color: #F59E0B; }
+.progress-red   { color: #EF4444; }
+
+.goal-bar-fill.progress-green { background: #1D9E75; }
+.goal-bar-fill.progress-amber { background: #F59E0B; }
+.goal-bar-fill.progress-red   { background: #EF4444; }
+
+/* ── Badge-Zeile unter Card-Titeln ── */
+.badge-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+/* ── Checkliste: farbige Card-Header ── */
+.card-head--green {
+    background: var(--green-light);
+    border-bottom-color: var(--green-mid);
+}
+.card-head--green .card-title { color: var(--green-dark); }
+
+.card-head--red {
+    background: #FEF2F2;
+    border-bottom-color: #FECACA;
+}
+.card-head--red .card-title { color: #991B1B; }
+
+.card-head--amber {
+    background: #FFFBEB;
+    border-bottom-color: #FDE68A;
+}
+.card-head--amber .card-title { color: #92400E; }
+
+/* ── Checkliste: Monatsnavigation ── */
+.chk-monat-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 16px 0;
+}
+
+/* ── Checkliste Übersicht ── */
+.chk-overview-table { font-size: 12px; }
+
+.chk-col-label {
+    min-width: 160px;
+    max-width: 200px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.chk-col-month {
+    text-align: center;
+    min-width: 44px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.chk-cell {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 6px !important;
+}
+
+.chk-cell--ok   { background: #D1FAE5; color: #065F46; }
+.chk-cell--warn { background: #FEF3C7; color: #92400E; }
+.chk-cell--open { background: #FEE2E2; color: #991B1B; }
+
+/* ── Ziele Seite ── */
+.goal-edit-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 6px;
+}
+.goal-update-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.goal-input { max-width: 100px; }
+.goal-kommentar { font-size: 12px; margin-top: 4px; }
+.form-actions--pad { padding: 0 24px 24px; }
+
+/* ── Notiz-Unterzeile ── */
+.row-notiz td { border-bottom: 0.5px solid var(--border); }
+.notiz-cell {
+    padding: 3px 12px 6px !important;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
 }

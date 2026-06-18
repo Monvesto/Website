@@ -43,10 +43,11 @@ function fmt(float $v, bool $sign = false): string {
     return ($v < 0 ? '–' : '') . $s . ' €';
 }
 function pct(float $v): string { return number_format($v * 100, 1, ',', '.') . '%'; }
-function progress_color(float $p): string {
-    if ($p >= 0.75) return '#1D9E75';
-    if ($p >= 0.4)  return '#F59E0B';
-    return '#EF4444';
+function pct_raw(float $v): string { return number_format($v * 100, 1, ',', '.'); }
+function progress_class(float $p): string {
+    if ($p >= 0.75) return 'progress-green';
+    if ($p >= 0.4)  return 'progress-amber';
+    return 'progress-red';
 }
 function days_left(?string $d): string {
     if (!$d) return '';
@@ -74,7 +75,6 @@ function format_date(?string $d): string {
 $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld'=>'🏦','Krypto'=>'₿','Copy Trading'=>'📊'];
 ?>
 
-<!-- Person Switcher: schwebend oben rechts im Content -->
 <div class="dashboard-person-bar">
     <div class="person-switcher">
         <?php foreach (['Marcel','Kim','Beide'] as $p): ?>
@@ -83,7 +83,6 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
     </div>
 </div>
 
-<!-- KPIs -->
 <div class="kpi-grid kpi-grid--6">
     <div class="kpi-card">
         <div class="kpi-label">📥 Einnahmen<?= $person!=='Beide'?' '.$person:'' ?></div>
@@ -117,7 +116,6 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
     </div>
 </div>
 
-<!-- Ziele + Investments -->
 <div class="dashboard-row mt-4">
     <div class="card">
         <div class="card-head">
@@ -129,17 +127,19 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
                 $range = abs((float)$z['zielwert'] - (float)$z['startwert']);
                 $curr  = abs((float)$z['aktueller_wert'] - (float)$z['startwert']);
                 $prog  = $range > 0 ? min(1, $curr / $range) : 0;
-                $color = progress_color($prog);
+                $pcls  = progress_class($prog);
             ?>
             <div class="goal-row">
                 <div class="goal-header">
                     <div class="goal-name"><?= htmlspecialchars($z['ziel']) ?></div>
                     <div class="goal-meta">
-                        <span class="goal-pct" style="color:<?= $color ?>"><?= pct($prog) ?></span>
+                        <span class="goal-pct <?= $pcls ?>"><?= pct($prog) ?></span>
                         <?php if ($z['zieltermin']): ?><span class="goal-date"><?= days_left($z['zieltermin']) ?></span><?php endif; ?>
                     </div>
                 </div>
-                <div class="goal-bar-track"><div class="goal-bar-fill" style="width:<?= pct($prog) ?>;background:<?= $color ?>"></div></div>
+                <div class="goal-bar-track">
+                    <div class="goal-bar-fill <?= $pcls ?>" data-width="<?= pct_raw($prog) ?>"></div>
+                </div>
                 <div class="goal-values">
                     <span><?= number_format((float)$z['aktueller_wert'],0,',','.') ?></span>
                     <span class="text-muted">von <?= number_format((float)$z['zielwert'],0,',','.') ?></span>
@@ -162,7 +162,7 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
             ?>
             <div class="invest-row">
                 <div class="invest-label"><span class="invest-icon"><?= $icon ?></span><span><?= htmlspecialchars($b['bereich']) ?></span></div>
-                <div class="invest-bar-wrap"><div class="invest-bar" style="width:<?= pct($anteil) ?>"></div></div>
+                <div class="invest-bar-wrap"><div class="invest-bar" data-width="<?= pct_raw($anteil) ?>"></div></div>
                 <div class="invest-value"><?= fmt((float)$b['gesamt']) ?></div>
             </div>
             <?php endforeach; ?>
@@ -174,18 +174,16 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
     </div>
 </div>
 
-<!-- Aufgaben + Wartungen -->
 <div class="dashboard-row mt-4">
     <div class="card">
         <div class="card-head">
             <div>
                 <h2 class="card-title">✅ Aufgaben</h2>
-                <div style="display:flex;gap:8px;margin-top:4px">
+                <div class="badge-row">
                     <span class="badge badge-neutral"><?= $open_tasks ?> offen</span>
                     <?php if ($overdue_tasks > 0): ?><span class="badge badge-danger"><?= $overdue_tasks ?> überfällig</span><?php endif; ?>
                 </div>
             </div>
-            <a href="?page=tasks&action=new" class="btn btn-primary btn-sm">+ Neu</a>
         </div>
         <?php if (empty($next_tasks)): ?>
             <p class="empty-state">Keine offenen Aufgaben.</p>
@@ -207,7 +205,9 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
         <div class="card-head">
             <div>
                 <h2 class="card-title">🔧 Wartungen</h2>
-                <?php if ($overdue_maint > 0): ?><div style="margin-top:4px"><span class="badge badge-danger"><?= $overdue_maint ?> überfällig</span></div><?php endif; ?>
+                <?php if ($overdue_maint > 0): ?>
+                <div class="badge-row"><span class="badge badge-danger"><?= $overdue_maint ?> überfällig</span></div>
+                <?php endif; ?>
             </div>
             <a href="?page=maintenance&action=new" class="btn btn-primary btn-sm">+ Neu</a>
         </div>
