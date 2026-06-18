@@ -3,7 +3,6 @@ $db     = get_db();
 $person = $_GET['person'] ?? 'Marcel';
 if (!in_array($person, ['Marcel','Kim','Beide'], true)) $person = 'Marcel';
 
-// KPIs gefiltert nach Person
 function db_sum(PDO $db, string $table, string $person, string $extra = ''): float {
     if ($person === 'Beide') {
         return (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM $table WHERE aktiv=1 $extra")->fetchColumn();
@@ -75,8 +74,8 @@ function format_date(?string $d): string {
 $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld'=>'🏦','Krypto'=>'₿','Copy Trading'=>'📊'];
 ?>
 
-<!-- Person Switcher -->
-<div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+<!-- Person Switcher: schwebend oben rechts im Content -->
+<div class="dashboard-person-bar">
     <div class="person-switcher">
         <?php foreach (['Marcel','Kim','Beide'] as $p): ?>
         <a href="?page=dashboard&person=<?= $p ?>" class="person-btn <?= $person===$p?'active':'' ?>"><?= $p ?></a>

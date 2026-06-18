@@ -31,6 +31,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tab = 'einnahmen';
     }
 
+    if ($act === 'einnahmen_bulk_save') {
+        foreach ($_POST['ids'] ?? [] as $id) {
+            $id  = (int)$id;
+            $row = $_POST['rows'][$id] ?? [];
+            $bez = trim($row['bezeichnung'] ?? '');
+            $bet = str_replace(',', '.', $row['betrag'] ?? '0');
+            $per = $row['person'] ?? 'Marcel';
+            $kat = trim($row['kategorie'] ?? '');
+            $tur = $row['turnus'] ?? 'Monatlich';
+            if ($bez === '') continue;
+            $db->prepare('UPDATE einnahmen SET bezeichnung=?,betrag=?,person=?,kategorie=?,turnus=? WHERE id=?')->execute([$bez,$bet,$per,$kat,$tur,$id]);
+        }
+        header("Location: ?page=finanzen&tab=einnahmen&person=$pf&msg=saved"); exit;
+    }
+
     if ($act === 'einnahme_delete') {
         $db->prepare('DELETE FROM einnahmen WHERE id=?')->execute([(int)$_POST['id']]);
         header("Location: ?page=finanzen&tab=einnahmen&person=$pf&msg=saved"); exit;
@@ -53,6 +68,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: ?page=finanzen&tab=ausgaben&person=$pf&msg=saved"); exit;
         }
         $tab = 'ausgaben';
+    }
+
+    if ($act === 'ausgaben_bulk_save') {
+        foreach ($_POST['ids'] ?? [] as $id) {
+            $id  = (int)$id;
+            $row = $_POST['rows'][$id] ?? [];
+            $bez = trim($row['bezeichnung'] ?? '');
+            $bet = str_replace(',', '.', $row['betrag'] ?? '0');
+            $per = $row['person'] ?? 'Marcel';
+            $kat = trim($row['kategorie'] ?? '');
+            $tur = $row['turnus'] ?? 'Monatlich';
+            if ($bez === '') continue;
+            $db->prepare('UPDATE ausgaben SET bezeichnung=?,betrag=?,person=?,kategorie=?,turnus=? WHERE id=?')->execute([$bez,$bet,$per,$kat,$tur,$id]);
+        }
+        header("Location: ?page=finanzen&tab=ausgaben&person=$pf&msg=saved"); exit;
     }
 
     if ($act === 'ausgabe_delete') {
@@ -79,25 +109,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tab = 'schulden';
     }
 
+    if ($act === 'schulden_bulk_save') {
+        foreach ($_POST['ids'] ?? [] as $id) {
+            $id  = (int)$id;
+            $row = $_POST['rows'][$id] ?? [];
+            $gl  = trim($row['glaeubiger'] ?? '');
+            $ss  = str_replace(',','.',$row['startsumme'] ?? '0');
+            $rs  = str_replace(',','.',$row['restsumme']  ?? '0');
+            $rt  = str_replace(',','.',$row['rate']       ?? '0');
+            $no  = trim($row['notiz'] ?? '');
+            if ($gl === '') continue;
+            $db->prepare('UPDATE verbindlichkeiten SET glaeubiger=?,startsumme=?,restsumme=?,rate=?,notiz=? WHERE id=?')->execute([$gl,$ss,$rs,$rt,$no,$id]);
+        }
+        header("Location: ?page=finanzen&tab=schulden&person=$pf&msg=saved"); exit;
+    }
+
     if ($act === 'schuld_delete') {
         $db->prepare('DELETE FROM verbindlichkeiten WHERE id=?')->execute([(int)$_POST['id']]);
         header("Location: ?page=finanzen&tab=schulden&person=$pf&msg=saved"); exit;
     }
+
+    // ── Reihenfolge ändern ──
+    if ($act === 'reorder') {
+        $table    = $_POST['table'] ?? '';
+        $id       = (int)($_POST['id'] ?? 0);
+        $dir      = $_POST['dir'] ?? ''; // 'up' oder 'down'
+        $redirect = $_POST['redirect'] ?? '?page=finanzen';
+        $allowed  = ['einnahmen','ausgaben','verbindlichkeiten','tasks','maintenance','ziele','checkliste'];
+        if (in_array($table, $allowed, true) && $id > 0 && in_array($dir, ['up','down'], true)) {
+            // Aktuelle Position holen
+            $cur = $db->prepare("SELECT position FROM `$table` WHERE id=?");
+            $cur->execute([$id]);
+            $curPos = (int)($cur->fetchColumn() ?? 0);
+            // Nachbar finden
+            if ($dir === 'up') {
+                $nb = $db->prepare("SELECT id, position FROM `$table` WHERE position < ? ORDER BY position DESC LIMIT 1");
+            } else {
+                $nb = $db->prepare("SELECT id, position FROM `$table` WHERE position > ? ORDER BY position ASC LIMIT 1");
+            }
+            $nb->execute([$curPos]);
+            $neighbor = $nb->fetch();
+            if ($neighbor) {
+                // Positionen tauschen
+                $db->prepare("UPDATE `$table` SET position=? WHERE id=?")->execute([$neighbor['position'], $id]);
+                $db->prepare("UPDATE `$table` SET position=? WHERE id=?")->execute([$curPos, $neighbor['id']]);
+            }
+        }
+        header("Location: $redirect"); exit;
+    }
 }
 
-// Bei POST-only Mode hier aufhören
 if (defined('HANDLE_POST_ONLY')) return;
-
-// ... Rest der finanzen.php bleibt exakt gleich wie zuletzt ...
 
 $msgs = ['saved' => 'Gespeichert.'];
 if (isset($_GET['msg'], $msgs[$_GET['msg']])) $success = $msgs[$_GET['msg']];
 
 function get_rows(PDO $db, string $table, string $person): array {
     if ($person === 'Beide') {
-        return $db->query("SELECT * FROM $table ORDER BY person, kategorie, bezeichnung")->fetchAll();
+        return $db->query("SELECT * FROM $table ORDER BY position, id")->fetchAll();
     }
-    $s = $db->prepare("SELECT * FROM $table WHERE person=? ORDER BY kategorie, bezeichnung");
+    $s = $db->prepare("SELECT * FROM $table WHERE person=? ORDER BY position, id");
     $s->execute([$person]);
     return $s->fetchAll();
 }
@@ -140,6 +211,30 @@ function kat_sel(array $opts, string $cur): string {
     return $out;
 }
 
+function reorder_btns(string $table, int $id, string $tab, string $person): string {
+    $redirect = urlencode("?page=finanzen&tab=$tab&person=$person");
+    $csrf = csrf_field();
+    return '
+    <form method="POST" action="?page=finanzen" class="form-inline">
+        '.$csrf.'
+        <input type="hidden" name="act" value="reorder">
+        <input type="hidden" name="table" value="'.$table.'">
+        <input type="hidden" name="id" value="'.$id.'">
+        <input type="hidden" name="redirect" value="?page=finanzen&tab='.$tab.'&person='.$person.'">
+        <input type="hidden" name="dir" value="up">
+        <button type="submit" class="btn-sort" title="Nach oben">▲</button>
+    </form>
+    <form method="POST" action="?page=finanzen" class="form-inline">
+        '.$csrf.'
+        <input type="hidden" name="act" value="reorder">
+        <input type="hidden" name="table" value="'.$table.'">
+        <input type="hidden" name="id" value="'.$id.'">
+        <input type="hidden" name="redirect" value="?page=finanzen&tab='.$tab.'&person='.$person.'">
+        <input type="hidden" name="dir" value="down">
+        <button type="submit" class="btn-sort" title="Nach unten">▼</button>
+    </form>';
+}
+
 $personen      = ['Marcel','Kim','Beide'];
 $turnusse      = ['Monatlich','Jährlich','Einmalig'];
 $kat_einnahmen = ['Gehalt','Nebeneinkommen','Immobilien','Investments','Sonstiges'];
@@ -163,7 +258,6 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
 </div>
 
 <?php if ($tab === 'uebersicht'): ?>
-<!-- ════ ÜBERSICHT ════ -->
 
 <div class="kpi-grid kpi-grid--4 mt-4">
     <div class="kpi-card">
@@ -190,15 +284,17 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
 
 <?php if ($person==='Beide'): ?>
 <div class="dashboard-row mt-4">
-    <div class="card"><div class="card-head"><h2 class="card-title">👤 Marcel</h2></div>
-        <div style="padding:20px">
+    <div class="card">
+        <div class="card-head"><h2 class="card-title">👤 Marcel</h2></div>
+        <div class="split-pad">
             <div class="finance-split-row"><span>Einnahmen</span><span class="text-green fw-700"><?= fmt2($ein_marcel) ?></span></div>
             <div class="finance-split-row"><span>Ausgaben</span><span class="text-red fw-700"><?= fmt2($aus_marcel) ?></span></div>
             <div class="finance-split-row finance-split-total"><span>Überschuss</span><span class="<?= ($ein_marcel-$aus_marcel)>=0?'text-green':'text-red' ?> fw-700"><?= fmt2($ein_marcel-$aus_marcel,true) ?></span></div>
         </div>
     </div>
-    <div class="card"><div class="card-head"><h2 class="card-title">👤 Kim</h2></div>
-        <div style="padding:20px">
+    <div class="card">
+        <div class="card-head"><h2 class="card-title">👤 Kim</h2></div>
+        <div class="split-pad">
             <div class="finance-split-row"><span>Einnahmen</span><span class="text-green fw-700"><?= fmt2($ein_kim) ?></span></div>
             <div class="finance-split-row"><span>Ausgaben</span><span class="text-red fw-700"><?= fmt2($aus_kim) ?></span></div>
             <div class="finance-split-row finance-split-total"><span>Überschuss</span><span class="<?= ($ein_kim-$aus_kim)>=0?'text-green':'text-red' ?> fw-700"><?= fmt2($ein_kim-$aus_kim,true) ?></span></div>
@@ -211,19 +307,19 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
     <div class="card">
         <div class="card-head"><h2 class="card-title">Einnahmen im Detail</h2><span class="badge badge-ok"><?= fmt2($ein_gesamt) ?>/Mon.</span></div>
         <div class="table-wrap"><table class="data-table">
-            <thead><tr><th>Bezeichnung</th><?php if($person==='Beide'): ?><th>Person</th><?php endif; ?><th>Kategorie</th><th style="text-align:right">Betrag</th></tr></thead>
+            <thead><tr><th>Bezeichnung</th><?php if($person==='Beide'): ?><th>Person</th><?php endif; ?><th>Kategorie</th><th class="col-right">Betrag</th></tr></thead>
             <tbody>
             <?php foreach ($einnahmen_alle as $e): if (!$e['aktiv']) continue; ?>
             <tr>
                 <td><?= he($e['bezeichnung']) ?></td>
                 <?php if($person==='Beide'): ?><td><?= he($e['person']) ?></td><?php endif; ?>
                 <td><span class="badge badge-neutral"><?= he($e['kategorie']??'–') ?></span></td>
-                <td style="text-align:right" class="fw-700 text-green"><?= fmt2((float)$e['betrag']) ?></td>
+                <td class="col-right fw-700 text-green"><?= fmt2((float)$e['betrag']) ?></td>
             </tr>
             <?php endforeach; ?>
-            <tr style="border-top:1px solid var(--border)">
+            <tr class="row-total">
                 <td colspan="<?= $person==='Beide'?3:2 ?>" class="fw-700">Gesamt</td>
-                <td style="text-align:right" class="fw-700 text-green"><?= fmt2($ein_gesamt) ?></td>
+                <td class="col-right fw-700 text-green"><?= fmt2($ein_gesamt) ?></td>
             </tr>
             </tbody>
         </table></div>
@@ -231,19 +327,19 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
     <div class="card">
         <div class="card-head"><h2 class="card-title">Ausgaben im Detail</h2><span class="badge badge-danger"><?= fmt2($aus_gesamt) ?>/Mon.</span></div>
         <div class="table-wrap"><table class="data-table">
-            <thead><tr><th>Bezeichnung</th><?php if($person==='Beide'): ?><th>Person</th><?php endif; ?><th>Kategorie</th><th style="text-align:right">Betrag</th></tr></thead>
+            <thead><tr><th>Bezeichnung</th><?php if($person==='Beide'): ?><th>Person</th><?php endif; ?><th>Kategorie</th><th class="col-right">Betrag</th></tr></thead>
             <tbody>
             <?php foreach ($ausgaben_alle as $a): if (!$a['aktiv']) continue; ?>
             <tr>
                 <td><?= he($a['bezeichnung']) ?></td>
                 <?php if($person==='Beide'): ?><td><?= he($a['person']) ?></td><?php endif; ?>
                 <td><span class="badge badge-neutral"><?= he($a['kategorie']??'–') ?></span></td>
-                <td style="text-align:right" class="fw-700 text-red"><?= fmt2((float)$a['betrag']) ?></td>
+                <td class="col-right fw-700 text-red"><?= fmt2((float)$a['betrag']) ?></td>
             </tr>
             <?php endforeach; ?>
-            <tr style="border-top:1px solid var(--border)">
+            <tr class="row-total">
                 <td colspan="<?= $person==='Beide'?3:2 ?>" class="fw-700">Gesamt</td>
-                <td style="text-align:right" class="fw-700 text-red"><?= fmt2($aus_gesamt) ?></td>
+                <td class="col-right fw-700 text-red"><?= fmt2($aus_gesamt) ?></td>
             </tr>
             </tbody>
         </table></div>
@@ -263,22 +359,21 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
     $kat_total = array_sum($kat_summen);
     ?>
     <div class="table-wrap"><table class="data-table">
-        <thead><tr><th>Kategorie</th><th>Anteil</th><th style="text-align:right">Betrag</th></tr></thead>
+        <thead><tr><th>Kategorie</th><th>Anteil</th><th class="col-right">Betrag</th></tr></thead>
         <tbody>
         <?php foreach ($kat_summen as $kat => $sum):
             $anteil = $kat_total > 0 ? $sum / $kat_total : 0;
+            $pct    = number_format($anteil*100, 1, ',', '.');
         ?>
         <tr>
             <td><?= he($kat) ?></td>
             <td>
-                <div style="display:flex;align-items:center;gap:10px">
-                    <div style="flex:1;background:var(--border);border-radius:4px;height:6px;overflow:hidden;min-width:80px">
-                        <div style="height:100%;background:var(--text-muted);border-radius:4px;width:<?= number_format($anteil*100,1,',','.') ?>%"></div>
-                    </div>
-                    <span style="font-size:12px;color:var(--text-muted);min-width:36px"><?= number_format($anteil*100,0) ?>%</span>
+                <div class="bar-wrap">
+                    <div class="bar-track"><div class="bar-fill" data-width="<?= $pct ?>"></div></div>
+                    <span class="bar-label"><?= number_format($anteil*100,0) ?>%</span>
                 </div>
             </td>
-            <td style="text-align:right" class="fw-700"><?= fmt2($sum) ?></td>
+            <td class="col-right fw-700"><?= fmt2($sum) ?></td>
         </tr>
         <?php endforeach; ?>
         </tbody>
@@ -286,335 +381,285 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
 </div>
 
 <?php elseif ($tab === 'einnahmen'): ?>
-<!-- ════ EINNAHMEN ════ -->
 
-<div class="card mt-4">
+<div class="card mt-4" id="card-einnahmen">
     <div class="card-head">
-        <h2 class="card-title">Einnahmen<?= $person!=='Beide'?' – '.$person:'' ?></h2>
-        <span class="badge badge-ok"><?= fmt2($ein_gesamt) ?>/Mon.</span>
+        <div class="card-head-left">
+            <h2 class="card-title">Einnahmen<?= $person!=='Beide'?' – '.$person:'' ?></h2>
+            <span class="card-sum text-green"><?= fmt2($ein_gesamt) ?>/Mon.</span>
+        </div>
+        <div class="bulk-bar">
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-edit-e">✏ Bearbeiten</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-save-e" hidden>✓ Speichern</button>
+        </div>
     </div>
+    <form id="frm-e-bulk" method="POST" action="?page=finanzen">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="einnahmen_bulk_save">
+        <input type="hidden" name="person_filter" value="<?= he($person) ?>">
+        <?php foreach ($einnahmen_alle as $e): ?>
+        <input type="hidden" name="ids[]" value="<?= $e['id'] ?>">
+        <?php endforeach; ?>
     <div class="table-wrap">
         <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Bezeichnung</th>
-                    <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
-                    <th>Kategorie</th>
-                    <th>Turnus</th>
-                    <th style="text-align:right">Betrag</th>
-                    <th style="text-align:right">Aktionen</th>
-                </tr>
-            </thead>
+            <thead><tr>
+                <th></th>
+                <th>Bezeichnung</th>
+                <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
+                <th>Kategorie</th><th>Turnus</th>
+                <th class="col-right">Betrag</th>
+                <th></th>
+            </tr></thead>
             <tbody>
             <?php foreach ($einnahmen_alle as $e): $eid = $e['id']; ?>
-            <tr id="row-e-<?= $eid ?>">
+            <tr>
+                <td class="col-sort"><?= reorder_btns('einnahmen', $eid, 'einnahmen', $person) ?></td>
                 <td>
-                    <span class="ft"><?= he($e['bezeichnung']) ?></span>
-                    <input class="inline-input fi" form="frm-e-<?= $eid ?>" name="bezeichnung" value="<?= he($e['bezeichnung']) ?>" required>
+                    <span class="ft-bulk"><?= he($e['bezeichnung']) ?></span>
+                    <input class="inline-input fi-bulk" hidden name="rows[<?= $eid ?>][bezeichnung]" value="<?= he($e['bezeichnung']) ?>" required>
                 </td>
                 <?php if($person==='Beide'): ?>
                 <td>
-                    <span class="ft"><?= he($e['person']) ?></span>
-                    <select class="inline-input fi" form="frm-e-<?= $eid ?>" name="person"><?= sel($personen,$e['person']) ?></select>
+                    <span class="ft-bulk"><?= he($e['person']) ?></span>
+                    <select class="inline-input fi-bulk" hidden name="rows[<?= $eid ?>][person]"><?= sel($personen,$e['person']) ?></select>
                 </td>
                 <?php endif; ?>
                 <td>
-                    <span class="ft"><span class="badge badge-neutral"><?= he($e['kategorie']??'–') ?></span></span>
-                    <select class="inline-input fi" form="frm-e-<?= $eid ?>" name="kategorie"><?= kat_sel($kat_einnahmen,$e['kategorie']??'') ?></select>
+                    <span class="ft-bulk"><span class="badge badge-neutral"><?= he($e['kategorie']??'–') ?></span></span>
+                    <select class="inline-input fi-bulk" hidden name="rows[<?= $eid ?>][kategorie]"><?= kat_sel($kat_einnahmen,$e['kategorie']??'') ?></select>
                 </td>
                 <td>
-                    <span class="ft"><?= he($e['turnus']) ?></span>
-                    <select class="inline-input fi" form="frm-e-<?= $eid ?>" name="turnus"><?= sel($turnusse,$e['turnus']) ?></select>
+                    <span class="ft-bulk"><?= he($e['turnus']) ?></span>
+                    <select class="inline-input fi-bulk" hidden name="rows[<?= $eid ?>][turnus]"><?= sel($turnusse,$e['turnus']) ?></select>
                 </td>
-                <td style="text-align:right">
-                    <span class="ft fw-700 text-green"><?= fmt2((float)$e['betrag']) ?></span>
-                    <input class="inline-input fi" form="frm-e-<?= $eid ?>" name="betrag" value="<?= he(number_format((float)$e['betrag'],2,',','.')) ?>" style="text-align:right;max-width:90px">
+                <td class="col-right">
+                    <span class="ft-bulk fw-700 text-green"><?= fmt2((float)$e['betrag']) ?></span>
+                    <input class="inline-input fi-bulk input-right input-narrow" hidden name="rows[<?= $eid ?>][betrag]" value="<?= he(number_format((float)$e['betrag'],2,',','.')) ?>">
                 </td>
-                <td style="text-align:right;white-space:nowrap">
-                    <form id="frm-e-<?= $eid ?>" method="POST" action="?page=finanzen" style="display:none">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="einnahme_save">
-                        <input type="hidden" name="edit_id" value="<?= $eid ?>">
-                        <input type="hidden" name="person_filter" value="<?= he($person) ?>">
-                    </form>
-                    <button type="button" class="btn btn-ghost btn-xs b-edit"   onclick="rowEdit('e',<?= $eid ?>)">Bearb.</button>
-                    <button type="button" class="btn btn-primary btn-xs b-save" onclick="rowSave('e',<?= $eid ?>)">Speichern</button>
-                    <button type="button" class="btn btn-ghost btn-xs b-cancel" onclick="rowCancel('e',<?= $eid ?>)">Abbruch</button>
-                    <form method="POST" action="?page=finanzen" style="display:inline" onsubmit="return confirm('Diesen Eintrag wirklich löschen?')">
+                <td class="col-actions">
+                    <form method="POST" action="?page=finanzen" class="form-inline">
                         <?= csrf_field() ?>
                         <input type="hidden" name="act" value="einnahme_delete">
                         <input type="hidden" name="id" value="<?= $eid ?>">
                         <input type="hidden" name="person_filter" value="<?= he($person) ?>">
-                        <button type="submit" class="btn btn-danger btn-xs">✕</button>
+                        <button type="submit" class="btn btn-danger btn-xs fi-bulk btn-delete-confirm" hidden>✕</button>
                     </form>
                 </td>
             </tr>
             <?php endforeach; ?>
-
-            <!-- NEUE ZEILE -->
-            <tr>
-                <td colspan="<?= $person==='Beide'?6:5 ?>" style="padding:4px 16px 0">
-                    <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--green)">Neuer Datensatz</span>
-                </td>
-            </tr>
+            <tr class="new-row-label"><td colspan="<?= $person==='Beide'?7:6 ?>"><span class="new-label">Neuer Datensatz</span></td></tr>
             <tr class="new-row">
+                <td></td>
                 <td><input class="inline-input new-input" form="frm-e-new" name="bezeichnung" placeholder="Bezeichnung" required></td>
                 <?php if($person==='Beide'): ?>
                 <td><select class="inline-input new-input" form="frm-e-new" name="person"><?= sel($personen,'Marcel') ?></select></td>
                 <?php endif; ?>
                 <td><select class="inline-input new-input" form="frm-e-new" name="kategorie"><?= kat_sel($kat_einnahmen,'') ?></select></td>
                 <td><select class="inline-input new-input" form="frm-e-new" name="turnus"><?= sel($turnusse,'Monatlich') ?></select></td>
-                <td><input class="inline-input new-input" form="frm-e-new" name="betrag" placeholder="0,00" style="text-align:right;max-width:90px"></td>
-                <td style="text-align:right">
-                    <form id="frm-e-new" method="POST" action="?page=finanzen" style="display:none">
+                <td><input class="inline-input new-input input-right input-narrow" form="frm-e-new" name="betrag" placeholder="0,00"></td>
+                <td class="col-actions">
+                    <form id="frm-e-new" method="POST" action="?page=finanzen" class="form-hidden">
                         <?= csrf_field() ?>
                         <input type="hidden" name="act" value="einnahme_save">
                         <input type="hidden" name="edit_id" value="0">
                         <input type="hidden" name="person_filter" value="<?= he($person) ?>">
                     </form>
-                    <button type="button" class="btn btn-primary btn-xs" onclick="document.getElementById('frm-e-new').submit()">+ Hinzufügen</button>
+                    <button type="button" class="btn btn-primary btn-xs" id="btn-new-e">+ Hinzufügen</button>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
+    </form>
 </div>
 
 <?php elseif ($tab === 'ausgaben'): ?>
-<!-- ════ AUSGABEN ════ -->
 
-<div class="card mt-4">
+<div class="card mt-4" id="card-ausgaben">
     <div class="card-head">
-        <h2 class="card-title">Ausgaben<?= $person!=='Beide'?' – '.$person:'' ?></h2>
-        <span class="badge badge-danger"><?= fmt2($aus_gesamt) ?>/Mon.</span>
+        <div class="card-head-left">
+            <h2 class="card-title">Ausgaben<?= $person!=='Beide'?' – '.$person:'' ?></h2>
+            <span class="card-sum text-red"><?= fmt2($aus_gesamt) ?>/Mon.</span>
+        </div>
+        <div class="bulk-bar">
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-edit-a">✏ Bearbeiten</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-save-a" hidden>✓ Speichern</button>
+        </div>
     </div>
+    <form id="frm-a-bulk" method="POST" action="?page=finanzen">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="ausgaben_bulk_save">
+        <input type="hidden" name="person_filter" value="<?= he($person) ?>">
+        <?php foreach ($ausgaben_alle as $a): ?>
+        <input type="hidden" name="ids[]" value="<?= $a['id'] ?>">
+        <?php endforeach; ?>
     <div class="table-wrap">
         <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Bezeichnung</th>
-                    <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
-                    <th>Kategorie</th>
-                    <th>Turnus</th>
-                    <th style="text-align:right">Betrag</th>
-                    <th style="text-align:right">Aktionen</th>
-                </tr>
-            </thead>
+            <thead><tr>
+                <th></th>
+                <th>Bezeichnung</th>
+                <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
+                <th>Kategorie</th><th>Turnus</th>
+                <th class="col-right">Betrag</th>
+                <th></th>
+            </tr></thead>
             <tbody>
             <?php foreach ($ausgaben_alle as $a): $aid = $a['id']; ?>
-            <tr id="row-a-<?= $aid ?>">
+            <tr>
+                <td class="col-sort"><?= reorder_btns('ausgaben', $aid, 'ausgaben', $person) ?></td>
                 <td>
-                    <span class="ft"><?= he($a['bezeichnung']) ?></span>
-                    <input class="inline-input fi" form="frm-a-<?= $aid ?>" name="bezeichnung" value="<?= he($a['bezeichnung']) ?>" required>
+                    <span class="ft-bulk"><?= he($a['bezeichnung']) ?></span>
+                    <input class="inline-input fi-bulk" hidden name="rows[<?= $aid ?>][bezeichnung]" value="<?= he($a['bezeichnung']) ?>" required>
                 </td>
                 <?php if($person==='Beide'): ?>
                 <td>
-                    <span class="ft"><?= he($a['person']) ?></span>
-                    <select class="inline-input fi" form="frm-a-<?= $aid ?>" name="person"><?= sel($personen,$a['person']) ?></select>
+                    <span class="ft-bulk"><?= he($a['person']) ?></span>
+                    <select class="inline-input fi-bulk" hidden name="rows[<?= $aid ?>][person]"><?= sel($personen,$a['person']) ?></select>
                 </td>
                 <?php endif; ?>
                 <td>
-                    <span class="ft"><span class="badge badge-neutral"><?= he($a['kategorie']??'–') ?></span></span>
-                    <select class="inline-input fi" form="frm-a-<?= $aid ?>" name="kategorie"><?= kat_sel($kat_ausgaben,$a['kategorie']??'') ?></select>
+                    <span class="ft-bulk"><span class="badge badge-neutral"><?= he($a['kategorie']??'–') ?></span></span>
+                    <select class="inline-input fi-bulk" hidden name="rows[<?= $aid ?>][kategorie]"><?= kat_sel($kat_ausgaben,$a['kategorie']??'') ?></select>
                 </td>
                 <td>
-                    <span class="ft"><?= he($a['turnus']) ?></span>
-                    <select class="inline-input fi" form="frm-a-<?= $aid ?>" name="turnus"><?= sel($turnusse,$a['turnus']) ?></select>
+                    <span class="ft-bulk"><?= he($a['turnus']) ?></span>
+                    <select class="inline-input fi-bulk" hidden name="rows[<?= $aid ?>][turnus]"><?= sel($turnusse,$a['turnus']) ?></select>
                 </td>
-                <td style="text-align:right">
-                    <span class="ft fw-700 text-red"><?= fmt2((float)$a['betrag']) ?></span>
-                    <input class="inline-input fi" form="frm-a-<?= $aid ?>" name="betrag" value="<?= he(number_format((float)$a['betrag'],2,',','.')) ?>" style="text-align:right;max-width:90px">
+                <td class="col-right">
+                    <span class="ft-bulk fw-700 text-red"><?= fmt2((float)$a['betrag']) ?></span>
+                    <input class="inline-input fi-bulk input-right input-narrow" hidden name="rows[<?= $aid ?>][betrag]" value="<?= he(number_format((float)$a['betrag'],2,',','.')) ?>">
                 </td>
-                <td style="text-align:right;white-space:nowrap">
-                    <form id="frm-a-<?= $aid ?>" method="POST" action="?page=finanzen" style="display:none">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="ausgabe_save">
-                        <input type="hidden" name="edit_id" value="<?= $aid ?>">
-                        <input type="hidden" name="person_filter" value="<?= he($person) ?>">
-                    </form>
-                    <button type="button" class="btn btn-ghost btn-xs b-edit"   onclick="rowEdit('a',<?= $aid ?>)">Bearb.</button>
-                    <button type="button" class="btn btn-primary btn-xs b-save" onclick="rowSave('a',<?= $aid ?>)">Speichern</button>
-                    <button type="button" class="btn btn-ghost btn-xs b-cancel" onclick="rowCancel('a',<?= $aid ?>)">Abbruch</button>
-                    <form method="POST" action="?page=finanzen" style="display:inline" onsubmit="return confirm('Diesen Eintrag wirklich löschen?')">
+                <td class="col-actions">
+                    <form method="POST" action="?page=finanzen" class="form-inline">
                         <?= csrf_field() ?>
                         <input type="hidden" name="act" value="ausgabe_delete">
                         <input type="hidden" name="id" value="<?= $aid ?>">
                         <input type="hidden" name="person_filter" value="<?= he($person) ?>">
-                        <button type="submit" class="btn btn-danger btn-xs">✕</button>
+                        <button type="submit" class="btn btn-danger btn-xs fi-bulk btn-delete-confirm" hidden>✕</button>
                     </form>
                 </td>
             </tr>
             <?php endforeach; ?>
-
-            <!-- NEUE ZEILE -->
-            <tr>
-                <td colspan="<?= $person==='Beide'?6:5 ?>" style="padding:4px 16px 0">
-                    <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--green)">Neuer Datensatz</span>
-                </td>
-            </tr>
+            <tr class="new-row-label"><td colspan="<?= $person==='Beide'?7:6 ?>"><span class="new-label">Neuer Datensatz</span></td></tr>
             <tr class="new-row">
+                <td></td>
                 <td><input class="inline-input new-input" form="frm-a-new" name="bezeichnung" placeholder="Bezeichnung" required></td>
                 <?php if($person==='Beide'): ?>
                 <td><select class="inline-input new-input" form="frm-a-new" name="person"><?= sel($personen,'Marcel') ?></select></td>
                 <?php endif; ?>
                 <td><select class="inline-input new-input" form="frm-a-new" name="kategorie"><?= kat_sel($kat_ausgaben,'') ?></select></td>
                 <td><select class="inline-input new-input" form="frm-a-new" name="turnus"><?= sel($turnusse,'Monatlich') ?></select></td>
-                <td><input class="inline-input new-input" form="frm-a-new" name="betrag" placeholder="0,00" style="text-align:right;max-width:90px"></td>
-                <td style="text-align:right">
-                    <form id="frm-a-new" method="POST" action="?page=finanzen" style="display:none">
+                <td><input class="inline-input new-input input-right input-narrow" form="frm-a-new" name="betrag" placeholder="0,00"></td>
+                <td class="col-actions">
+                    <form id="frm-a-new" method="POST" action="?page=finanzen" class="form-hidden">
                         <?= csrf_field() ?>
                         <input type="hidden" name="act" value="ausgabe_save">
                         <input type="hidden" name="edit_id" value="0">
                         <input type="hidden" name="person_filter" value="<?= he($person) ?>">
                     </form>
-                    <button type="button" class="btn btn-primary btn-xs" onclick="document.getElementById('frm-a-new').submit()">+ Hinzufügen</button>
+                    <button type="button" class="btn btn-primary btn-xs" id="btn-new-a">+ Hinzufügen</button>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
+    </form>
 </div>
 
 <?php elseif ($tab === 'schulden'): ?>
-<!-- ════ SCHULDEN ════ -->
 
-<div class="card mt-4">
+<div class="card mt-4" id="card-schulden">
     <div class="card-head">
-        <h2 class="card-title">Verbindlichkeiten</h2>
-        <span class="badge badge-danger">Gesamt: <?= fmt2($schulden_gesamt) ?></span>
+        <div class="card-head-left">
+            <h2 class="card-title">Verbindlichkeiten</h2>
+            <span class="card-sum text-red"><?= fmt2($schulden_gesamt) ?></span>
+        </div>
+        <div class="bulk-bar">
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-edit-s">✏ Bearbeiten</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-save-s" hidden>✓ Speichern</button>
+        </div>
     </div>
+    <form id="frm-s-bulk" method="POST" action="?page=finanzen">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="schulden_bulk_save">
+        <input type="hidden" name="person_filter" value="<?= he($person) ?>">
+        <?php foreach ($schulden_alle as $s): ?>
+        <input type="hidden" name="ids[]" value="<?= $s['id'] ?>">
+        <?php endforeach; ?>
     <div class="table-wrap">
         <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Gläubiger</th>
-                    <th>Startsumme</th>
-                    <th>Restsumme</th>
-                    <th>Rate/Mon.</th>
-                    <th>Abbezahlt</th>
-                    <th>Notiz</th>
-                    <th style="text-align:right">Aktionen</th>
-                </tr>
-            </thead>
+            <thead><tr>
+                <th></th>
+                <th>Gläubiger</th><th>Startsumme</th><th>Restsumme</th>
+                <th>Rate/Mon.</th><th>Abbezahlt</th><th>Notiz</th><th></th>
+            </tr></thead>
             <tbody>
             <?php foreach ($schulden_alle as $s): $sid = $s['id'];
                 $abgezahlt = (float)$s['startsumme'] > 0
                     ? max(0, min(1, 1 - (float)$s['restsumme'] / (float)$s['startsumme']))
                     : 0;
             ?>
-            <tr id="row-s-<?= $sid ?>">
+            <tr>
+                <td class="col-sort"><?= reorder_btns('verbindlichkeiten', $sid, 'schulden', $person) ?></td>
                 <td>
-                    <span class="ft"><?= he($s['glaeubiger']) ?></span>
-                    <input class="inline-input fi" form="frm-s-<?= $sid ?>" name="glaeubiger" value="<?= he($s['glaeubiger']) ?>" required>
+                    <span class="ft-bulk"><?= he($s['glaeubiger']) ?></span>
+                    <input class="inline-input fi-bulk" hidden name="rows[<?= $sid ?>][glaeubiger]" value="<?= he($s['glaeubiger']) ?>" required>
                 </td>
                 <td>
-                    <span class="ft"><?= fmt2((float)$s['startsumme']) ?></span>
-                    <input class="inline-input fi" form="frm-s-<?= $sid ?>" name="startsumme" value="<?= he(number_format((float)$s['startsumme'],2,',','.')) ?>" style="max-width:90px">
+                    <span class="ft-bulk"><?= fmt2((float)$s['startsumme']) ?></span>
+                    <input class="inline-input fi-bulk input-narrow" hidden name="rows[<?= $sid ?>][startsumme]" value="<?= he(number_format((float)$s['startsumme'],2,',','.')) ?>">
                 </td>
                 <td>
-                    <span class="ft fw-700 text-red"><?= fmt2((float)$s['restsumme']) ?></span>
-                    <input class="inline-input fi" form="frm-s-<?= $sid ?>" name="restsumme" value="<?= he(number_format((float)$s['restsumme'],2,',','.')) ?>" style="max-width:90px">
+                    <span class="ft-bulk fw-700 text-red"><?= fmt2((float)$s['restsumme']) ?></span>
+                    <input class="inline-input fi-bulk input-narrow" hidden name="rows[<?= $sid ?>][restsumme]" value="<?= he(number_format((float)$s['restsumme'],2,',','.')) ?>">
                 </td>
                 <td>
-                    <span class="ft"><?= $s['rate']>0?fmt2((float)$s['rate']):'–' ?></span>
-                    <input class="inline-input fi" form="frm-s-<?= $sid ?>" name="rate" value="<?= he(number_format((float)$s['rate'],2,',','.')) ?>" style="max-width:90px">
+                    <span class="ft-bulk"><?= $s['rate']>0?fmt2((float)$s['rate']):'–' ?></span>
+                    <input class="inline-input fi-bulk input-narrow" hidden name="rows[<?= $sid ?>][rate]" value="<?= he(number_format((float)$s['rate'],2,',','.')) ?>">
                 </td>
                 <td>
-                    <div class="ft" style="display:flex;align-items:center;gap:8px">
-                        <div style="flex:1;background:var(--border);border-radius:4px;height:6px;overflow:hidden;min-width:60px">
-                            <div style="height:100%;background:var(--green);border-radius:4px;width:<?= number_format($abgezahlt*100,0) ?>%"></div>
-                        </div>
-                        <span style="font-size:12px;color:var(--text-muted)"><?= number_format($abgezahlt*100,0) ?>%</span>
+                    <div class="progress-wrap">
+                        <div class="progress-track"><div class="progress-fill" data-width="<?= number_format($abgezahlt*100,0) ?>"></div></div>
+                        <span class="progress-label"><?= number_format($abgezahlt*100,0) ?>%</span>
                     </div>
-                    <span class="fi" style="font-size:11px;color:var(--text-muted)">auto</span>
                 </td>
                 <td>
-                    <span class="ft"><?= he($s['notiz']??'–') ?></span>
-                    <input class="inline-input fi" form="frm-s-<?= $sid ?>" name="notiz" value="<?= he($s['notiz']??'') ?>">
+                    <span class="ft-bulk"><?= he($s['notiz']??'–') ?></span>
+                    <input class="inline-input fi-bulk" hidden name="rows[<?= $sid ?>][notiz]" value="<?= he($s['notiz']??'') ?>">
                 </td>
-                <td style="text-align:right;white-space:nowrap">
-                    <form id="frm-s-<?= $sid ?>" method="POST" action="?page=finanzen" style="display:none">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="schuld_save">
-                        <input type="hidden" name="edit_id" value="<?= $sid ?>">
-                        <input type="hidden" name="person_filter" value="<?= he($person) ?>">
-                    </form>
-                    <button type="button" class="btn btn-ghost btn-xs b-edit"   onclick="rowEdit('s',<?= $sid ?>)">Bearb.</button>
-                    <button type="button" class="btn btn-primary btn-xs b-save" onclick="rowSave('s',<?= $sid ?>)">Speichern</button>
-                    <button type="button" class="btn btn-ghost btn-xs b-cancel" onclick="rowCancel('s',<?= $sid ?>)">Abbruch</button>
-                    <form method="POST" action="?page=finanzen" style="display:inline" onsubmit="return confirm('Diesen Eintrag wirklich löschen?')">
+                <td class="col-actions">
+                    <form method="POST" action="?page=finanzen" class="form-inline">
                         <?= csrf_field() ?>
                         <input type="hidden" name="act" value="schuld_delete">
                         <input type="hidden" name="id" value="<?= $sid ?>">
                         <input type="hidden" name="person_filter" value="<?= he($person) ?>">
-                        <button type="submit" class="btn btn-danger btn-xs">✕</button>
+                        <button type="submit" class="btn btn-danger btn-xs fi-bulk btn-delete-confirm" hidden>✕</button>
                     </form>
                 </td>
             </tr>
             <?php endforeach; ?>
-
-            <!-- NEUE ZEILE -->
-            <tr>
-                <td colspan="7" style="padding:4px 16px 0">
-                    <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--green)">Neuer Datensatz</span>
-                </td>
-            </tr>
+            <tr class="new-row-label"><td colspan="8"><span class="new-label">Neuer Datensatz</span></td></tr>
             <tr class="new-row">
                 <td><input class="inline-input new-input" form="frm-s-new" name="glaeubiger" placeholder="Gläubiger" required></td>
-                <td><input class="inline-input new-input" form="frm-s-new" name="startsumme" placeholder="0,00" style="max-width:90px"></td>
-                <td><input class="inline-input new-input" form="frm-s-new" name="restsumme"  placeholder="0,00" style="max-width:90px"></td>
-                <td><input class="inline-input new-input" form="frm-s-new" name="rate"       placeholder="0,00" style="max-width:90px"></td>
+                <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="startsumme" placeholder="0,00"></td>
+                <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="restsumme" placeholder="0,00"></td>
+                <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="rate" placeholder="0,00"></td>
                 <td></td>
                 <td><input class="inline-input new-input" form="frm-s-new" name="notiz" placeholder="optional"></td>
-                <td style="text-align:right">
-                    <form id="frm-s-new" method="POST" action="?page=finanzen" style="display:none">
+                <td class="col-actions">
+                    <form id="frm-s-new" method="POST" action="?page=finanzen" class="form-hidden">
                         <?= csrf_field() ?>
                         <input type="hidden" name="act" value="schuld_save">
                         <input type="hidden" name="edit_id" value="0">
                         <input type="hidden" name="person_filter" value="<?= he($person) ?>">
                     </form>
-                    <button type="button" class="btn btn-primary btn-xs" onclick="document.getElementById('frm-s-new').submit()">+ Hinzufügen</button>
+                    <button type="button" class="btn btn-primary btn-xs" id="btn-new-s">+ Hinzufügen</button>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
+    </form>
 </div>
 
 <?php endif; ?>
-
-<script>
-// Beim Laden: alle .fi (Field-Inputs) verstecken, .ft (Field-Text) zeigen
-// Speichern/Abbruch-Buttons verstecken
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.fi').forEach(function(el) { el.style.display = 'none'; });
-    document.querySelectorAll('.b-save, .b-cancel').forEach(function(el) { el.style.display = 'none'; });
-});
-
-function rowEdit(type, id) {
-    var row = document.getElementById('row-' + type + '-' + id);
-    row.querySelectorAll('.ft').forEach(function(el) { el.style.display = 'none'; });
-    row.querySelectorAll('.fi').forEach(function(el) { el.style.display = ''; });
-    row.querySelector('.b-edit').style.display   = 'none';
-    row.querySelector('.b-save').style.display   = '';
-    row.querySelector('.b-cancel').style.display = '';
-    row.style.background = 'var(--green-light)';
-    var first = row.querySelector('.fi.inline-input');
-    if (first) first.focus();
-}
-
-function rowCancel(type, id) {
-    var row = document.getElementById('row-' + type + '-' + id);
-    row.querySelectorAll('.ft').forEach(function(el) { el.style.display = ''; });
-    row.querySelectorAll('.fi').forEach(function(el) { el.style.display = 'none'; });
-    row.querySelector('.b-edit').style.display   = '';
-    row.querySelector('.b-save').style.display   = 'none';
-    row.querySelector('.b-cancel').style.display = 'none';
-    row.style.background = '';
-}
-
-function rowSave(type, id) {
-    var frm = document.getElementById('frm-' + type + '-' + id);
-    if (frm) frm.submit();
-}
-</script>

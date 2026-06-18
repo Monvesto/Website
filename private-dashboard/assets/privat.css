@@ -324,7 +324,7 @@ img { max-width: 100%; display: block; }
 .data-table th {
   background: var(--bg);
   text-align: left;
-  padding: 11px 16px;
+  padding: 6px 12px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -335,10 +335,11 @@ img { max-width: 100%; display: block; }
 }
 
 .data-table td {
-  padding: 13px 16px;
+  padding: 5px 12px;
   border-bottom: 0.5px solid var(--border);
   color: var(--text-muted);
   vertical-align: middle;
+  font-size: 13px;
 }
 
 .data-table td:first-child { color: var(--text); font-weight: 500; }
@@ -672,13 +673,12 @@ select { cursor: pointer; }
     .invest-bar-wrap { display: none; }
     .tab-link { padding: 8px 12px; font-size: 13px; }
 }
-/* ── INLINE EDITING ── */
 
-/* Bearbeitungsfelder: dezent, keine grüne Umrandung */
+/* ── INLINE EDITING ── */
 .inline-input {
     width: 100%;
     min-width: 70px;
-    padding: 4px 8px;
+    padding: 3px 7px;
     border: 1.5px solid var(--border);
     border-radius: 6px;
     font-size: 13px;
@@ -693,7 +693,6 @@ select { cursor: pointer; }
     border-color: var(--text-muted);
 }
 
-/* Neue Zeile: grüne Umrandung */
 .new-row .new-input {
     border-color: var(--green);
     box-shadow: 0 0 0 3px rgba(29,158,117,0.08);
@@ -703,16 +702,207 @@ select { cursor: pointer; }
     border-color: var(--green-dark);
 }
 
-/* Editierte Zeile */
-tr[style*="green-light"] td { vertical-align: middle; }
-
-/* ── KOMPAKTE TABELLE ── */
-.data-table--compact th {
-    padding: 7px 12px;
-    font-size: 10px;
+/* ── FINANZEN: TOPBAR (Tabs + Person-Switcher) ── */
+.finance-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 0.5px solid var(--border);
+    gap: 12px;
 }
 
-.data-table--compact td {
-    padding: 6px 12px;
+.finance-topbar .tab-bar {
+    border-bottom: none;
+    flex: 1;
+}
+
+/* ── PERSON-SWITCHER als Pill-Gruppe ── */
+.person-switcher {
+    display: flex;
+    gap: 0;
+    background: var(--border);
+    border-radius: 20px;
+    padding: 2px;
+    flex-shrink: 0;
+}
+
+.person-btn {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: background .15s, color .15s;
+    white-space: nowrap;
+}
+
+.person-btn.active {
+    background: var(--green);
+    color: #fff;
+    font-weight: 600;
+}
+
+.person-btn:not(.active):hover {
+    background: rgba(0,0,0,.06);
+    color: var(--text);
+}
+
+/* ── BULK-EDIT: Sichtbarkeit via HTML hidden-Attribut ──
+   Kein display:none per CSS – wird per JS hidden-Attribut gesteuert */
+
+/* Styling der Bulk-Inputs wenn sichtbar */
+.fi-bulk.inline-input {
+    width: 100%;
+    min-width: 60px;
+    padding: 3px 7px;
     font-size: 13px;
+    border: 1.5px solid var(--green);
+    border-radius: 5px;
+    background: var(--green-light);
+    color: var(--text);
+    box-sizing: border-box;
+}
+.fi-bulk.inline-input:focus {
+    outline: none;
+    border-color: var(--green-dark);
+    box-shadow: 0 0 0 3px rgba(29,158,117,0.12);
+}
+
+/* ── BULK-ACTION-BAR im Card-Header ── */
+.bulk-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* ── RESPONSIVE: Finanzen ── */
+@media (max-width: 600px) {
+    .finance-topbar { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .person-switcher { align-self: flex-start; }
+}
+
+/* ── CARD-HEAD: Title + Summe links, Buttons rechts ── */
+.card-head-left {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex: 1;
+}
+
+.card-sum {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+}
+/* Zieht den Switcher aus dem content-flow raus und
+   platziert ihn rechtsbündig in der sticky Topbar */
+.dashboard-person-bar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: var(--topbar-h);
+    display: flex;
+    align-items: center;
+    padding-right: 28px;
+    z-index: 51;          /* über Topbar-z-index 50 */
+}
+
+/* Kein margin-bottom nötig – kein Platz im Flow mehr */
+.dashboard-person-bar + .kpi-grid {
+    margin-top: 0;
+}
+
+/* ── FINANZEN: CSP-konforme Hilfsklassen ── */
+.hidden { display: none !important; }
+
+.col-right { text-align: right; }
+.col-actions { text-align: right; white-space: nowrap; }
+
+.input-right { text-align: right; }
+.input-narrow { max-width: 90px; }
+
+.form-inline { display: inline; }
+.form-hidden { display: none; }
+
+.split-pad { padding: 16px 20px; }
+
+.row-total { border-top: 1px solid var(--border); }
+
+/* Neue-Zeile Label */
+.new-row-label td { padding: 4px 12px 0; }
+.new-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--green);
+}
+
+/* Fortschrittsbalken (Schulden) */
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-track { flex: 1; background: var(--border); border-radius: 4px; height: 5px; overflow: hidden; min-width: 60px; }
+.progress-fill { height: 100%; background: var(--green); border-radius: 4px; }
+.progress-label { font-size: 12px; color: var(--text-muted); }
+
+/* Kategorien-Balken (Übersicht) */
+.bar-wrap { display: flex; align-items: center; gap: 10px; }
+.bar-track { flex: 1; background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; min-width: 80px; }
+.bar-fill { height: 100%; background: var(--text-muted); border-radius: 4px; }
+.bar-label { font-size: 12px; color: var(--text-muted); min-width: 36px; }
+
+/* Edit-Highlight */
+.edit-highlight { background: var(--green-light) !important; }
+.form-hidden-margin { margin: 0; }
+
+/* ── FINANZEN: sonstige Hilfsklassen ── */
+
+/* Alert fade-out animation */
+.alert-fade {
+    opacity: 0;
+    transition: opacity .4s;
+}
+
+/* ── Sortier-Buttons ── */
+.col-sort {
+    width: 32px;
+    padding: 2px 4px !important;
+    white-space: nowrap;
+}
+
+.btn-sort {
+    display: block;
+    width: 22px;
+    height: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 10px;
+    line-height: 1;
+    color: var(--text-muted);
+    padding: 0;
+    text-align: center;
+    border-radius: 3px;
+    transition: background .1s, color .1s;
+}
+
+.btn-sort:hover {
+    background: var(--border);
+    color: var(--green);
+}
+
+/* Betrag-Spalte rechtsbündig erzwingen */
+.data-table td.col-right,
+.data-table th.col-right {
+    text-align: right !important;
+}
+
+/* Col-right: auch Inputs und Spans darin ausrichten */
+.data-table td.col-right input,
+.data-table td.col-right span {
+    text-align: right;
+    display: block;
+    width: 100%;
 }

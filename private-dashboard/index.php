@@ -77,7 +77,7 @@ $nav = [
                 </svg>
                 <?= htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8') ?>
             </span>
-            <form method="POST" action="logout.php" style="margin:0">
+            <form method="POST" action="logout.php" class="form-hidden-margin">
                 <?= csrf_field() ?>
                 <button type="submit" class="btn-logout" title="Abmelden">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14">
@@ -107,5 +107,7 @@ $nav = [
 </div>
 
 <script src="assets/app.js"></script>
+<script src="assets/finanzen.js"></script>
+
 </body>
 </html>

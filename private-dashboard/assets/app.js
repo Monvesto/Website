@@ -1,16 +1,14 @@
 (function () {
     'use strict';
 
-    // ── Mobile Sidebar Toggle ──────────────────────────
-    const toggle  = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
-
+    // ── Mobile Sidebar Toggle ──
+    var toggle  = document.getElementById('menuToggle');
+    var sidebar = document.getElementById('sidebar');
     if (toggle && sidebar) {
         toggle.addEventListener('click', function (e) {
             e.stopPropagation();
             sidebar.classList.toggle('open');
         });
-
         document.addEventListener('click', function (e) {
             if (sidebar.classList.contains('open') &&
                 !sidebar.contains(e.target) &&
@@ -18,7 +16,6 @@
                 sidebar.classList.remove('open');
             }
         });
-
         sidebar.querySelectorAll('.nav-link').forEach(function (link) {
             link.addEventListener('click', function () {
                 sidebar.classList.remove('open');
@@ -26,54 +23,59 @@
         });
     }
 
-    // ── Flash-Meldungen nach 5 Sekunden ausblenden ─────
+    // ── Flash-Meldungen nach 5 Sekunden ausblenden ──
+    // Statt style.opacity/transition → CSS-Klasse
     document.querySelectorAll('.alert').forEach(function (el) {
         setTimeout(function () {
-            el.style.transition = 'opacity .4s';
-            el.style.opacity = '0';
+            el.classList.add('alert-fade');
             setTimeout(function () { el.remove(); }, 400);
         }, 5000);
     });
 
-    // ── Collapse Toggle ────────────────────────────────
+    // ── Collapse Toggle ──
     window.toggleCollapse = function(id) {
-        const body  = document.getElementById(id);
-        const arrow = document.getElementById('arrow-' + id);
+        var body  = document.getElementById(id);
+        var arrow = document.getElementById('arrow-' + id);
         if (!body) return;
-        const open = body.style.display !== 'none';
-        body.style.display = open ? 'none' : 'block';
-        if (arrow) arrow.textContent = open ? '▼' : '▲';
+        var open = !body.hasAttribute('hidden');
+        if (open) {
+            body.setAttribute('hidden', '');
+            if (arrow) arrow.textContent = '▼';
+        } else {
+            body.removeAttribute('hidden');
+            if (arrow) arrow.textContent = '▲';
+        }
     };
 
-    // ── Inline Editing ─────────────────────────────────
+    // ── Inline Editing (alte Seiten) ──
     window.startEdit = function(type, id) {
-        const row = document.getElementById('row-' + type + '-' + id);
+        var row = document.getElementById('row-' + type + '-' + id);
         if (!row) return;
-        row.querySelectorAll('.view-cell').forEach(c => c.style.display = 'none');
-        row.querySelectorAll('.edit-cell').forEach(c => c.style.display = '');
-        row.querySelector('.btn-edit').style.display   = 'none';
-        row.querySelector('.btn-save').style.display   = 'inline-flex';
-        row.querySelector('.btn-cancel').style.display = 'inline-flex';
+        row.querySelectorAll('.view-cell').forEach(function(c) { c.setAttribute('hidden', ''); });
+        row.querySelectorAll('.edit-cell').forEach(function(c) { c.removeAttribute('hidden'); });
+        row.querySelector('.btn-edit').setAttribute('hidden', '');
+        row.querySelector('.btn-save').removeAttribute('hidden');
+        row.querySelector('.btn-cancel').removeAttribute('hidden');
         row.classList.add('editing');
-        const first = row.querySelector('.inline-input');
+        var first = row.querySelector('.inline-input');
         if (first) first.focus();
     };
 
     window.cancelEdit = function(type, id) {
-        const row = document.getElementById('row-' + type + '-' + id);
+        var row = document.getElementById('row-' + type + '-' + id);
         if (!row) return;
-        row.querySelectorAll('.view-cell').forEach(c => c.style.display = '');
-        row.querySelectorAll('.edit-cell').forEach(c => c.style.display = 'none');
-        row.querySelector('.btn-edit').style.display   = 'inline-flex';
-        row.querySelector('.btn-save').style.display   = 'none';
-        row.querySelector('.btn-cancel').style.display = 'none';
+        row.querySelectorAll('.view-cell').forEach(function(c) { c.removeAttribute('hidden'); });
+        row.querySelectorAll('.edit-cell').forEach(function(c) { c.setAttribute('hidden', ''); });
+        row.querySelector('.btn-edit').removeAttribute('hidden');
+        row.querySelector('.btn-save').setAttribute('hidden', '');
+        row.querySelector('.btn-cancel').setAttribute('hidden', '');
         row.classList.remove('editing');
     };
 
     window.submitInline = function(type, id) {
-        const row  = document.getElementById('row-' + type + '-' + id);
+        var row  = document.getElementById('row-' + type + '-' + id);
         if (!row) return;
-        const form = row.querySelector('form.inline-form');
+        var form = row.querySelector('form.inline-form');
         if (form) form.submit();
     };
 
