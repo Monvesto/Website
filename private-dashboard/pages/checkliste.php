@@ -1,6 +1,6 @@
 <?php
 $db  = get_db();
-$tab = $_GET['tab'] ?? 'zahlungen';
+$tab = $_GET['tab'] ?? 'uebersicht';
 
 $monat_param = $_GET['monat'] ?? date('Y-m');
 $monat_date  = $monat_param . '-01';
@@ -40,13 +40,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $max = $db->query('SELECT COALESCE(MAX(sort_order),0)+1 FROM checkliste_zahlungen')->fetchColumn();
             $db->prepare('INSERT INTO checkliste_zahlungen (bezeichnung,betrag,person,kategorie,turnus,sort_order) VALUES (?,?,?,?,?,?)')->execute([$bez,$bet,$per,$kat,$tur,$max]);
         }
-        header("Location: ?page=checkliste&tab=zahlungen&monat=$monat_param"); exit;
+        header("Location: ?page=checkliste&tab=verwaltung"); exit;
     }
 
     if ($act === 'zahlung_delete') {
         $db->prepare('DELETE FROM checkliste_zahlungen WHERE id=?')->execute([(int)$_POST['id']]);
         $db->prepare('DELETE FROM checkliste_status WHERE zahlung_id=?')->execute([(int)$_POST['id']]);
-        header("Location: ?page=checkliste&tab=zahlungen&monat=$monat_param"); exit;
+        header("Location: ?page=checkliste&tab=verwaltung"); exit;
+    }
+
+    if ($act === 'miete_create') {
+        $bez = trim($_POST['bezeichnung'] ?? '');
+        $typ = trim($_POST['typ'] ?? 'Kaltmiete');
+        $iid = (int)($_POST['immobilien_id'] ?? 0);
+        if ($bez !== '') {
+            $max = $db->query('SELECT COALESCE(MAX(sort_order),0)+1 FROM mieten_checkliste')->fetchColumn();
+            $db->prepare('INSERT INTO mieten_checkliste (bezeichnung,typ,immobilien_id,sort_order) VALUES (?,?,?,?)')->execute([$bez,$typ,$iid,$max]);
+        }
+        header("Location: ?page=checkliste&tab=verwaltung"); exit;
+    }
+
+    if ($act === 'miete_delete') {
+        $db->prepare('DELETE FROM mieten_checkliste WHERE id=?')->execute([(int)$_POST['id']]);
+        $db->prepare('DELETE FROM mieten_status WHERE miete_id=?')->execute([(int)$_POST['id']]);
+        header("Location: ?page=checkliste&tab=verwaltung"); exit;
+    }
+
+    // Sortierung Zahlungen
+    if ($act === 'zahlung_reorder') {
+        $id  = (int)$_POST['id'];
+        $dir = $_POST['dir'] ?? '';
+        $cur = $db->prepare("SELECT sort_order FROM checkliste_zahlungen WHERE id=?");
+        $cur->execute([$id]);
+        $curPos = (int)$cur->fetchColumn();
+        if ($dir === 'up') {
+            $nb = $db->prepare("SELECT id, sort_order FROM checkliste_zahlungen WHERE sort_order < ? ORDER BY sort_order DESC LIMIT 1");
+        } else {
+            $nb = $db->prepare("SELECT id, sort_order FROM checkliste_zahlungen WHERE sort_order > ? ORDER BY sort_order ASC LIMIT 1");
+        }
+        $nb->execute([$curPos]);
+        $neighbor = $nb->fetch();
+        if ($neighbor) {
+            $db->prepare("UPDATE checkliste_zahlungen SET sort_order=? WHERE id=?")->execute([$neighbor['sort_order'], $id]);
+            $db->prepare("UPDATE checkliste_zahlungen SET sort_order=? WHERE id=?")->execute([$curPos, $neighbor['id']]);
+        }
+        header("Location: ?page=checkliste&tab=verwaltung"); exit;
+    }
+
+    // Sortierung Mieten
+    if ($act === 'miete_reorder') {
+        $id  = (int)$_POST['id'];
+        $dir = $_POST['dir'] ?? '';
+        $cur = $db->prepare("SELECT sort_order FROM mieten_checkliste WHERE id=?");
+        $cur->execute([$id]);
+        $curPos = (int)$cur->fetchColumn();
+        if ($dir === 'up') {
+            $nb = $db->prepare("SELECT id, sort_order FROM mieten_checkliste WHERE sort_order < ? ORDER BY sort_order DESC LIMIT 1");
+        } else {
+            $nb = $db->prepare("SELECT id, sort_order FROM mieten_checkliste WHERE sort_order > ? ORDER BY sort_order ASC LIMIT 1");
+        }
+        $nb->execute([$curPos]);
+        $neighbor = $nb->fetch();
+        if ($neighbor) {
+            $db->prepare("UPDATE mieten_checkliste SET sort_order=? WHERE id=?")->execute([$neighbor['sort_order'], $id]);
+            $db->prepare("UPDATE mieten_checkliste SET sort_order=? WHERE id=?")->execute([$curPos, $neighbor['id']]);
+        }
+        header("Location: ?page=checkliste&tab=verwaltung"); exit;
     }
 }
 
@@ -86,15 +145,50 @@ foreach ($mieten as $m) {
 
 function he2(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); }
 function fmt_chk(float $v): string { return number_format($v, 2, ',', '.') . ' €'; }
+
+function sort_btns_z(int $id): string {
+    $csrf = csrf_field();
+    return '
+    <form method="POST" action="?page=checkliste" class="form-inline">'.$csrf.'
+        <input type="hidden" name="act" value="zahlung_reorder">
+        <input type="hidden" name="id" value="'.$id.'">
+        <input type="hidden" name="dir" value="up">
+        <button type="submit" class="btn-sort">▲</button>
+    </form>
+    <form method="POST" action="?page=checkliste" class="form-inline">'.$csrf.'
+        <input type="hidden" name="act" value="zahlung_reorder">
+        <input type="hidden" name="id" value="'.$id.'">
+        <input type="hidden" name="dir" value="down">
+        <button type="submit" class="btn-sort">▼</button>
+    </form>';
+}
+
+function sort_btns_m(int $id): string {
+    $csrf = csrf_field();
+    return '
+    <form method="POST" action="?page=checkliste" class="form-inline">'.$csrf.'
+        <input type="hidden" name="act" value="miete_reorder">
+        <input type="hidden" name="id" value="'.$id.'">
+        <input type="hidden" name="dir" value="up">
+        <button type="submit" class="btn-sort">▲</button>
+    </form>
+    <form method="POST" action="?page=checkliste" class="form-inline">'.$csrf.'
+        <input type="hidden" name="act" value="miete_reorder">
+        <input type="hidden" name="id" value="'.$id.'">
+        <input type="hidden" name="dir" value="down">
+        <button type="submit" class="btn-sort">▼</button>
+    </form>';
+}
 ?>
 
 <!-- TABS + MONATSNAVIGATION -->
 <div class="tab-bar">
     <a href="?page=checkliste&tab=zahlungen&monat=<?= $monat_param ?>"    class="tab-link <?= $tab==='zahlungen'?'active':'' ?>">💳 Zahlungen</a>
     <a href="?page=checkliste&tab=mieten&monat=<?= $monat_param ?>"       class="tab-link <?= $tab==='mieten'?'active':'' ?>">🏠 Mieteinnahmen</a>
-    <a href="?page=checkliste&tab=uebersicht"                              class="tab-link <?= $tab==='uebersicht'?'active':'' ?>">📊 Übersicht</a>
+    <a href="?page=checkliste&tab=uebersicht" class="tab-link <?= $tab==='uebersicht'?'active':'' ?>">📊 Übersicht</a>
+    <a href="?page=checkliste&tab=verwaltung" class="tab-link <?= $tab==='verwaltung'?'active':'' ?>">⚙ Verwaltung</a>
 </div>
-<?php if ($tab !== 'uebersicht'): ?>
+<?php if ($tab !== 'uebersicht' && $tab !== 'verwaltung'): ?>
 <div class="chk-monat-nav">
     <a href="?page=checkliste&tab=<?= $tab ?>&monat=<?= $prev_monat ?>" class="btn btn-ghost btn-sm">‹</a>
     <span class="monat-label"><?= $monat_label ?></span>
@@ -129,45 +223,39 @@ function fmt_chk(float $v): string { return number_format($v, 2, ',', '.') . ' �
         <h2 class="card-title">Offene Zahlungen – <?= $monat_label ?></h2>
         <span class="badge badge-warning"><?= count($z_offen) ?> offen</span>
     </div>
-    <div class="table-wrap">
-        <table class="data-table data-table--compact">
-            <thead><tr><th>Bezeichnung</th><th>Betrag</th><th>Person</th><th>Turnus</th><th>Aktionen</th></tr></thead>
-            <tbody>
-            <?php foreach ($z_offen as $z): ?>
-            <tr>
-                <td><?= he2($z['bezeichnung']) ?></td>
-                <td class="fw-700"><?= fmt_chk((float)$z['betrag']) ?></td>
-                <td><?= he2($z['person']) ?></td>
-                <td><span class="badge badge-neutral"><?= he2($z['turnus']) ?></span></td>
-                <td class="actions-cell">
-                    <form method="POST" action="?page=checkliste" class="form-inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="set_status">
-                        <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
-                        <input type="hidden" name="monat" value="<?= $monat_param ?>">
-                        <input type="hidden" name="status" value="1">
-                        <button type="submit" class="btn btn-ok btn-xs">✓ Bezahlt</button>
-                    </form>
-                    <form method="POST" action="?page=checkliste" class="form-inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="set_status">
-                        <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
-                        <input type="hidden" name="monat" value="<?= $monat_param ?>">
-                        <input type="hidden" name="status" value="3">
-                        <button type="submit" class="btn btn-ghost btn-xs">? Klärung</button>
-                    </form>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <div class="table-wrap"><table class="data-table data-table--compact">
+        <thead><tr><th>Bezeichnung</th><th>Betrag</th><th>Person</th><th>Turnus</th><th>Aktionen</th></tr></thead>
+        <tbody>
+        <?php foreach ($z_offen as $z): ?>
+        <tr>
+            <td><?= he2($z['bezeichnung']) ?></td>
+            <td class="fw-700"><?= fmt_chk((float)$z['betrag']) ?></td>
+            <td><?= he2($z['person']) ?></td>
+            <td><span class="badge badge-neutral"><?= he2($z['turnus']) ?></span></td>
+            <td class="actions-cell">
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_status">
+                    <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
+                    <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="status" value="1">
+                    <button type="submit" class="btn btn-ok btn-xs">✓ Bezahlt</button>
+                </form>
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_status">
+                    <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
+                    <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="status" value="3">
+                    <button type="submit" class="btn btn-ghost btn-xs">? Klärung</button>
+                </form>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table></div>
 </div>
 <?php else: ?>
 <div class="card mt-4">
-    <div class="card-head card-head--green">
-        <h2 class="card-title">Offene Zahlungen – <?= $monat_label ?></h2>
-    </div>
+    <div class="card-head card-head--green"><h2 class="card-title">Offene Zahlungen – <?= $monat_label ?></h2></div>
     <p class="empty-state">✓ Alle Zahlungen erledigt!</p>
 </div>
 <?php endif; ?>
@@ -176,40 +264,36 @@ function fmt_chk(float $v): string { return number_format($v, 2, ',', '.') . ' �
 <div class="card mt-4">
     <div class="card-head card-head--red">
         <h2 class="card-title">In Klärung</h2>
-        <span class="badge badge-warning"><?= count($z_klaerung) ?></span>
+        <span class="badge badge-danger"><?= count($z_klaerung) ?> in Klärung</span>
     </div>
-    <div class="table-wrap">
-        <table class="data-table data-table--compact">
-            <thead><tr><th>Bezeichnung</th><th>Betrag</th><th>Person</th><th>Aktionen</th></tr></thead>
-            <tbody>
-            <?php foreach ($z_klaerung as $z): ?>
-            <tr>
-                <td><?= he2($z['bezeichnung']) ?></td>
-                <td class="fw-700"><?= fmt_chk((float)$z['betrag']) ?></td>
-                <td><?= he2($z['person']) ?></td>
-                <td class="actions-cell">
-                    <form method="POST" action="?page=checkliste" class="form-inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="set_status">
-                        <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
-                        <input type="hidden" name="monat" value="<?= $monat_param ?>">
-                        <input type="hidden" name="status" value="1">
-                        <button type="submit" class="btn btn-ok btn-xs">✓ Bezahlt</button>
-                    </form>
-                    <form method="POST" action="?page=checkliste" class="form-inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="set_status">
-                        <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
-                        <input type="hidden" name="monat" value="<?= $monat_param ?>">
-                        <input type="hidden" name="status" value="0">
-                        <button type="submit" class="btn btn-ghost btn-xs">↩ Zurück</button>
-                    </form>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <div class="table-wrap"><table class="data-table data-table--compact">
+        <thead><tr><th>Bezeichnung</th><th>Betrag</th><th>Person</th><th>Aktionen</th></tr></thead>
+        <tbody>
+        <?php foreach ($z_klaerung as $z): ?>
+        <tr>
+            <td><?= he2($z['bezeichnung']) ?></td>
+            <td class="fw-700"><?= fmt_chk((float)$z['betrag']) ?></td>
+            <td><?= he2($z['person']) ?></td>
+            <td class="actions-cell">
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_status">
+                    <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
+                    <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="status" value="1">
+                    <button type="submit" class="btn btn-ok btn-xs">✓ Bezahlt</button>
+                </form>
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_status">
+                    <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
+                    <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="status" value="0">
+                    <button type="submit" class="btn btn-ghost btn-xs">↩ Zurück</button>
+                </form>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table></div>
 </div>
 <?php endif; ?>
 
@@ -219,67 +303,36 @@ function fmt_chk(float $v): string { return number_format($v, 2, ',', '.') . ' �
         <h2 class="card-title">Erledigte Zahlungen</h2>
         <span class="badge badge-ok"><?= count($z_bezahlt) ?> bezahlt</span>
     </div>
-    <div class="table-wrap">
-        <table class="data-table data-table--compact">
-            <thead><tr><th>Bezeichnung</th><th>Betrag</th><th>Person</th><th>Aktionen</th></tr></thead>
-            <tbody>
-            <?php foreach ($z_bezahlt as $z): ?>
-            <tr class="row-done">
-                <td><?= he2($z['bezeichnung']) ?></td>
-                <td class="fw-700"><?= fmt_chk((float)$z['betrag']) ?></td>
-                <td><?= he2($z['person']) ?></td>
-                <td class="actions-cell">
-                    <form method="POST" action="?page=checkliste" class="form-inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="set_status">
-                        <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
-                        <input type="hidden" name="monat" value="<?= $monat_param ?>">
-                        <input type="hidden" name="status" value="0">
-                        <button type="submit" class="btn btn-ghost btn-xs">↩ Offen</button>
-                    </form>
-                    <form method="POST" action="?page=checkliste" class="form-inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="set_status">
-                        <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
-                        <input type="hidden" name="monat" value="<?= $monat_param ?>">
-                        <input type="hidden" name="status" value="3">
-                        <button type="submit" class="btn btn-ghost btn-xs">? Klärung</button>
-                    </form>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <div class="table-wrap"><table class="data-table data-table--compact">
+        <thead><tr><th>Bezeichnung</th><th>Betrag</th><th>Person</th><th>Aktionen</th></tr></thead>
+        <tbody>
+        <?php foreach ($z_bezahlt as $z): ?>
+        <tr class="row-done">
+            <td><?= he2($z['bezeichnung']) ?></td>
+            <td class="fw-700"><?= fmt_chk((float)$z['betrag']) ?></td>
+            <td><?= he2($z['person']) ?></td>
+            <td class="actions-cell">
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_status">
+                    <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
+                    <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="status" value="0">
+                    <button type="submit" class="btn btn-ghost btn-xs">↩ Offen</button>
+                </form>
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_status">
+                    <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
+                    <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="status" value="3">
+                    <button type="submit" class="btn btn-ghost btn-xs">? Klärung</button>
+                </form>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table></div>
 </div>
 <?php endif; ?>
-
-<div class="card mt-4">
-    <div class="card-head">
-        <h2 class="card-title">Neue Zahlung hinzufügen</h2>
-    </div>
-    <div class="table-wrap">
-        <table class="data-table data-table--compact">
-            <thead><tr><th>Bezeichnung</th><th>Betrag</th><th>Person</th><th>Kategorie</th><th>Turnus</th><th></th></tr></thead>
-            <tbody>
-            <tr class="new-row">
-                <td><input class="inline-input new-input" form="frm-z-new" name="bezeichnung" placeholder="z.B. Miete" required></td>
-                <td><input class="inline-input new-input input-narrow" form="frm-z-new" name="betrag" placeholder="0,00"></td>
-                <td><select class="inline-input new-input" form="frm-z-new" name="person"><option>Marcel</option><option>Kim</option><option>Beide</option></select></td>
-                <td><input class="inline-input new-input" form="frm-z-new" name="kategorie" placeholder="z.B. Wohnen"></td>
-                <td><select class="inline-input new-input" form="frm-z-new" name="turnus"><option>Monatlich</option><option>Quartalsweise</option><option>Jährlich</option></select></td>
-                <td class="col-actions">
-                    <form id="frm-z-new" method="POST" action="?page=checkliste" class="form-hidden">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="zahlung_create">
-                    </form>
-                    <button type="button" class="btn btn-primary btn-xs" id="btn-new-z">+ Hinzufügen</button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
 
 <?php elseif ($tab === 'mieten'): ?>
 
@@ -308,43 +361,37 @@ function fmt_chk(float $v): string { return number_format($v, 2, ',', '.') . ' �
         <h2 class="card-title">Ausstehend – <?= $monat_label ?></h2>
         <span class="badge badge-warning"><?= count($m_offen) ?> ausstehend</span>
     </div>
-    <div class="table-wrap">
-        <table class="data-table data-table--compact">
-            <thead><tr><th>Objekt / Mieter</th><th>Typ</th><th>Aktionen</th></tr></thead>
-            <tbody>
-            <?php foreach ($m_offen as $m): ?>
-            <tr>
-                <td><?= he2($m['bezeichnung']) ?></td>
-                <td><span class="badge badge-neutral"><?= he2($m['typ']) ?></span></td>
-                <td class="actions-cell">
-                    <form method="POST" action="?page=checkliste" class="form-inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="set_miete_status">
-                        <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
-                        <input type="hidden" name="monat" value="<?= $monat_param ?>">
-                        <input type="hidden" name="status" value="1">
-                        <button type="submit" class="btn btn-ok btn-xs">✓ Eingegangen</button>
-                    </form>
-                    <form method="POST" action="?page=checkliste" class="form-inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="set_miete_status">
-                        <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
-                        <input type="hidden" name="monat" value="<?= $monat_param ?>">
-                        <input type="hidden" name="status" value="2">
-                        <button type="submit" class="btn btn-danger btn-xs">! Verspätet</button>
-                    </form>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <div class="table-wrap"><table class="data-table data-table--compact">
+        <thead><tr><th>Objekt / Mieter</th><th>Typ</th><th>Aktionen</th></tr></thead>
+        <tbody>
+        <?php foreach ($m_offen as $m): ?>
+        <tr>
+            <td><?= he2($m['bezeichnung']) ?></td>
+            <td><span class="badge badge-neutral"><?= he2($m['typ']) ?></span></td>
+            <td class="actions-cell">
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_miete_status">
+                    <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
+                    <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="status" value="1">
+                    <button type="submit" class="btn btn-ok btn-xs">✓ Eingegangen</button>
+                </form>
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_miete_status">
+                    <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
+                    <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="status" value="2">
+                    <button type="submit" class="btn btn-danger btn-xs">! Verspätet</button>
+                </form>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table></div>
 </div>
 <?php else: ?>
 <div class="card mt-4">
-    <div class="card-head card-head--green">
-        <h2 class="card-title">Ausstehend – <?= $monat_label ?></h2>
-    </div>
+    <div class="card-head card-head--green"><h2 class="card-title">Ausstehend – <?= $monat_label ?></h2></div>
     <p class="empty-state">✓ Alle Mieteinnahmen eingegangen!</p>
 </div>
 <?php endif; ?>
@@ -355,37 +402,33 @@ function fmt_chk(float $v): string { return number_format($v, 2, ',', '.') . ' �
         <h2 class="card-title">Verspätet</h2>
         <span class="badge badge-danger"><?= count($m_verspaetet) ?></span>
     </div>
-    <div class="table-wrap">
-        <table class="data-table data-table--compact">
-            <thead><tr><th>Objekt / Mieter</th><th>Typ</th><th>Aktionen</th></tr></thead>
-            <tbody>
-            <?php foreach ($m_verspaetet as $m): ?>
-            <tr>
-                <td><?= he2($m['bezeichnung']) ?></td>
-                <td><span class="badge badge-danger"><?= he2($m['typ']) ?></span></td>
-                <td class="actions-cell">
-                    <form method="POST" action="?page=checkliste" class="form-inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="set_miete_status">
-                        <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
-                        <input type="hidden" name="monat" value="<?= $monat_param ?>">
-                        <input type="hidden" name="status" value="1">
-                        <button type="submit" class="btn btn-ok btn-xs">✓ Eingegangen</button>
-                    </form>
-                    <form method="POST" action="?page=checkliste" class="form-inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="set_miete_status">
-                        <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
-                        <input type="hidden" name="monat" value="<?= $monat_param ?>">
-                        <input type="hidden" name="status" value="0">
-                        <button type="submit" class="btn btn-ghost btn-xs">↩ Zurück</button>
-                    </form>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <div class="table-wrap"><table class="data-table data-table--compact">
+        <thead><tr><th>Objekt / Mieter</th><th>Typ</th><th>Aktionen</th></tr></thead>
+        <tbody>
+        <?php foreach ($m_verspaetet as $m): ?>
+        <tr>
+            <td><?= he2($m['bezeichnung']) ?></td>
+            <td><span class="badge badge-danger"><?= he2($m['typ']) ?></span></td>
+            <td class="actions-cell">
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_miete_status">
+                    <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
+                    <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="status" value="1">
+                    <button type="submit" class="btn btn-ok btn-xs">✓ Eingegangen</button>
+                </form>
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_miete_status">
+                    <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
+                    <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="status" value="0">
+                    <button type="submit" class="btn btn-ghost btn-xs">↩ Zurück</button>
+                </form>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table></div>
 </div>
 <?php endif; ?>
 
@@ -395,102 +438,230 @@ function fmt_chk(float $v): string { return number_format($v, 2, ',', '.') . ' �
         <h2 class="card-title">Eingegangen</h2>
         <span class="badge badge-ok"><?= count($m_bezahlt) ?> eingegangen</span>
     </div>
-    <div class="table-wrap">
-        <table class="data-table data-table--compact">
-            <thead><tr><th>Objekt / Mieter</th><th>Typ</th><th>Aktionen</th></tr></thead>
-            <tbody>
-            <?php foreach ($m_bezahlt as $m): ?>
-            <tr class="row-done">
-                <td><?= he2($m['bezeichnung']) ?></td>
-                <td><span class="badge badge-ok"><?= he2($m['typ']) ?></span></td>
-                <td class="actions-cell">
-                    <form method="POST" action="?page=checkliste" class="form-inline">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="set_miete_status">
-                        <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
-                        <input type="hidden" name="monat" value="<?= $monat_param ?>">
-                        <input type="hidden" name="status" value="0">
-                        <button type="submit" class="btn btn-ghost btn-xs">↩ Zurück</button>
-                    </form>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <div class="table-wrap"><table class="data-table data-table--compact">
+        <thead><tr><th>Objekt / Mieter</th><th>Typ</th><th>Aktionen</th></tr></thead>
+        <tbody>
+        <?php foreach ($m_bezahlt as $m): ?>
+        <tr class="row-done">
+            <td><?= he2($m['bezeichnung']) ?></td>
+            <td><span class="badge badge-ok"><?= he2($m['typ']) ?></span></td>
+            <td class="actions-cell">
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="set_miete_status">
+                    <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
+                    <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="status" value="0">
+                    <button type="submit" class="btn btn-ghost btn-xs">↩ Zurück</button>
+                </form>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table></div>
 </div>
 <?php endif; ?>
 
+<?php elseif ($tab === 'uebersicht'): ?>
+
+<!-- ════ ÜBERSICHT ════ -->
+<?php
+$monate_ue = [];
+for ($i = 9; $i >= 0; $i--) $monate_ue[] = date('Y-m', strtotime("first day of -$i month"));
+for ($i = 1; $i <= 3; $i++)  $monate_ue[] = date('Y-m', strtotime("first day of +$i month"));
+
+$monat_dates_ue = [];
+foreach ($monate_ue as $m) $monat_dates_ue[] = $m . '-01';
+
+$alle_status_ue = [];
+if (!empty($zahlungen)) {
+    $zids = implode(',', array_column($zahlungen, 'id'));
+    $in   = implode(',', array_fill(0, count($monat_dates_ue), '?'));
+    $stmt = $db->prepare("SELECT zahlung_id, monat, status FROM checkliste_status WHERE monat IN ($in) AND zahlung_id IN ($zids)");
+    $stmt->execute($monat_dates_ue);
+    foreach ($stmt->fetchAll() as $r) {
+        $mk = substr($r['monat'], 0, 7);
+        $alle_status_ue[$r['zahlung_id']][$mk] = (int)$r['status'];
+    }
+}
+
+$alle_status_m_ue = [];
+if (!empty($mieten)) {
+    $mids = implode(',', array_column($mieten, 'id'));
+    $in   = implode(',', array_fill(0, count($monat_dates_ue), '?'));
+    $stmt = $db->prepare("SELECT miete_id, monat, status FROM mieten_status WHERE monat IN ($in) AND miete_id IN ($mids)");
+    $stmt->execute($monat_dates_ue);
+    foreach ($stmt->fetchAll() as $r) {
+        $mk = substr($r['monat'], 0, 7);
+        $alle_status_m_ue[$r['miete_id']][$mk] = (int)$r['status'];
+    }
+}
+
+$start_z = 0;
+foreach ($monate_ue as $idx => $m) {
+    if ($m > date('Y-m')) break;
+    foreach ($zahlungen as $z) {
+        if (($alle_status_ue[$z['id']][$m] ?? 0) !== 1) { $start_z = $idx; break 2; }
+    }
+}
+$sichtbar_z = array_slice($monate_ue, $start_z);
+
+$start_m = 0;
+foreach ($monate_ue as $idx => $m) {
+    if ($m > date('Y-m')) break;
+    foreach ($mieten as $mi) {
+        if (($alle_status_m_ue[$mi['id']][$m] ?? 0) !== 1) { $start_m = $idx; break 2; }
+    }
+}
+$sichtbar_m = array_slice($monate_ue, $start_m);
+
+$monate_kurz = ['01'=>'Jan','02'=>'Feb','03'=>'Mrz','04'=>'Apr','05'=>'Mai','06'=>'Jun',
+                '07'=>'Jul','08'=>'Aug','09'=>'Sep','10'=>'Okt','11'=>'Nov','12'=>'Dez'];
+?>
+
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">📊 Zahlungsübersicht</h2><span class="badge badge-neutral"><?= count($sichtbar_z) ?> Monate</span></div>
+    <div class="table-wrap"><table class="data-table chk-overview-table">
+        <thead><tr>
+            <th class="chk-col-label">Zahlung</th>
+            <?php foreach ($sichtbar_z as $m): [$y,$mo] = explode('-',$m); ?>
+            <th class="chk-col-month"><?= $monate_kurz[$mo] ?> <?= substr($y,2) ?></th>
+            <?php endforeach; ?>
+        </tr></thead>
+        <tbody>
+        <?php foreach ($zahlungen as $z): ?>
+        <tr>
+            <td class="chk-col-label"><?= he2($z['bezeichnung']) ?></td>
+            <?php foreach ($sichtbar_z as $m):
+                $st = $alle_status_ue[$z['id']][$m] ?? -1;
+                $is_future = $m > date('Y-m');
+                if ($st === 1)                    { $cls='chk-cell--ok';      $lbl='✓'; }
+                elseif ($st === 3)                { $cls='chk-cell--warn';    $lbl='?'; }
+                elseif ($is_future && ($st === -1 || $st === 0)) { $cls='chk-cell--neutral'; $lbl='–'; }
+                else                              { $cls='chk-cell--open';    $lbl='✕'; }
+            ?>
+            <td class="chk-cell <?= $cls ?>"><?= $lbl ?></td>
+            <?php endforeach; ?>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table></div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">📊 Mieteinnahmen-Übersicht</h2><span class="badge badge-neutral"><?= count($sichtbar_m) ?> Monate</span></div>
+    <div class="table-wrap"><table class="data-table chk-overview-table">
+        <thead><tr>
+            <th class="chk-col-label">Mieteinnahme</th>
+            <?php foreach ($sichtbar_m as $m): [$y,$mo] = explode('-',$m); ?>
+            <th class="chk-col-month"><?= $monate_kurz[$mo] ?> <?= substr($y,2) ?></th>
+            <?php endforeach; ?>
+        </tr></thead>
+        <tbody>
+        <?php foreach ($mieten as $mi): ?>
+        <tr>
+            <td class="chk-col-label"><?= he2($mi['bezeichnung']) ?></td>
+            <?php foreach ($sichtbar_m as $m):
+                $st = $alle_status_m_ue[$mi['id']][$m] ?? -1;
+                $is_future = $m > date('Y-m');
+                if ($st === 1)                    { $cls='chk-cell--ok';      $lbl='✓'; }
+                elseif ($st === 2)                { $cls='chk-cell--warn';    $lbl='!'; }
+                elseif ($is_future && ($st === -1 || $st === 0)) { $cls='chk-cell--neutral'; $lbl='–'; }
+                else                              { $cls='chk-cell--open';    $lbl='✕'; }
+            ?>
+            <td class="chk-cell <?= $cls ?>"><?= $lbl ?></td>
+            <?php endforeach; ?>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table></div>
+</div>
+
 <?php endif; ?>
 
-<?php if ($tab === 'uebersicht'):
-    $monate = [];
-        for ($i = 9; $i >= 0; $i--) {
-            $monate[] = date('Y-m', strtotime("first day of -$i month"));
-        }
-        for ($i = 1; $i <= 3; $i++) {
-            $monate[] = date('Y-m', strtotime("first day of +$i month"));
-        }
-    $monat_dates = [];
-    foreach ($monate as $m) $monat_dates[] = $m . '-01';
-    $in = implode(',', array_fill(0, count($monat_dates), '?'));
-    $alle_zahlungen = $db->query('SELECT * FROM checkliste_zahlungen WHERE aktiv=1 ORDER BY sort_order')->fetchAll();
-    $alle_status = [];
-    if (!empty($alle_zahlungen)) {
-        $zids = implode(',', array_column($alle_zahlungen, 'id'));
-        $stmt = $db->prepare("SELECT zahlung_id, monat, status FROM checkliste_status WHERE monat IN ($in) AND zahlung_id IN ($zids)");
-        $stmt->execute($monat_dates);
-        foreach ($stmt->fetchAll() as $r) {
-            $mk = substr($r['monat'], 0, 7);
-            $alle_status[$r['zahlung_id']][$mk] = (int)$r['status'];
-        }
-    }
-    // Ersten Monat mit unerledigtem Eintrag finden
-    $start_idx = 0;
-    foreach ($monate as $idx => $m) {
-        if ($m > date('Y-m')) break; // Zukunft immer zeigen
-        foreach ($alle_zahlungen as $z) {
-            if (($alle_status[$z['id']][$m] ?? 0) !== 1) { $start_idx = $idx; break 2; }
-        }
-    }
-    $sichtbare_monate = array_slice($monate, $start_idx);
-    $monate_kurz = ['01'=>'Jan','02'=>'Feb','03'=>'Mrz','04'=>'Apr','05'=>'Mai','06'=>'Jun',
-                    '07'=>'Jul','08'=>'Aug','09'=>'Sep','10'=>'Okt','11'=>'Nov','12'=>'Dez'];
-?>
+<?php if ($tab === 'verwaltung'): ?>
+<!-- ════ VERWALTUNG ════ -->
+
 <div class="card mt-4">
     <div class="card-head">
-        <h2 class="card-title">Zahlungsübersicht</h2>
-        <span class="badge badge-neutral"><?= count($sichtbare_monate) ?> Monate</span>
+        <h2 class="card-title">💳 Zahlungen verwalten</h2>
+        <span class="badge badge-neutral"><?= count($zahlungen) ?> Einträge · <?= fmt_chk(array_sum(array_column($zahlungen,'betrag'))) ?>/Mon.</span>
     </div>
-    <div class="table-wrap">
-        <table class="data-table chk-overview-table">
-            <thead>
-                <tr>
-                    <th class="chk-col-label">Zahlung</th>
-                    <?php foreach ($sichtbare_monate as $m):
-                        [$y, $mo] = explode('-', $m); ?>
-                    <th class="chk-col-month"><?= $monate_kurz[$mo] ?> <?= substr($y,2) ?></th>
-                    <?php endforeach; ?>
-                </tr>
-            </thead>
-            <tbody>
-            <?php foreach ($alle_zahlungen as $z): ?>
-            <tr>
-                <td class="chk-col-label"><?= he2($z['bezeichnung']) ?></td>
-                <?php foreach ($sichtbare_monate as $m):
-                    $st = $alle_status[$z['id']][$m] ?? -1;
-                    $is_future = $m > date('Y-m');
-                    if ($st === 1)              { $cls = 'chk-cell--ok';      $lbl = '✓'; }
-                    elseif ($st === 3)          { $cls = 'chk-cell--warn';    $lbl = '?'; }
-                    elseif ($is_future && $st === -1) { $cls = 'chk-cell--neutral'; $lbl = '–'; }
-                    else                        { $cls = 'chk-cell--open';    $lbl = '✕'; }
-                ?>
-                <td class="chk-cell <?= $cls ?>"><?= $lbl ?></td>
-                <?php endforeach; ?>
-            </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <div class="table-wrap"><table class="data-table data-table--compact">
+        <thead><tr><th class="col-sort"></th><th>Bezeichnung</th><th>Betrag</th><th>Person</th><th>Kategorie</th><th>Turnus</th><th></th></tr></thead>
+        <tbody>
+        <?php foreach ($zahlungen as $z): ?>
+        <tr>
+            <td class="col-sort"><?= sort_btns_z($z['id']) ?></td>
+            <td><?= he2($z['bezeichnung']) ?></td>
+            <td class="fw-700"><?= fmt_chk((float)$z['betrag']) ?></td>
+            <td><?= he2($z['person']) ?></td>
+            <td><span class="badge badge-neutral"><?= he2($z['kategorie']??'–') ?></span></td>
+            <td><?= he2($z['turnus']) ?></td>
+            <td class="col-actions">
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="zahlung_delete">
+                    <input type="hidden" name="id" value="<?= $z['id'] ?>">
+                    <button type="submit" class="btn btn-danger btn-xs btn-delete-confirm">✕</button>
+                </form>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        <tr class="new-row-label"><td colspan="7"><span class="new-label">Neue Zahlung</span></td></tr>
+        <tr class="new-row">
+            <td></td>
+            <td><input class="inline-input new-input" form="frm-z-new" name="bezeichnung" placeholder="Bezeichnung" required></td>
+            <td><input class="inline-input new-input input-narrow" form="frm-z-new" name="betrag" placeholder="0,00"></td>
+            <td><select class="inline-input new-input" form="frm-z-new" name="person"><option>Marcel</option><option>Kim</option><option>Beide</option></select></td>
+            <td><input class="inline-input new-input" form="frm-z-new" name="kategorie" placeholder="z.B. Wohnen"></td>
+            <td><select class="inline-input new-input" form="frm-z-new" name="turnus"><option>Monatlich</option><option>Quartalsweise</option><option>Jährlich</option></select></td>
+            <td class="col-actions">
+                <form id="frm-z-new" method="POST" action="?page=checkliste" class="form-hidden"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="zahlung_create">
+                </form>
+                <button type="button" class="btn btn-primary btn-xs" id="btn-new-z">+ Hinzufügen</button>
+            </td>
+        </tr>
+        </tbody>
+    </table></div>
 </div>
+
+<div class="card mt-4">
+    <div class="card-head">
+        <h2 class="card-title">🏠 Mieteinnahmen verwalten</h2>
+        <span class="badge badge-neutral"><?= count($mieten) ?> Einträge</span>
+    </div>
+    <div class="table-wrap"><table class="data-table data-table--compact">
+        <thead><tr><th class="col-sort"></th><th>Bezeichnung</th><th>Typ</th><th></th></tr></thead>
+        <tbody>
+        <?php foreach ($mieten as $m): ?>
+        <tr>
+            <td class="col-sort"><?= sort_btns_m($m['id']) ?></td>
+            <td><?= he2($m['bezeichnung']) ?></td>
+            <td><span class="badge badge-neutral"><?= he2($m['typ']) ?></span></td>
+            <td class="col-actions">
+                <form method="POST" action="?page=checkliste" class="form-inline"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="miete_delete">
+                    <input type="hidden" name="id" value="<?= $m['id'] ?>">
+                    <button type="submit" class="btn btn-danger btn-xs btn-delete-confirm">✕</button>
+                </form>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        <tr class="new-row-label"><td colspan="4"><span class="new-label">Neue Mieteinnahme</span></td></tr>
+        <tr class="new-row">
+            <td></td>
+            <td><input class="inline-input new-input" form="frm-m-new" name="bezeichnung" placeholder="z.B. Hemeringen EG" required></td>
+            <td><select class="inline-input new-input" form="frm-m-new" name="typ"><option>Kaltmiete</option><option>Warmmiete</option><option>Garage</option><option>Sonstiges</option></select></td>
+            <td class="col-actions">
+                <form id="frm-m-new" method="POST" action="?page=checkliste" class="form-hidden"><?= csrf_field() ?>
+                    <input type="hidden" name="act" value="miete_create">
+                    <input type="hidden" name="immobilien_id" value="0">
+                </form>
+                <button type="button" class="btn btn-primary btn-xs" id="btn-new-m">+ Hinzufügen</button>
+            </td>
+        </tr>
+        </tbody>
+    </table></div>
+</div>
+
 <?php endif; ?>

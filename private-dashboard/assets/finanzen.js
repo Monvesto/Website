@@ -50,7 +50,7 @@ function initFinanzen() {
         });
     });
 
-    ['e', 'a', 's', 'z'].forEach(function(type) {
+    ['e', 'a', 's', 'z', 'm'].forEach(function(type) {
         var btn = document.getElementById('btn-new-' + type);
         if (btn) btn.addEventListener('click', function() {
             var frm = document.getElementById('frm-' + type + '-new');

@@ -909,7 +909,6 @@ select { cursor: pointer; }
 .data-table td.col-right input.fi-bulk {
     text-align: right;
     width: 100%;
-    display: none; /* überschrieben durch hidden-Attribut-Entfernung per JS */
 }
 
 /* ── Dashboard: Ziele Fortschrittsfarben ── */
@@ -952,7 +951,7 @@ select { cursor: pointer; }
 .chk-monat-nav {
     display: flex;
     align-items: center;
-    justify-content: flex-start !important;
+    justify-content: center;
     gap: 8px;
     margin: 16px 0;
 }

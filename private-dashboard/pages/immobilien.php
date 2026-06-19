@@ -82,6 +82,17 @@ function he_i(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-
             </tr>
             <?php endif; ?>
             <?php endforeach; ?>
+            <tr class="row-total">
+                <td colspan="8" class="fw-700">Gesamt Cashflow</td>
+                <td class="col-right fw-700">
+                    <?php
+                    $cf_total = 0;
+                    foreach ($objekte as $o) $cf_total += (float)$o['kaltmiete']+(float)$o['nebenkosten']-(float)$o['fixkosten']-(float)$o['kreditkosten'];
+                    echo '<span class="'.($cf_total >= 0 ? 'text-green' : 'text-red').'">'.fmt_i($cf_total).'</span>';
+                    ?>
+                </td>
+                <td colspan="2"></td>
+            </tr>
             </tbody>
         </table>
     </div>

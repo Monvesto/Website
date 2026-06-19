@@ -17,7 +17,7 @@ $ausgaben  = db_sum($db, 'ausgaben',  $person, "AND turnus='Monatlich'");
 $ueberschuss = $einnahmen - $ausgaben;
 $sparquote   = $einnahmen > 0 ? $ueberschuss / $einnahmen : 0;
 
-$immo_cashflow      = (float)$db->query("SELECT COALESCE(SUM(kaltmiete+nebenkosten-fixkosten-kreditkosten),0) FROM immobilien WHERE aktiv=1")->fetchColumn();
+$immo_cashflow = (float)$db->query("SELECT COALESCE(SUM(kaltmiete + nebenkosten - fixkosten - kreditkosten),0) FROM immobilien WHERE aktiv=1")->fetchColumn();
 $investments_monat  = (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE DATE_FORMAT(datum,'%Y-%m')=DATE_FORMAT(NOW(),'%Y-%m')")->fetchColumn();
 $investments_gesamt = (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM investments")->fetchColumn();
 $schulden_gesamt    = (float)$db->query("SELECT COALESCE(SUM(restsumme),0) FROM verbindlichkeiten")->fetchColumn();
@@ -184,6 +184,7 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
                     <?php if ($overdue_tasks > 0): ?><span class="badge badge-danger"><?= $overdue_tasks ?> überfällig</span><?php endif; ?>
                 </div>
             </div>
+            <a href="?page=tasks&action=new" class="btn btn-primary btn-sm">+ Neu</a>
         </div>
         <?php if (empty($next_tasks)): ?>
             <p class="empty-state">Keine offenen Aufgaben.</p>

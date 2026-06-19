@@ -1,6 +1,21 @@
 (function () {
     'use strict';
 
+    // Scroll-Position wiederherstellen ohne Flackern
+    var savedY = sessionStorage.getItem('scrollY');
+    if (savedY) {
+        document.documentElement.style.scrollBehavior = 'auto';
+        window.scrollTo(0, parseInt(savedY));
+        sessionStorage.removeItem('scrollY');
+    }
+
+    // Scroll-Position vor Submit speichern
+    document.querySelectorAll('form').forEach(function(form) {
+        form.addEventListener('submit', function() {
+            sessionStorage.setItem('scrollY', window.scrollY);
+        });
+    });
+
     // ── Fortschrittsbalken via data-width ──
     document.querySelectorAll('[data-width]').forEach(function(el) {
         el.style.width = el.getAttribute('data-width') + '%';
