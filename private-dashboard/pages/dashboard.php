@@ -164,6 +164,63 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
     </div>
 </div>
 
+
+
+<div class="dashboard-row mt-4">
+    <div class="card">
+        <div class="card-head">
+            <div>
+                <h2 class="card-title">✅ Aufgaben</h2>
+                <div class="badge-row">
+                    <span class="badge badge-neutral"><?= $open_tasks ?> offen</span>
+                    <?php if ($overdue_tasks > 0): ?><span class="badge badge-danger"><?= $overdue_tasks ?> überfällig</span><?php endif; ?>
+                </div>
+            </div>
+            <a href="?page=tasks&action=new" class="btn btn-primary btn-sm">+ Neu</a>
+        </div>
+        <?php if (empty($next_tasks)): ?>
+            <p class="empty-state">Keine offenen Aufgaben.</p>
+        <?php else: ?>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Aufgabe</th><th>Priorität</th><th>Fällig</th></tr></thead>
+                <tbody>
+                <?php foreach ($next_tasks as $t): ?>
+                <tr><td><?= htmlspecialchars($t['task']) ?></td><td><?= priority_badge($t['priority']) ?></td><td><?= format_date($t['due_date']) ?></td></tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
+    </div>
+
+    <div class="card">
+        <div class="card-head">
+            <div>
+                <h2 class="card-title">🔧 Wartungen</h2>
+                <?php if ($overdue_maint > 0): ?>
+                <div class="badge-row"><span class="badge badge-danger"><?= $overdue_maint ?> überfällig</span></div>
+                <?php endif; ?>
+            </div>
+            <a href="?page=maintenance&action=new" class="btn btn-primary btn-sm">+ Neu</a>
+        </div>
+        <?php if (empty($next_maint_all)): ?>
+            <p class="empty-state">Keine Wartungen.</p>
+        <?php else: ?>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Objekt</th><th>Aufgabe</th><th>Fällig</th><th>Status</th></tr></thead>
+                <tbody>
+                <?php foreach ($next_maint_all as $m): ?>
+                <tr><td><?= htmlspecialchars($m['object_name']) ?></td><td><?= htmlspecialchars($m['task']) ?></td><td><?= format_date($m['next_due']) ?></td><td><?= status_badge_m($m['status']) ?></td></tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
+    </div>
+</div>
+
 <div class="dashboard-row mt-4">
     <div class="card">
         <div class="card-head">
@@ -219,60 +276,5 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
             <?php endif; ?>
             <?php if (empty($invest_bereiche)): ?><p class="empty-state">Keine Daten.</p><?php endif; ?>
         </div>
-    </div>
-</div>
-
-<div class="dashboard-row mt-4">
-    <div class="card">
-        <div class="card-head">
-            <div>
-                <h2 class="card-title">✅ Aufgaben</h2>
-                <div class="badge-row">
-                    <span class="badge badge-neutral"><?= $open_tasks ?> offen</span>
-                    <?php if ($overdue_tasks > 0): ?><span class="badge badge-danger"><?= $overdue_tasks ?> überfällig</span><?php endif; ?>
-                </div>
-            </div>
-            <a href="?page=tasks&action=new" class="btn btn-primary btn-sm">+ Neu</a>
-        </div>
-        <?php if (empty($next_tasks)): ?>
-            <p class="empty-state">Keine offenen Aufgaben.</p>
-        <?php else: ?>
-        <div class="table-wrap">
-            <table class="data-table">
-                <thead><tr><th>Aufgabe</th><th>Priorität</th><th>Fällig</th></tr></thead>
-                <tbody>
-                <?php foreach ($next_tasks as $t): ?>
-                <tr><td><?= htmlspecialchars($t['task']) ?></td><td><?= priority_badge($t['priority']) ?></td><td><?= format_date($t['due_date']) ?></td></tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php endif; ?>
-    </div>
-
-    <div class="card">
-        <div class="card-head">
-            <div>
-                <h2 class="card-title">🔧 Wartungen</h2>
-                <?php if ($overdue_maint > 0): ?>
-                <div class="badge-row"><span class="badge badge-danger"><?= $overdue_maint ?> überfällig</span></div>
-                <?php endif; ?>
-            </div>
-            <a href="?page=maintenance&action=new" class="btn btn-primary btn-sm">+ Neu</a>
-        </div>
-        <?php if (empty($next_maint_all)): ?>
-            <p class="empty-state">Keine Wartungen.</p>
-        <?php else: ?>
-        <div class="table-wrap">
-            <table class="data-table">
-                <thead><tr><th>Objekt</th><th>Aufgabe</th><th>Fällig</th><th>Status</th></tr></thead>
-                <tbody>
-                <?php foreach ($next_maint_all as $m): ?>
-                <tr><td><?= htmlspecialchars($m['object_name']) ?></td><td><?= htmlspecialchars($m['task']) ?></td><td><?= format_date($m['next_due']) ?></td><td><?= status_badge_m($m['status']) ?></td></tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php endif; ?>
     </div>
 </div>

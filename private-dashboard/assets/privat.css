@@ -628,7 +628,7 @@ select { cursor: pointer; }
 
 /* ── ZIELE ── */
 .goals-list { padding: 8px 0; }
-.goal-row { padding: 14px 24px; border-bottom: 0.5px solid var(--border); }
+.goal-row { padding: 8px 24px; border-bottom: 0.5px solid var(--border); }
 .goal-row:last-child { border-bottom: none; }
 .goal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 12px; }
 .goal-name { font-size: 14px; font-weight: 600; color: var(--text); }
