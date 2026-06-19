@@ -431,7 +431,8 @@ function fmt_chk(float $v): string { return number_format($v, 2, ',', '.') . ' â
         for ($i = 1; $i <= 3; $i++) {
             $monate[] = date('Y-m', strtotime("first day of +$i month"));
         }
-    $monat_dates = array_map(fn($m) => $m . '-01', $monate);
+    $monat_dates = [];
+    foreach ($monate as $m) $monat_dates[] = $m . '-01';
     $in = implode(',', array_fill(0, count($monat_dates), '?'));
     $alle_zahlungen = $db->query('SELECT * FROM checkliste_zahlungen WHERE aktiv=1 ORDER BY sort_order')->fetchAll();
     $alle_status = [];

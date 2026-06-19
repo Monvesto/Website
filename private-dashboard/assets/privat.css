@@ -952,7 +952,7 @@ select { cursor: pointer; }
 .chk-monat-nav {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start !important;
     gap: 8px;
     margin: 16px 0;
 }
