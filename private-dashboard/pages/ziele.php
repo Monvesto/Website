@@ -1,33 +1,35 @@
 <?php
-$db = get_db();
+$db     = get_db();
+$person = $_GET['person'] ?? 'Marcel';
+if (!in_array($person, ['Marcel','Kim','Beide'], true)) $person = 'Marcel';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
-    $act = $_POST['act'] ?? '';
+    $act    = $_POST['act'] ?? '';
+    $person = $_POST['person_filter'] ?? $person;
 
     if ($act === 'save') {
-        $fields = ['ziel','kategorie','startwert','zielwert','aktueller_wert','zieltermin','kommentar'];
+        $fields = ['ziel','kategorie','startwert','zielwert','aktueller_wert','zieltermin','kommentar','person'];
         $id = (int)($_POST['edit_id'] ?? 0);
         $vals = [];
-        foreach ($fields as $f) {
+        foreach (['ziel','kategorie','startwert','zielwert','aktueller_wert','zieltermin','kommentar'] as $f) {
             $v = trim($_POST[$f] ?? '');
             if (in_array($f, ['startwert','zielwert','aktueller_wert'])) $v = str_replace(',','.',$v);
             if ($f === 'zieltermin' && $v === '') $v = null;
             $vals[] = $v;
         }
+        $vals[] = $_POST['person_ziel'] ?? 'Beide';
         if ($id > 0) {
-            $set = implode('=?,', $fields) . '=?';
-            $db->prepare("UPDATE ziele SET $set WHERE id=?")->execute([...$vals, $id]);
+            $db->prepare("UPDATE ziele SET ziel=?,kategorie=?,startwert=?,zielwert=?,aktueller_wert=?,zieltermin=?,kommentar=?,person=? WHERE id=?")->execute([...$vals, $id]);
         } else {
-            $ph = implode(',', array_fill(0, count($fields), '?'));
-            $db->prepare("INSERT INTO ziele (" . implode(',', $fields) . ") VALUES ($ph)")->execute($vals);
+            $db->prepare("INSERT INTO ziele (ziel,kategorie,startwert,zielwert,aktueller_wert,zieltermin,kommentar,person) VALUES (?,?,?,?,?,?,?,?)")->execute($vals);
         }
-        header("Location: ?page=ziele&msg=saved"); exit;
+        header("Location: ?page=ziele&person=$person&msg=saved"); exit;
     }
 
     if ($act === 'delete') {
         $db->prepare("DELETE FROM ziele WHERE id=?")->execute([(int)$_POST['id']]);
-        header("Location: ?page=ziele&msg=saved"); exit;
+        header("Location: ?page=ziele&person=$person&msg=saved"); exit;
     }
 
     if ($act === 'update_wert') {
@@ -35,12 +37,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             str_replace(',','.',$_POST['aktueller_wert'] ?? '0'),
             (int)$_POST['id']
         ]);
-        header("Location: ?page=ziele&msg=saved"); exit;
+        header("Location: ?page=ziele&person=$person&msg=saved"); exit;
     }
 }
 if (defined('HANDLE_POST_ONLY')) return;
 
-$ziele = $db->query("SELECT * FROM ziele ORDER BY position, zieltermin")->fetchAll();
+$def_person = ($person === 'Beide') ? 'Marcel' : $person;
+
+if ($person === 'Beide') {
+    $ziele = $db->query("SELECT * FROM ziele ORDER BY position, zieltermin")->fetchAll();
+} else {
+    $s = $db->prepare("SELECT * FROM ziele WHERE (person=? OR person='Beide') ORDER BY position, zieltermin");
+    $s->execute([$person]); $ziele = $s->fetchAll();
+}
 
 function progress_cls(float $p): string {
     if ($p >= 0.75) return 'progress-green';
@@ -48,12 +57,27 @@ function progress_cls(float $p): string {
     return 'progress-red';
 }
 function he_z(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); }
+function sel_p_z(string $cur): string {
+    $out = '';
+    foreach (['Marcel','Kim','Beide'] as $p)
+        $out .= '<option value="'.he_z($p).'"'.($p===$cur?' selected':'').'>'.he_z($p).'</option>';
+    return $out;
+}
 $kategorien = ['Finanzen','Gesundheit','Beruf','Persönlich','Immobilien','Sonstiges'];
 ?>
 
 <?php if (isset($_GET['msg'])): ?><div class="alert alert-success">Gespeichert.</div><?php endif; ?>
 
-<div class="goals-list card">
+<div class="finance-topbar">
+    <div></div>
+    <div class="person-switcher">
+        <?php foreach (['Marcel','Kim','Beide'] as $p): ?>
+        <a href="?page=ziele&person=<?= $p ?>" class="person-btn <?= $person===$p?'active':'' ?>"><?= $p ?></a>
+        <?php endforeach; ?>
+    </div>
+</div>
+
+<div class="goals-list card mt-4">
 <?php foreach ($ziele as $z):
     $range = abs((float)$z['zielwert'] - (float)$z['startwert']);
     $curr  = abs((float)$z['aktueller_wert'] - (float)$z['startwert']);
@@ -66,7 +90,10 @@ $kategorien = ['Finanzen','Gesundheit','Beruf','Persönlich','Immobilien','Sonst
     <div class="goal-header">
         <div>
             <div class="goal-name"><?= he_z($z['ziel']) ?></div>
-            <?php if ($z['kategorie']): ?><span class="badge badge-neutral"><?= he_z($z['kategorie']) ?></span><?php endif; ?>
+            <div>
+                <?php if ($z['kategorie']): ?><span class="badge badge-neutral"><?= he_z($z['kategorie']) ?></span><?php endif; ?>
+                <?php if ($person === 'Beide'): ?><span class="badge badge-neutral"><?= he_z($z['person'] ?? 'Beide') ?></span><?php endif; ?>
+            </div>
         </div>
         <div class="goal-meta">
             <span class="goal-pct <?= $pcls ?>"><?= $pct ?></span>
@@ -77,6 +104,7 @@ $kategorien = ['Finanzen','Gesundheit','Beruf','Persönlich','Immobilien','Sonst
                 <?= csrf_field() ?>
                 <input type="hidden" name="act" value="delete">
                 <input type="hidden" name="id" value="<?= $z['id'] ?>">
+                <input type="hidden" name="person_filter" value="<?= he_z($person) ?>">
                 <button type="submit" class="btn btn-danger btn-xs btn-delete-confirm">✕</button>
             </form>
         </div>
@@ -93,6 +121,7 @@ $kategorien = ['Finanzen','Gesundheit','Beruf','Persönlich','Immobilien','Sonst
             <?= csrf_field() ?>
             <input type="hidden" name="act" value="update_wert">
             <input type="hidden" name="id" value="<?= $z['id'] ?>">
+            <input type="hidden" name="person_filter" value="<?= he_z($person) ?>">
             <input type="text" name="aktueller_wert" value="<?= he_z(number_format((float)$z['aktueller_wert'],0,',','.')) ?>" class="inline-input goal-input">
             <button type="submit" class="btn btn-primary btn-xs">Aktualisieren</button>
         </form>
@@ -109,12 +138,16 @@ $kategorien = ['Finanzen','Gesundheit','Beruf','Persönlich','Immobilien','Sonst
         <?= csrf_field() ?>
         <input type="hidden" name="act" value="save">
         <input type="hidden" name="edit_id" value="0">
+        <input type="hidden" name="person_filter" value="<?= he_z($person) ?>">
         <div class="form-grid">
             <div class="form-group fg-wide"><label>Ziel</label><input type="text" name="ziel" required></div>
             <div class="form-group"><label>Kategorie</label>
                 <select name="kategorie"><option value="">– wählen –</option>
                 <?php foreach ($kategorien as $k): ?><option><?= $k ?></option><?php endforeach; ?>
                 </select>
+            </div>
+            <div class="form-group"><label>Person</label>
+                <select name="person_ziel"><?= sel_p_z($def_person) ?></select>
             </div>
             <div class="form-group"><label>Startwert</label><input type="text" name="startwert" placeholder="0"></div>
             <div class="form-group"><label>Zielwert</label><input type="text" name="zielwert" placeholder="0"></div>

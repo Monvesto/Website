@@ -17,25 +17,73 @@ $ausgaben  = db_sum($db, 'ausgaben',  $person, "AND turnus='Monatlich'");
 $ueberschuss = $einnahmen - $ausgaben;
 $sparquote   = $einnahmen > 0 ? $ueberschuss / $einnahmen : 0;
 
-$immo_cashflow = (float)$db->query("SELECT COALESCE(SUM(kaltmiete + nebenkosten - fixkosten - kreditkosten),0) FROM immobilien WHERE aktiv=1")->fetchColumn();
-$investments_monat  = (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE DATE_FORMAT(datum,'%Y-%m')=DATE_FORMAT(NOW(),'%Y-%m')")->fetchColumn();
-$investments_gesamt = (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM investments")->fetchColumn();
-$schulden_gesamt    = (float)$db->query("SELECT COALESCE(SUM(restsumme),0) FROM verbindlichkeiten")->fetchColumn();
+// Immo-Cashflow
+if ($person === 'Beide') {
+    $immo_cashflow = (float)$db->query("SELECT COALESCE(SUM(kaltmiete + nebenkosten - fixkosten - kreditkosten),0) FROM immobilien WHERE aktiv=1")->fetchColumn();
+} else {
+    $s = $db->prepare("SELECT COALESCE(SUM(kaltmiete + nebenkosten - fixkosten - kreditkosten),0) FROM immobilien WHERE aktiv=1 AND (person=? OR person='Beide')");
+    $s->execute([$person]); $immo_cashflow = (float)$s->fetchColumn();
+}
 
-$invest_bereiche = $db->query("SELECT bereich, SUM(betrag) as gesamt FROM investments GROUP BY bereich ORDER BY gesamt DESC")->fetchAll();
-$invest_total    = array_sum(array_column($invest_bereiche, 'gesamt'));
+// Investments
+if ($person === 'Beide') {
+    $investments_monat  = (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE DATE_FORMAT(datum,'%Y-%m')=DATE_FORMAT(NOW(),'%Y-%m')")->fetchColumn();
+    $investments_gesamt = (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM investments")->fetchColumn();
+    $invest_bereiche    = $db->query("SELECT bereich, SUM(betrag) as gesamt FROM investments GROUP BY bereich ORDER BY gesamt DESC")->fetchAll();
+} else {
+    $s = $db->prepare("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE DATE_FORMAT(datum,'%Y-%m')=DATE_FORMAT(NOW(),'%Y-%m') AND (person=? OR person='Beide')");
+    $s->execute([$person]); $investments_monat = (float)$s->fetchColumn();
+    $s = $db->prepare("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE (person=? OR person='Beide')");
+    $s->execute([$person]); $investments_gesamt = (float)$s->fetchColumn();
+    $s = $db->prepare("SELECT bereich, SUM(betrag) as gesamt FROM investments WHERE (person=? OR person='Beide') GROUP BY bereich ORDER BY gesamt DESC");
+    $s->execute([$person]); $invest_bereiche = $s->fetchAll();
+}
+$invest_total = array_sum(array_column($invest_bereiche, 'gesamt'));
 
-$open_tasks    = (int)$db->query("SELECT COUNT(*) FROM tasks WHERE status='Offen'")->fetchColumn();
-$overdue_tasks = (int)$db->query("SELECT COUNT(*) FROM tasks WHERE status='Offen' AND due_date < CURDATE()")->fetchColumn();
+// Schulden
+if ($person === 'Beide') {
+    $schulden_gesamt = (float)$db->query("SELECT COALESCE(SUM(restsumme),0) FROM verbindlichkeiten")->fetchColumn();
+} else {
+    $s = $db->prepare("SELECT COALESCE(SUM(restsumme),0) FROM verbindlichkeiten WHERE (person=? OR person='Beide')");
+    $s->execute([$person]); $schulden_gesamt = (float)$s->fetchColumn();
+}
 
+// Ziele
+if ($person === 'Beide') {
+    $ziele = $db->query("SELECT * FROM ziele ORDER BY zieltermin ASC")->fetchAll();
+} else {
+    $s = $db->prepare("SELECT * FROM ziele WHERE (person=? OR person='Beide') ORDER BY zieltermin ASC");
+    $s->execute([$person]); $ziele = $s->fetchAll();
+}
+
+// Aufgaben
+if ($person === 'Beide') {
+    $open_tasks    = (int)$db->query("SELECT COUNT(*) FROM tasks WHERE status='Offen'")->fetchColumn();
+    $overdue_tasks = (int)$db->query("SELECT COUNT(*) FROM tasks WHERE status='Offen' AND due_date < CURDATE()")->fetchColumn();
+    $next_tasks    = $db->query("SELECT task, category, priority, due_date FROM tasks WHERE status='Offen' ORDER BY due_date ASC LIMIT 5")->fetchAll();
+} else {
+    $s = $db->prepare("SELECT COUNT(*) FROM tasks WHERE status='Offen' AND (person=? OR person='Beide')");
+    $s->execute([$person]); $open_tasks = (int)$s->fetchColumn();
+    $s = $db->prepare("SELECT COUNT(*) FROM tasks WHERE status='Offen' AND due_date < CURDATE() AND (person=? OR person='Beide')");
+    $s->execute([$person]); $overdue_tasks = (int)$s->fetchColumn();
+    $s = $db->prepare("SELECT task, category, priority, due_date FROM tasks WHERE status='Offen' AND (person=? OR person='Beide') ORDER BY due_date ASC LIMIT 5");
+    $s->execute([$person]); $next_tasks = $s->fetchAll();
+}
+
+// Wartungen
 $db->exec("UPDATE maintenance SET status = CASE
     WHEN next_due < CURDATE() THEN 'Überfällig'
     WHEN next_due >= CURDATE() AND next_due <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 'Bald fällig'
     ELSE 'OK' END WHERE next_due IS NOT NULL");
-$overdue_maint  = (int)$db->query("SELECT COUNT(*) FROM maintenance WHERE status='Überfällig'")->fetchColumn();
-$ziele          = $db->query("SELECT * FROM ziele ORDER BY zieltermin ASC")->fetchAll();
-$next_tasks     = $db->query("SELECT task, category, priority, due_date FROM tasks WHERE status='Offen' ORDER BY due_date ASC LIMIT 5")->fetchAll();
-$next_maint_all = $db->query("SELECT object_name, task, next_due, status FROM maintenance WHERE next_due IS NOT NULL ORDER BY next_due ASC LIMIT 5")->fetchAll();
+if ($person === 'Beide') {
+    $overdue_maint  = (int)$db->query("SELECT COUNT(*) FROM maintenance WHERE status='Überfällig'")->fetchColumn();
+    $next_maint_all = $db->query("SELECT object_name, task, next_due, status FROM maintenance WHERE next_due IS NOT NULL ORDER BY next_due ASC LIMIT 5")->fetchAll();
+} else {
+    $s = $db->prepare("SELECT COUNT(*) FROM maintenance WHERE status='Überfällig' AND (person=? OR person='Beide')");
+    $s->execute([$person]); $overdue_maint = (int)$s->fetchColumn();
+    $s = $db->prepare("SELECT object_name, task, next_due, status FROM maintenance WHERE next_due IS NOT NULL AND (person=? OR person='Beide') ORDER BY next_due ASC LIMIT 5");
+    $s->execute([$person]); $next_maint_all = $s->fetchAll();
+}
 
 function fmt(float $v, bool $sign = false): string {
     $s = number_format(abs($v), 2, ',', '.');

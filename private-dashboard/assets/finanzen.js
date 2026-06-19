@@ -46,7 +46,39 @@ function initFinanzen() {
         var btnSave = document.getElementById('btn-save-' + type);
         if (btnSave) btnSave.addEventListener('click', function() {
             var frm = document.getElementById('frm-' + type + '-bulk');
-            if (frm) frm.submit();
+            if (frm) {
+                frm.querySelectorAll('[hidden]').forEach(function(el) { el.removeAttribute('hidden'); });
+                frm.submit();
+            }
+        });
+    });
+
+    // Checkliste Verwaltung bulk edit
+    [['zv','card-z-bulk','frm-zv-bulk'], ['mv','card-m-bulk','frm-mv-bulk']].forEach(function(cfg) {
+        var type = cfg[0], cardId = cfg[1], frmId = cfg[2];
+        var btnEdit = document.getElementById('btn-edit-' + type);
+        if (btnEdit) btnEdit.addEventListener('click', function() {
+            var card = document.getElementById(cardId);
+            if (!card) return;
+            card.querySelectorAll('.fi-bulk').forEach(function(el) { el.removeAttribute('hidden'); });
+            card.querySelectorAll('.ft-bulk').forEach(function(el) { el.setAttribute('hidden', ''); });
+            btnEdit.setAttribute('hidden', '');
+            var btnSave = document.getElementById('btn-save-' + type);
+            if (btnSave) btnSave.removeAttribute('hidden');
+            card.querySelectorAll('tbody tr:not(.new-row):not(.new-row-label) td').forEach(function(td) {
+                td.classList.add('edit-highlight');
+            });
+        });
+        var btnSave = document.getElementById('btn-save-' + type);
+        if (btnSave) btnSave.addEventListener('click', function() {
+            var frm = document.getElementById(frmId);
+            if (frm) {
+                // hidden Attribut entfernen damit Inputs beim Submit mitgeschickt werden
+                frm.querySelectorAll('[hidden]').forEach(function(el) {
+                    el.removeAttribute('hidden');
+                });
+                frm.submit();
+            }
         });
     });
 

@@ -951,7 +951,7 @@ select { cursor: pointer; }
 .chk-monat-nav {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start !important;
     gap: 8px;
     margin: 16px 0;
 }
@@ -966,11 +966,12 @@ select { cursor: pointer; }
     color: var(--text);
 }
 
-.chk-col-month {
+.chk-overview-table thead th {
     text-align: center;
-    min-width: 44px;
-    font-size: 11px;
-    white-space: nowrap;
+    vertical-align: middle;
+}
+.chk-overview-table thead th.chk-col-label {
+    text-align: left;
 }
 
 .chk-cell {
