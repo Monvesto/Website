@@ -102,18 +102,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($act === 'schuld_save') {
-        $gl = trim($_POST['glaeubiger'] ?? '');
-        $ss = str_replace(',','.',$_POST['startsumme'] ?? '0');
-        $rs = str_replace(',','.',$_POST['restsumme']  ?? '0');
-        $rt = str_replace(',','.',$_POST['rate']       ?? '0');
-        $no = trim($_POST['notiz'] ?? '');
+        $gl  = trim($_POST['glaeubiger'] ?? '');
+        $ss  = str_replace(',','.',$_POST['startsumme'] ?? '0');
+        $rs  = str_replace(',','.',$_POST['restsumme']  ?? '0');
+        $rt  = str_replace(',','.',$_POST['rate']       ?? '0');
+        $no  = trim($_POST['notiz'] ?? '');
+        $per = $_POST['person'] ?? 'Marcel';
         if ($gl === '') $errors[] = 'Gläubiger fehlt.';
         if (empty($errors)) {
             $id = (int)($_POST['edit_id'] ?? 0);
             if ($id > 0) {
-                $db->prepare('UPDATE verbindlichkeiten SET glaeubiger=?,startsumme=?,restsumme=?,rate=?,notiz=? WHERE id=?')->execute([$gl,$ss,$rs,$rt,$no,$id]);
+                $db->prepare('UPDATE verbindlichkeiten SET glaeubiger=?,startsumme=?,restsumme=?,rate=?,notiz=?,person=? WHERE id=?')->execute([$gl,$ss,$rs,$rt,$no,$per,$id]);
             } else {
-                $db->prepare('INSERT INTO verbindlichkeiten (glaeubiger,startsumme,restsumme,rate,notiz) VALUES (?,?,?,?,?)')->execute([$gl,$ss,$rs,$rt,$no]);
+                $db->prepare('INSERT INTO verbindlichkeiten (glaeubiger,startsumme,restsumme,rate,notiz,person) VALUES (?,?,?,?,?,?)')->execute([$gl,$ss,$rs,$rt,$no,$per]);
             }
             header("Location: ?page=finanzen&tab=schulden&person=$pf&msg=saved"); exit;
         }
@@ -129,8 +130,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rs  = str_replace(',','.',$row['restsumme']  ?? '0');
             $rt  = str_replace(',','.',$row['rate']       ?? '0');
             $no  = trim($row['notiz'] ?? '');
+            $per = $row['person'] ?? 'Marcel';
             if ($gl === '') continue;
-            $db->prepare('UPDATE verbindlichkeiten SET glaeubiger=?,startsumme=?,restsumme=?,rate=?,notiz=? WHERE id=?')->execute([$gl,$ss,$rs,$rt,$no,$id]);
+            $db->prepare('UPDATE verbindlichkeiten SET glaeubiger=?,startsumme=?,restsumme=?,rate=?,notiz=?,person=? WHERE id=?')->execute([$gl,$ss,$rs,$rt,$no,$per,$id]);
         }
         header("Location: ?page=finanzen&tab=schulden&person=$pf&msg=saved"); exit;
     }
@@ -175,14 +177,14 @@ function get_rows(PDO $db, string $table, string $person): array {
     if ($person === 'Beide') {
         return $db->query("SELECT * FROM $table ORDER BY position, id")->fetchAll();
     }
-    $s = $db->prepare("SELECT * FROM $table WHERE person=? ORDER BY position, id");
+    $s = $db->prepare("SELECT * FROM $table WHERE (person=? OR person='Beide') ORDER BY position, id");
     $s->execute([$person]);
     return $s->fetchAll();
 }
 
 $einnahmen_alle = get_rows($db, 'einnahmen', $person);
 $ausgaben_alle  = get_rows($db, 'ausgaben',  $person);
-$schulden_alle  = $db->query('SELECT * FROM verbindlichkeiten ORDER BY position, id')->fetchAll();
+$schulden_alle  = get_rows($db, 'verbindlichkeiten', $person);
 
 function sum_active(array $rows): float {
     $sum=0; foreach($rows as $r) $sum+=$r["aktiv"]?(float)$r["betrag"]:0; return $sum;
@@ -475,6 +477,7 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                         <input type="hidden" name="act" value="einnahme_save">
                         <input type="hidden" name="edit_id" value="0">
                         <input type="hidden" name="person_filter" value="<?= he($person) ?>">
+                        <input type="hidden" name="person" value="<?= he($person==='Beide'?'Marcel':$person) ?>">
                     </form>
                     <button type="button" class="btn btn-primary btn-xs" id="btn-new-e">+ Hinzufügen</button>
                 </td>
@@ -573,6 +576,7 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                         <input type="hidden" name="act" value="ausgabe_save">
                         <input type="hidden" name="edit_id" value="0">
                         <input type="hidden" name="person_filter" value="<?= he($person) ?>">
+                        <input type="hidden" name="person" value="<?= he($person==='Beide'?'Marcel':$person) ?>">
                     </form>
                     <button type="button" class="btn btn-primary btn-xs" id="btn-new-a">+ Hinzufügen</button>
                 </td>
@@ -587,7 +591,7 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
 <div class="card mt-4" id="card-schulden">
     <div class="card-head">
         <div class="card-head-left">
-            <h2 class="card-title">Verbindlichkeiten</h2>
+            <h2 class="card-title">Verbindlichkeiten<?= $person!=='Beide'?' – '.$person:'' ?></h2>
             <span class="card-sum text-red"><?= fmt2($schulden_gesamt) ?></span>
         </div>
         <div class="bulk-bar">
@@ -607,7 +611,9 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
         <table class="data-table">
             <thead><tr>
                 <th class="col-sort"></th>
-                <th>Gläubiger</th><th>Startsumme</th><th>Restsumme</th>
+                <th>Gläubiger</th>
+                <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
+                <th>Startsumme</th><th>Restsumme</th>
                 <th>Rate/Mon.</th><th>Abbezahlt</th><th>Notiz</th><th></th>
             </tr></thead>
             <tbody>
@@ -622,6 +628,12 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                     <span class="ft-bulk"><?= he($s['glaeubiger']) ?></span>
                     <input class="inline-input fi-bulk" form="frm-s-bulk" name="rows[<?= $sid ?>][glaeubiger]" value="<?= he($s['glaeubiger']) ?>" required>
                 </td>
+                <?php if($person==='Beide'): ?>
+                <td>
+                    <span class="ft-bulk"><?= he($s['person']) ?></span>
+                    <select class="inline-input fi-bulk" form="frm-s-bulk" name="rows[<?= $sid ?>][person]"><?= sel($personen,$s['person']) ?></select>
+                </td>
+                <?php endif; ?>
                 <td>
                     <span class="ft-bulk"><?= fmt2((float)$s['startsumme']) ?></span>
                     <input class="inline-input fi-bulk input-narrow" form="frm-s-bulk" name="rows[<?= $sid ?>][startsumme]" value="<?= he(number_format((float)$s['startsumme'],2,',','.')) ?>">
@@ -655,10 +667,13 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                 </td>
             </tr>
             <?php endforeach; ?>
-            <tr class="new-row-label"><td colspan="8"><span class="new-label">Neuer Datensatz</span></td></tr>
+            <tr class="new-row-label"><td colspan="<?= $person==='Beide'?9:8 ?>"><span class="new-label">Neuer Datensatz</span></td></tr>
             <tr class="new-row">
                 <td></td>
                 <td><input class="inline-input new-input" form="frm-s-new" name="glaeubiger" placeholder="Gläubiger" required></td>
+                <?php if($person==='Beide'): ?>
+                <td><select class="inline-input new-input" form="frm-s-new" name="person"><?= sel($personen,'Marcel') ?></select></td>
+                <?php endif; ?>
                 <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="startsumme" placeholder="0,00"></td>
                 <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="restsumme" placeholder="0,00"></td>
                 <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="rate" placeholder="0,00"></td>
@@ -670,6 +685,7 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                         <input type="hidden" name="act" value="schuld_save">
                         <input type="hidden" name="edit_id" value="0">
                         <input type="hidden" name="person_filter" value="<?= he($person) ?>">
+                        <input type="hidden" name="person" value="<?= he($person==='Beide'?'Marcel':$person) ?>">
                     </form>
                     <button type="button" class="btn btn-primary btn-xs" id="btn-new-s">+ Hinzufügen</button>
                 </td>

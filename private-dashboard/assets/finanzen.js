@@ -8,7 +8,7 @@ function initFinanzen() {
     document.querySelectorAll('.fi-bulk').forEach(function(el) { el.classList.add('fi-hidden'); });
 
     function bulkEdit(type) {
-        var cardMap = { e: 'card-einnahmen', a: 'card-ausgaben', s: 'card-schulden' };
+        var cardMap = { e: 'card-einnahmen', a: 'card-ausgaben', s: 'card-schulden', t: 'card-tasks', m: 'card-maintenance' };
         var card = document.getElementById(cardMap[type]);
         if (!card) return;
 
@@ -32,11 +32,12 @@ function initFinanzen() {
         });
     }
 
-    ['e', 'a', 's'].forEach(function(type) {
+    ['e', 'a', 's', 't', 'm'].forEach(function(type) {
         var btnEdit = document.getElementById('btn-edit-' + type);
         if (btnEdit) btnEdit.addEventListener('click', function() { bulkEdit(type); });
     });
 
+    // Checkliste Verwaltung bulk edit
     [['zv','card-z-bulk','frm-zv-bulk'], ['mv','card-m-bulk','frm-mv-bulk']].forEach(function(cfg) {
         var type = cfg[0], cardId = cfg[1], frmId = cfg[2];
         var btnEdit = document.getElementById('btn-edit-' + type);
@@ -62,7 +63,7 @@ function initFinanzen() {
         });
     });
 
-    ['e', 'a', 's', 'z', 'm'].forEach(function(type) {
+    ['e', 'a', 's', 't', 'm', 'z'].forEach(function(type) {
         var btn = document.getElementById('btn-new-' + type);
         if (btn) btn.addEventListener('click', function() {
             var frm = document.getElementById('frm-' + type + '-new');
