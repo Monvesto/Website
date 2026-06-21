@@ -5,8 +5,8 @@ if (!in_array($person, ['Marcel','Kim','Beide'], true)) $person = 'Marcel';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
-    $act    = $_POST['act'] ?? '';
-    $person = $_POST['person_filter'] ?? $person;
+    $act = $_POST['act'] ?? '';
+    $pf  = $_POST['person_filter'] ?? $person;
 
     if ($act === 'save') {
         $datum   = $_POST['datum'] ?? date('Y-m-d');
@@ -21,17 +21,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $db->prepare("INSERT INTO investments (datum,bereich,einnahmeart,betrag,notiz,person) VALUES (?,?,?,?,?,?)")->execute([$datum,$bereich,$art,$betrag,$notiz,$per]);
         }
-        header("Location: ?page=investments&person=$person&msg=saved"); exit;
+        header("Location: ?page=investments&person=$pf&msg=saved"); exit;
+    }
+
+    if ($act === 'bulk_save') {
+        foreach ($_POST['ids'] ?? [] as $id) {
+            $id      = (int)$id;
+            $row     = $_POST['rows'][$id] ?? [];
+            $datum   = $row['datum'] ?? date('Y-m-d');
+            $bereich = trim($row['bereich'] ?? '');
+            $art     = trim($row['einnahmeart'] ?? '');
+            $betrag  = str_replace(',', '.', $row['betrag'] ?? '0');
+            $notiz   = trim($row['notiz'] ?? '');
+            $per     = $row['person'] ?? 'Beide';
+            if ($bereich === '') continue;
+            $db->prepare("UPDATE investments SET datum=?,bereich=?,einnahmeart=?,betrag=?,notiz=?,person=? WHERE id=?")->execute([$datum,$bereich,$art,$betrag,$notiz,$per,$id]);
+        }
+        header("Location: ?page=investments&person=$pf&msg=saved"); exit;
     }
 
     if ($act === 'delete') {
         $db->prepare("DELETE FROM investments WHERE id=?")->execute([(int)$_POST['id']]);
-        header("Location: ?page=investments&person=$person&msg=saved"); exit;
+        header("Location: ?page=investments&person=$pf&msg=saved"); exit;
     }
 }
 if (defined('HANDLE_POST_ONLY')) return;
 
 $def_person = ($person === 'Beide') ? 'Marcel' : $person;
+$personen   = ['Marcel','Kim','Beide'];
+$bereiche_list = ['Grid EA','Affiliate','P2P','Tagesgeld','Krypto','Copy Trading','Sonstiges'];
 
 if ($person === 'Beide') {
     $eintraege   = $db->query("SELECT * FROM investments ORDER BY datum DESC")->fetchAll();
@@ -50,10 +68,9 @@ if ($person === 'Beide') {
 
 function fmt_v(float $v): string { return number_format($v, 2, ',', '.') . ' €'; }
 function he_v(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); }
-function sel_person_v(string $cur): string {
+function sel_v(array $opts, string $cur): string {
     $out = '';
-    foreach (['Marcel','Kim','Beide'] as $p)
-        $out .= '<option value="'.he_v($p).'"'.($p===$cur?' selected':'').'>'.he_v($p).'</option>';
+    foreach ($opts as $o) $out .= '<option value="'.he_v($o).'"'.($o===$cur?' selected':'').'>'.he_v($o).'</option>';
     return $out;
 }
 ?>
@@ -118,13 +135,10 @@ function sel_person_v(string $cur): string {
             <div class="form-grid">
                 <div class="form-group"><label>Datum</label><input type="date" name="datum" value="<?= date('Y-m-d') ?>"></div>
                 <div class="form-group"><label>Bereich</label>
-                    <select name="bereich">
-                        <?php foreach (['Grid EA','Affiliate','P2P','Tagesgeld','Krypto','Copy Trading','Sonstiges'] as $b): ?>
-                        <option><?= $b ?></option><?php endforeach; ?>
-                    </select>
+                    <select name="bereich"><?= sel_v($bereiche_list, 'Grid EA') ?></select>
                 </div>
                 <div class="form-group"><label>Person</label>
-                    <select name="person"><?= sel_person_v($def_person) ?></select>
+                    <select name="person"><?= sel_v($personen, $def_person) ?></select>
                 </div>
                 <div class="form-group"><label>Einnahmeart</label><input type="text" name="einnahmeart" placeholder="z.B. Zinsen"></div>
                 <div class="form-group"><label>Betrag €</label><input type="text" name="betrag" placeholder="0,00"></div>
@@ -137,27 +151,68 @@ function sel_person_v(string $cur): string {
     </div>
 </div>
 
-<div class="card mt-4">
-    <div class="card-head"><h2 class="card-title">Alle Einträge<?= $person!=='Beide'?' – '.$person:'' ?></h2></div>
-    <div class="table-wrap"><table class="data-table">
-        <thead><tr><th>Datum</th><th>Bereich</th><th>Art</th><?php if($person==='Beide'): ?><th>Person</th><?php endif; ?><th>Notiz</th><th class="col-right">Betrag</th><th></th></tr></thead>
-        <tbody>
+<div class="card mt-4" id="card-investments">
+    <div class="card-head">
+        <div class="card-head-left">
+            <h2 class="card-title">Alle Einträge<?= $person!=='Beide'?' – '.$person:'' ?></h2>
+        </div>
+        <div class="bulk-bar">
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-edit-iv">✏ Bearbeiten</button>
+            <button type="submit" form="frm-iv-bulk" class="btn btn-primary btn-sm btn-hidden" id="btn-save-iv">✓ Speichern</button>
+        </div>
+    </div>
+    <form id="frm-iv-bulk" method="POST" action="?page=investments">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="bulk_save">
+        <input type="hidden" name="person_filter" value="<?= he_v($person) ?>">
         <?php foreach ($eintraege as $e): ?>
+        <input type="hidden" name="ids[]" value="<?= $e['id'] ?>">
+        <?php endforeach; ?>
+    </form>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr>
+            <th>Datum</th><th>Bereich</th><th>Art</th><th>Person</th><th>Notiz</th>
+            <th class="col-right">Betrag</th><th></th>
+        </tr></thead>
+        <tbody>
+        <?php foreach ($eintraege as $e): $eid = $e['id']; ?>
         <tr>
-            <td><?= date('d.m.Y', strtotime($e['datum'])) ?></td>
-            <td><span class="badge badge-neutral"><?= he_v($e['bereich']) ?></span></td>
-            <td><?= he_v($e['einnahmeart'] ?? '–') ?></td>
-            <?php if($person==='Beide'): ?><td><?= he_v($e['person'] ?? '–') ?></td><?php endif; ?>
-            <td><?= he_v($e['notiz'] ?? '–') ?></td>
-            <td class="col-right fw-700 text-green"><?= fmt_v((float)$e['betrag']) ?></td>
+            <td>
+                <span class="ft-bulk"><?= date('d.m.Y', strtotime($e['datum'])) ?></span>
+                <input class="inline-input fi-bulk" type="date" form="frm-iv-bulk" name="rows[<?= $eid ?>][datum]" value="<?= he_v($e['datum']) ?>">
+            </td>
+            <td>
+                <span class="ft-bulk"><span class="badge badge-neutral"><?= he_v($e['bereich']) ?></span></span>
+                <select class="inline-input fi-bulk" form="frm-iv-bulk" name="rows[<?= $eid ?>][bereich]">
+                    <?= sel_v($bereiche_list, $e['bereich']) ?>
+                </select>
+            </td>
+            <td>
+                <span class="ft-bulk"><?= he_v($e['einnahmeart']??'–') ?></span>
+                <input class="inline-input fi-bulk" form="frm-iv-bulk" name="rows[<?= $eid ?>][einnahmeart]" value="<?= he_v($e['einnahmeart']??'') ?>">
+            </td>
+            <td>
+                <span class="ft-bulk"><?= he_v($e['person']??'–') ?></span>
+                <select class="inline-input fi-bulk" form="frm-iv-bulk" name="rows[<?= $eid ?>][person]">
+                    <?= sel_v($personen, $e['person']??'Beide') ?>
+                </select>
+            </td>
+            <td>
+                <span class="ft-bulk"><?= he_v($e['notiz']??'–') ?></span>
+                <input class="inline-input fi-bulk" form="frm-iv-bulk" name="rows[<?= $eid ?>][notiz]" value="<?= he_v($e['notiz']??'') ?>">
+            </td>
+            <td class="col-right">
+                <span class="ft-bulk fw-700 text-green"><?= fmt_v((float)$e['betrag']) ?></span>
+                <input class="inline-input fi-bulk input-right input-narrow" form="frm-iv-bulk" name="rows[<?= $eid ?>][betrag]" value="<?= he_v(number_format((float)$e['betrag'],2,',','.')) ?>">
+            </td>
             <td class="col-actions">
-                <form method="POST" action="?page=investments" class="form-inline">
+                <form id="frm-iv-del-<?= $eid ?>" method="POST" action="?page=investments" hidden>
                     <?= csrf_field() ?>
                     <input type="hidden" name="act" value="delete">
-                    <input type="hidden" name="id" value="<?= $e['id'] ?>">
+                    <input type="hidden" name="id" value="<?= $eid ?>">
                     <input type="hidden" name="person_filter" value="<?= he_v($person) ?>">
-                    <button type="submit" class="btn btn-danger btn-xs btn-delete-confirm">✕</button>
                 </form>
+                <button type="submit" form="frm-iv-del-<?= $eid ?>" class="btn btn-danger btn-xs fi-bulk btn-delete-confirm">✕</button>
             </td>
         </tr>
         <?php endforeach; ?>

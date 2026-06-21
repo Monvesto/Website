@@ -177,8 +177,10 @@ img { max-width: 100%; display: block; }
   flex-shrink: 0;
 }
 
-.fi-hidden { display: none; }
+.fi-hidden { display: none !important;}
 .btn-hidden { display: none; }
+input.fi-hidden,
+select.fi-hidden { display: none; }
 
 .btn-logout:hover {
   color: var(--red);
@@ -1013,3 +1015,34 @@ select { cursor: pointer; }
     color: var(--text-muted);
     font-style: italic;
 }
+
+#confirm-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 1000;
+}
+#confirm-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    z-index: 1001;
+    min-width: 280px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+#confirm-msg {
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
+}
+#confirm-btns {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+

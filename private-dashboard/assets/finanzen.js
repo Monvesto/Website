@@ -8,7 +8,7 @@ function initFinanzen() {
     document.querySelectorAll('.fi-bulk').forEach(function(el) { el.classList.add('fi-hidden'); });
 
     function bulkEdit(type) {
-        var cardMap = { e: 'card-einnahmen', a: 'card-ausgaben', s: 'card-schulden', t: 'card-tasks', m: 'card-maintenance' };
+        var cardMap = { e: 'card-einnahmen', a: 'card-ausgaben', s: 'card-schulden', t: 'card-tasks', m: 'card-maintenance', i: 'card-immobilien', iv: 'card-investments' };
         var card = document.getElementById(cardMap[type]);
         if (!card) return;
 
@@ -32,7 +32,7 @@ function initFinanzen() {
         });
     }
 
-    ['e', 'a', 's', 't', 'm'].forEach(function(type) {
+    ['e', 'a', 's', 't', 'm', 'i', 'iv'].forEach(function(type) {
         var btnEdit = document.getElementById('btn-edit-' + type);
         if (btnEdit) btnEdit.addEventListener('click', function() { bulkEdit(type); });
     });
@@ -63,7 +63,7 @@ function initFinanzen() {
         });
     });
 
-    ['e', 'a', 's', 't', 'm', 'z'].forEach(function(type) {
+    ['e', 'a', 's', 't', 'm', 'i', 'iv', 'z'].forEach(function(type) {
         var btn = document.getElementById('btn-new-' + type);
         if (btn) btn.addEventListener('click', function() {
             var frm = document.getElementById('frm-' + type + '-new');
@@ -73,9 +73,12 @@ function initFinanzen() {
 
     document.querySelectorAll('.btn-delete-confirm').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
-            if (!confirm('Diesen Eintrag wirklich löschen?')) {
-                e.preventDefault();
-            }
+            e.preventDefault();
+            var form = btn.form || btn.closest('form');
+            var doConfirm = typeof customConfirm === 'function' ? customConfirm : function(msg, cb) { if (confirm(msg)) cb(); };
+            doConfirm('Diesen Eintrag wirklich löschen?', function() {
+                if (form) form.submit();
+            });
         });
     });
 }

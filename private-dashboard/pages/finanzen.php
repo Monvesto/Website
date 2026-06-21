@@ -20,12 +20,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($act === 'einnahme_save') {
-        $bez = trim($_POST['bezeichnung'] ?? '');
-        $per = $_POST['person'] ?? 'Marcel';
-        $kat = trim($_POST['kategorie'] ?? '');
-        $tur = $_POST['turnus'] ?? 'Monatlich';
-        $bet_orig = (float)str_replace(',', '.', $_POST['betrag'] ?? '0');
-        $bet = to_monthly($bet_orig, $tur);
+        $bez      = trim($_POST['bezeichnung'] ?? '');
+        $per      = $_POST['person'] ?? 'Marcel';
+        $kat      = trim($_POST['kategorie'] ?? '');
+        $tur      = $_POST['turnus'] ?? 'Monatlich';
+        $bet_orig = (float)parse_betrag($_POST['betrag'] ?? '0');
+        $bet      = to_monthly($bet_orig, $tur);
         if ($bez === '') $errors[] = 'Bezeichnung fehlt.';
         if (empty($errors)) {
             $id = (int)($_POST['edit_id'] ?? 0);
@@ -41,14 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($act === 'einnahmen_bulk_save') {
         foreach ($_POST['ids'] ?? [] as $id) {
-            $id  = (int)$id;
-            $row = $_POST['rows'][$id] ?? [];
-            $bez = trim($row['bezeichnung'] ?? '');
-            $per = $row['person'] ?? 'Marcel';
-            $kat = trim($row['kategorie'] ?? '');
-            $tur = $row['turnus'] ?? 'Monatlich';
-            $bet_orig = (float)str_replace(',', '.', $row['betrag'] ?? '0');
-            $bet = to_monthly($bet_orig, $tur);
+            $id       = (int)$id;
+            $row      = $_POST['rows'][$id] ?? [];
+            $bez      = trim($row['bezeichnung'] ?? '');
+            $per      = $row['person'] ?? 'Marcel';
+            $kat      = trim($row['kategorie'] ?? '');
+            $tur      = $row['turnus'] ?? 'Monatlich';
+            $bet_orig = (float)parse_betrag($row['betrag'] ?? '0');
+            $bet      = to_monthly($bet_orig, $tur);
             if ($bez === '') continue;
             $db->prepare('UPDATE einnahmen SET bezeichnung=?,betrag=?,betrag_original=?,person=?,kategorie=?,turnus=? WHERE id=?')->execute([$bez,$bet,$bet_orig,$per,$kat,$tur,$id]);
         }
@@ -61,12 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($act === 'ausgabe_save') {
-        $bez = trim($_POST['bezeichnung'] ?? '');
-        $per = $_POST['person'] ?? 'Marcel';
-        $kat = trim($_POST['kategorie'] ?? '');
-        $tur = $_POST['turnus'] ?? 'Monatlich';
-        $bet_orig = (float)str_replace(',', '.', $_POST['betrag'] ?? '0');
-        $bet = to_monthly($bet_orig, $tur);
+        $bez      = trim($_POST['bezeichnung'] ?? '');
+        $per      = $_POST['person'] ?? 'Marcel';
+        $kat      = trim($_POST['kategorie'] ?? '');
+        $tur      = $_POST['turnus'] ?? 'Monatlich';
+        $bet_orig = (float)parse_betrag($_POST['betrag'] ?? '0');
+        $bet      = to_monthly($bet_orig, $tur);
         if ($bez === '') $errors[] = 'Bezeichnung fehlt.';
         if (empty($errors)) {
             $id = (int)($_POST['edit_id'] ?? 0);
@@ -82,14 +82,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($act === 'ausgaben_bulk_save') {
         foreach ($_POST['ids'] ?? [] as $id) {
-            $id  = (int)$id;
-            $row = $_POST['rows'][$id] ?? [];
-            $bez = trim($row['bezeichnung'] ?? '');
-            $per = $row['person'] ?? 'Marcel';
-            $kat = trim($row['kategorie'] ?? '');
-            $tur = $row['turnus'] ?? 'Monatlich';
-            $bet_orig = (float)str_replace(',', '.', $row['betrag'] ?? '0');
-            $bet = to_monthly($bet_orig, $tur);
+            $id       = (int)$id;
+            $row      = $_POST['rows'][$id] ?? [];
+            $bez      = trim($row['bezeichnung'] ?? '');
+            $per      = $row['person'] ?? 'Marcel';
+            $kat      = trim($row['kategorie'] ?? '');
+            $tur      = $row['turnus'] ?? 'Monatlich';
+            $bet_orig = (float)parse_betrag($row['betrag'] ?? '0');
+            $bet      = to_monthly($bet_orig, $tur);
             if ($bez === '') continue;
             $db->prepare('UPDATE ausgaben SET bezeichnung=?,betrag=?,betrag_original=?,person=?,kategorie=?,turnus=? WHERE id=?')->execute([$bez,$bet,$bet_orig,$per,$kat,$tur,$id]);
         }
@@ -103,9 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($act === 'schuld_save') {
         $gl  = trim($_POST['glaeubiger'] ?? '');
-        $ss  = str_replace(',','.',$_POST['startsumme'] ?? '0');
-        $rs  = str_replace(',','.',$_POST['restsumme']  ?? '0');
-        $rt  = str_replace(',','.',$_POST['rate']       ?? '0');
+        $ss  = parse_betrag($_POST['startsumme'] ?? '0');
+        $rs  = parse_betrag($_POST['restsumme']  ?? '0');
+        $rt  = parse_betrag($_POST['rate']        ?? '0');
         $no  = trim($_POST['notiz'] ?? '');
         $per = $_POST['person'] ?? 'Marcel';
         if ($gl === '') $errors[] = 'Gläubiger fehlt.';
@@ -126,9 +126,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id  = (int)$id;
             $row = $_POST['rows'][$id] ?? [];
             $gl  = trim($row['glaeubiger'] ?? '');
-            $ss  = str_replace(',','.',$row['startsumme'] ?? '0');
-            $rs  = str_replace(',','.',$row['restsumme']  ?? '0');
-            $rt  = str_replace(',','.',$row['rate']       ?? '0');
+            $ss  = parse_betrag($row['startsumme'] ?? '0');
+            $rs  = parse_betrag($row['restsumme']  ?? '0');
+            $rt  = parse_betrag($row['rate']        ?? '0');
             $no  = trim($row['notiz'] ?? '');
             $per = $row['person'] ?? 'Marcel';
             if ($gl === '') continue;
@@ -418,7 +418,6 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                 <th>Kategorie</th><th>Turnus</th>
                 <th class="col-right">Betrag</th>
                 <th class="col-right">Monatlich</th>
-                <th></th>
             </tr></thead>
             <tbody>
             <?php foreach ($einnahmen_alle as $e): $eid = $e['id']; ?>
@@ -517,7 +516,6 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                 <th>Kategorie</th><th>Turnus</th>
                 <th class="col-right">Betrag</th>
                 <th class="col-right">Monatlich</th>
-                <th></th>
             </tr></thead>
             <tbody>
             <?php foreach ($ausgaben_alle as $a): $aid = $a['id']; ?>
@@ -614,7 +612,7 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                 <th>Gläubiger</th>
                 <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
                 <th>Startsumme</th><th>Restsumme</th>
-                <th>Rate/Mon.</th><th>Abbezahlt</th><th>Notiz</th><th></th>
+                <th>Rate/Mon.</th><th>Abbezahlt</th><th>Notiz</th>
             </tr></thead>
             <tbody>
             <?php foreach ($schulden_alle as $s): $sid = $s['id'];

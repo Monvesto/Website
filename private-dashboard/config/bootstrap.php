@@ -5,6 +5,11 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/csrf.php';
 start_secure_session();
 
+// ── Globale Hilfsfunktionen ──
+function parse_betrag(string $v): string {
+    return str_replace(',', '.', str_replace('.', '', trim($v)));
+}
+
 // ── Automatische Migration: position-Spalte ──
 (function() {
     $db = get_db();

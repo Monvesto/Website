@@ -1,3 +1,34 @@
+// Global verfügbar für finanzen.js und andere Scripts
+function customConfirm(message, onConfirm) {
+    var existing = document.getElementById('confirm-modal');
+    if (existing) existing.remove();
+
+    var modal = document.createElement('div');
+    modal.id = 'confirm-modal';
+    modal.innerHTML = [
+        '<div id="confirm-backdrop"></div>',
+        '<div id="confirm-box">',
+        '  <p id="confirm-msg">' + message + '</p>',
+        '  <div id="confirm-btns">',
+        '    <button id="confirm-no" class="btn btn-ghost btn-sm">Abbrechen</button>',
+        '    <button id="confirm-yes" class="btn btn-danger btn-sm">Löschen</button>',
+        '  </div>',
+        '</div>'
+    ].join('');
+    document.body.appendChild(modal);
+
+    document.getElementById('confirm-no').addEventListener('click', function() {
+        modal.remove();
+    });
+    document.getElementById('confirm-yes').addEventListener('click', function() {
+        modal.remove();
+        onConfirm();
+    });
+    document.getElementById('confirm-backdrop').addEventListener('click', function() {
+        modal.remove();
+    });
+}
+
 (function () {
     'use strict';
 
@@ -44,7 +75,6 @@
     }
 
     // ── Flash-Meldungen nach 5 Sekunden ausblenden ──
-    // Statt style.opacity/transition → CSS-Klasse
     document.querySelectorAll('.alert').forEach(function (el) {
         setTimeout(function () {
             el.classList.add('alert-fade');
