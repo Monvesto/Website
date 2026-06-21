@@ -12,8 +12,8 @@ function db_sum(PDO $db, string $table, string $person, string $extra = ''): flo
     return (float)$s->fetchColumn();
 }
 
-$einnahmen = db_sum($db, 'einnahmen', $person, "AND turnus='Monatlich'");
-$ausgaben  = db_sum($db, 'ausgaben',  $person, "AND turnus='Monatlich'");
+$einnahmen = db_sum($db, 'einnahmen', $person);
+$ausgaben  = db_sum($db, 'ausgaben',  $person);
 $ueberschuss = $einnahmen - $ausgaben;
 $sparquote   = $einnahmen > 0 ? $ueberschuss / $einnahmen : 0;
 

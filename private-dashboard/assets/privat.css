@@ -177,6 +177,9 @@ img { max-width: 100%; display: block; }
   flex-shrink: 0;
 }
 
+.fi-hidden { display: none; }
+.btn-hidden { display: none; }
+
 .btn-logout:hover {
   color: var(--red);
   background: #FEF2F2;

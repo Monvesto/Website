@@ -13,6 +13,7 @@ $page_file = __DIR__ . '/pages/' . $page . '.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     define('HANDLE_POST_ONLY', true);
     require $page_file;
+    exit; // ← das fehlt
     // Falls die Page-Datei keinen Redirect gemacht hat, weiter mit HTML
 }
 
