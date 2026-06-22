@@ -703,32 +703,24 @@ function sel_chk(array $opts, string $cur): string {
             </td>
         </tr>
         <?php endforeach; ?>
-        </tbody>
-    </table></div>
-</div>
-
-<!-- Neue Zahlung Card -->
-<div class="card mt-4">
-    <div class="card-head"><h2 class="card-title">Neue Zahlung</h2></div>
-    <form id="frm-z-new" method="POST" action="?page=checkliste">
-        <?= csrf_field() ?>
-        <input type="hidden" name="act" value="zahlung_create">
-        <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
-    </form>
-    <div class="table-wrap"><table class="data-table">
-        <thead><tr>
-            <th>Bezeichnung</th><th>Betrag</th><th>Person</th><th>Kategorie</th><th>Turnus</th><th></th>
-        </tr></thead>
-        <tbody><tr>
+        <tr class="new-row-label"><td colspan="7"><span class="new-label">Neue Zahlung</span></td></tr>
+        <tr class="new-row">
+            <td></td>
             <td><input class="inline-input new-input" form="frm-z-new" name="bezeichnung" placeholder="Bezeichnung" required></td>
             <td><input class="inline-input new-input input-narrow" form="frm-z-new" name="betrag" placeholder="0,00"></td>
             <td><select class="inline-input new-input" form="frm-z-new" name="person"><?= sel_chk($personen_chk, $def_person) ?></select></td>
             <td><input class="inline-input new-input" form="frm-z-new" name="kategorie" placeholder="z.B. Wohnen"></td>
             <td><select class="inline-input new-input" form="frm-z-new" name="turnus"><?= sel_chk($turnusse_chk, 'Monatlich') ?></select></td>
             <td class="col-actions">
+                <form id="frm-z-new" method="POST" action="?page=checkliste" hidden>
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="act" value="zahlung_create">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
+                </form>
                 <button type="button" class="btn btn-primary btn-xs" id="btn-new-z">+ Hinzufügen</button>
             </td>
-        </tr></tbody>
+        </tr>
+        </tbody>
     </table></div>
 </div>
 
@@ -781,31 +773,23 @@ function sel_chk(array $opts, string $cur): string {
             </td>
         </tr>
         <?php endforeach; ?>
-        </tbody>
-    </table></div>
-</div>
-
-<!-- Neue Mieteinnahme Card -->
-<div class="card mt-4">
-    <div class="card-head"><h2 class="card-title">Neue Mieteinnahme</h2></div>
-    <form id="frm-m-new" method="POST" action="?page=checkliste">
-        <?= csrf_field() ?>
-        <input type="hidden" name="act" value="miete_create">
-        <input type="hidden" name="immobilien_id" value="0">
-        <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
-    </form>
-    <div class="table-wrap"><table class="data-table">
-        <thead><tr>
-            <th>Bezeichnung</th><th>Typ</th><th>Person</th><th></th>
-        </tr></thead>
-        <tbody><tr>
-            <td><input class="inline-input new-input" form="frm-m-new" name="bezeichnung" placeholder="z.B. Hemeringen EG" required></td>
-            <td><select class="inline-input new-input" form="frm-m-new" name="typ"><?= sel_chk($typen_chk, 'Kaltmiete') ?></select></td>
-            <td><select class="inline-input new-input" form="frm-m-new" name="person"><?= sel_chk($personen_chk, $def_person) ?></select></td>
+        <tr class="new-row-label"><td colspan="5"><span class="new-label">Neue Mieteinnahme</span></td></tr>
+        <tr class="new-row">
+            <td></td>
+            <td><input class="inline-input new-input" form="frm-mc-new" name="bezeichnung" placeholder="z.B. Hemeringen EG" required></td>
+            <td><select class="inline-input new-input" form="frm-mc-new" name="typ"><?= sel_chk($typen_chk, 'Kaltmiete') ?></select></td>
+            <td><select class="inline-input new-input" form="frm-mc-new" name="person"><?= sel_chk($personen_chk, $def_person) ?></select></td>
             <td class="col-actions">
-                <button type="button" class="btn btn-primary btn-xs" id="btn-new-m">+ Hinzufügen</button>
+                <form id="frm-m-new" method="POST" action="?page=checkliste" hidden>
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="act" value="miete_create">
+                    <input type="hidden" name="immobilien_id" value="0">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
+                </form>
+                <button type="button" class="btn btn-primary btn-xs" id="btn-new-mc">+ Hinzufügen</button>
             </td>
-        </tr></tbody>
+        </tr>
+        </tbody>
     </table></div>
 </div>
 
