@@ -221,10 +221,15 @@ function he_i(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-
     </form>
     <div class="table-wrap"><table class="data-table">
         <thead><tr>
-            <th>Objekt</th><th>Person</th><th>Mieter</th><th>Einzug</th>
-            <th class="col-right">Kaution</th><th class="col-right">Kaltmiete</th>
-            <th class="col-right">NK</th><th class="col-right">Fixkosten</th>
-            <th class="col-right">Kreditkosten</th><th></th>
+            <th>Objekt</th>
+            <th>Person</th>
+            <th>Mieter</th>
+            <th>Einzug</th>
+            <th>Kaution</th>
+            <th>Kaltmiete</th>
+            <th>Nebenkosten</th>
+            <th>Fixkosten</th>
+            <th>Kreditkosten</th><th></th>
         </tr></thead>
         <tbody><tr>
             <td><input class="inline-input new-input" form="frm-i-new" name="objekt_name" placeholder="Objektname" required></td>

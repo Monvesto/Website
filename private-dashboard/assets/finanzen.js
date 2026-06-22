@@ -8,31 +8,54 @@ function initFinanzen() {
     document.querySelectorAll('.fi-bulk').forEach(function(el) { el.classList.add('fi-hidden'); });
 
     function bulkEdit(type) {
-        var cardMap = { e: 'card-einnahmen', a: 'card-ausgaben', s: 'card-schulden', t: 'card-tasks', m: 'card-maintenance', i: 'card-immobilien', iv: 'card-investments' };
+        var cardMap = { e: 'card-einnahmen', a: 'card-ausgaben', s: 'card-schulden', t: 'card-tasks', m: 'card-maintenance', i: 'card-immobilien', iv: 'card-investments', zv: 'card-z-bulk', mv: 'card-m-bulk', zl: 'card-ziele' };
         var card = document.getElementById(cardMap[type]);
         if (!card) return;
 
-        card.querySelectorAll('.ft-bulk').forEach(function(el) { el.setAttribute('hidden', ''); });
-
-        var frmId = 'frm-' + type + '-bulk';
-        document.querySelectorAll('.fi-bulk[form="' + frmId + '"]').forEach(function(el) {
-            el.classList.remove('fi-hidden');
-        });
-        card.querySelectorAll('.fi-bulk').forEach(function(el) {
-            el.classList.remove('fi-hidden');
-        });
-
         var btnEdit = document.getElementById('btn-edit-' + type);
         var btnSave = document.getElementById('btn-save-' + type);
-        if (btnEdit) btnEdit.setAttribute('hidden', '');
-        if (btnSave) btnSave.classList.remove('btn-hidden');
+        var isEditing = btnEdit && btnEdit.getAttribute('data-editing') === '1';
 
-        card.querySelectorAll('tbody tr:not(.new-row):not(.new-row-label) td').forEach(function(td) {
-            td.classList.add('edit-highlight');
-        });
+        if (isEditing) {
+            // ── Bearbeitungsmodus verlassen ──
+            card.querySelectorAll('.ft-bulk').forEach(function(el) { el.removeAttribute('hidden'); });
+            var frmId = 'frm-' + type + '-bulk';
+            document.querySelectorAll('.fi-bulk[form="' + frmId + '"]').forEach(function(el) {
+                el.classList.add('fi-hidden');
+            });
+            card.querySelectorAll('.fi-bulk').forEach(function(el) {
+                el.classList.add('fi-hidden');
+            });
+            if (btnEdit) {
+                btnEdit.removeAttribute('data-editing');
+                btnEdit.textContent = '✏ Bearbeiten';
+            }
+            if (btnSave) btnSave.classList.add('btn-hidden');
+            card.querySelectorAll('tbody tr td').forEach(function(td) {
+                td.classList.remove('edit-highlight');
+            });
+        } else {
+            // ── Bearbeitungsmodus betreten ──
+            card.querySelectorAll('.ft-bulk').forEach(function(el) { el.setAttribute('hidden', ''); });
+            var frmId = 'frm-' + type + '-bulk';
+            document.querySelectorAll('.fi-bulk[form="' + frmId + '"]').forEach(function(el) {
+                el.classList.remove('fi-hidden');
+            });
+            card.querySelectorAll('.fi-bulk').forEach(function(el) {
+                el.classList.remove('fi-hidden');
+            });
+            if (btnEdit) {
+                btnEdit.setAttribute('data-editing', '1');
+                btnEdit.textContent = '✕ Abbrechen';
+            }
+            if (btnSave) btnSave.classList.remove('btn-hidden');
+            card.querySelectorAll('tbody tr:not(.new-row):not(.new-row-label) td').forEach(function(td) {
+                td.classList.add('edit-highlight');
+            });
+        }
     }
 
-    ['e', 'a', 's', 't', 'm', 'i', 'iv'].forEach(function(type) {
+    ['e', 'a', 's', 't', 'm', 'i', 'iv','zl'].forEach(function(type) {
         var btnEdit = document.getElementById('btn-edit-' + type);
         if (btnEdit) btnEdit.addEventListener('click', function() { bulkEdit(type); });
     });
@@ -63,7 +86,7 @@ function initFinanzen() {
         });
     });
 
-    ['e', 'a', 's', 't', 'm', 'i', 'iv', 'z'].forEach(function(type) {
+    ['e', 'a', 's', 't', 'm', 'i', 'iv', 'z','zl'].forEach(function(type) {
         var btn = document.getElementById('btn-new-' + type);
         if (btn) btn.addEventListener('click', function() {
             var frm = document.getElementById('frm-' + type + '-new');

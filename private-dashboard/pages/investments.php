@@ -1,4 +1,8 @@
 <?php
+// ════════════════════════════════════════════════
+// investments.php – Investment-Einträge mit Bulk-Edit + Person-Filter
+// Neuer Eintrag als separate Card mit Tabellen-Header
+// ════════════════════════════════════════════════
 $db     = get_db();
 $person = $_GET['person'] ?? 'Marcel';
 if (!in_array($person, ['Marcel','Kim','Beide'], true)) $person = 'Marcel';
@@ -12,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $datum   = $_POST['datum'] ?? date('Y-m-d');
         $bereich = trim($_POST['bereich'] ?? '');
         $art     = trim($_POST['einnahmeart'] ?? '');
-        $betrag  = str_replace(',', '.', $_POST['betrag'] ?? '0');
+        $betrag  = parse_betrag($_POST['betrag'] ?? '0');
         $notiz   = trim($_POST['notiz'] ?? '');
         $per     = $_POST['person'] ?? 'Beide';
         $id      = (int)($_POST['edit_id'] ?? 0);
@@ -31,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $datum   = $row['datum'] ?? date('Y-m-d');
             $bereich = trim($row['bereich'] ?? '');
             $art     = trim($row['einnahmeart'] ?? '');
-            $betrag  = str_replace(',', '.', $row['betrag'] ?? '0');
+            $betrag  = parse_betrag($row['betrag'] ?? '0');
             $notiz   = trim($row['notiz'] ?? '');
             $per     = $row['person'] ?? 'Beide';
             if ($bereich === '') continue;
@@ -47,8 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 if (defined('HANDLE_POST_ONLY')) return;
 
-$def_person = ($person === 'Beide') ? 'Marcel' : $person;
-$personen   = ['Marcel','Kim','Beide'];
+$def_person    = ($person === 'Beide') ? 'Marcel' : $person;
+$personen      = ['Marcel','Kim','Beide'];
 $bereiche_list = ['Grid EA','Affiliate','P2P','Tagesgeld','Krypto','Copy Trading','Sonstiges'];
 
 if ($person === 'Beide') {
@@ -86,6 +90,7 @@ function sel_v(array $opts, string $cur): string {
     </div>
 </div>
 
+<!-- KPI Cards -->
 <div class="kpi-grid kpi-grid--4 mt-4">
     <div class="kpi-card kpi-card--info">
         <div class="kpi-label">Gesamt investiert<?= $person!=='Beide'?' '.$person:'' ?></div>
@@ -105,52 +110,59 @@ function sel_v(array $opts, string $cur): string {
     </div>
 </div>
 
-<div class="dashboard-row mt-4">
-    <div class="card">
-        <div class="card-head"><h2 class="card-title">Nach Bereich</h2></div>
-        <div class="table-wrap"><table class="data-table">
-            <thead><tr><th>Bereich</th><th>Einträge</th><th class="col-right">Gesamt</th><th class="col-right">Anteil</th></tr></thead>
-            <tbody>
-            <?php foreach ($bereiche as $b):
-                $anteil = $gesamt > 0 ? $b['gesamt'] / $gesamt * 100 : 0;
-            ?>
-            <tr>
-                <td><?= he_v($b['bereich']) ?></td>
-                <td><?= $b['anz'] ?></td>
-                <td class="col-right fw-700 text-green"><?= fmt_v((float)$b['gesamt']) ?></td>
-                <td class="col-right"><?= number_format($anteil, 1, ',', '.') ?>%</td>
-            </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table></div>
-    </div>
-
-    <div class="card">
-        <div class="card-head"><h2 class="card-title">Neuer Eintrag</h2></div>
-        <form method="POST" action="?page=investments">
-            <?= csrf_field() ?>
-            <input type="hidden" name="act" value="save">
-            <input type="hidden" name="edit_id" value="0">
-            <input type="hidden" name="person_filter" value="<?= he_v($person) ?>">
-            <div class="form-grid">
-                <div class="form-group"><label>Datum</label><input type="date" name="datum" value="<?= date('Y-m-d') ?>"></div>
-                <div class="form-group"><label>Bereich</label>
-                    <select name="bereich"><?= sel_v($bereiche_list, 'Grid EA') ?></select>
-                </div>
-                <div class="form-group"><label>Person</label>
-                    <select name="person"><?= sel_v($personen, $def_person) ?></select>
-                </div>
-                <div class="form-group"><label>Einnahmeart</label><input type="text" name="einnahmeart" placeholder="z.B. Zinsen"></div>
-                <div class="form-group"><label>Betrag €</label><input type="text" name="betrag" placeholder="0,00"></div>
-                <div class="form-group fg-wide"><label>Notiz</label><input type="text" name="notiz"></div>
-            </div>
-            <div class="form-actions form-actions--pad">
-                <button type="submit" class="btn btn-primary">Hinzufügen</button>
-            </div>
-        </form>
-    </div>
+<!-- Nach Bereich -->
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">Nach Bereich</h2></div>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Bereich</th><th>Einträge</th><th class="col-right">Gesamt</th><th class="col-right">Anteil</th></tr></thead>
+        <tbody>
+        <?php foreach ($bereiche as $b):
+            $anteil = $gesamt > 0 ? $b['gesamt'] / $gesamt * 100 : 0;
+        ?>
+        <tr>
+            <td><?= he_v($b['bereich']) ?></td>
+            <td><?= $b['anz'] ?></td>
+            <td class="col-right fw-700 text-green"><?= fmt_v((float)$b['gesamt']) ?></td>
+            <td class="col-right"><?= number_format($anteil, 1, ',', '.') ?>%</td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table></div>
 </div>
 
+<!-- Neuer Eintrag Card -->
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">Neuer Eintrag</h2></div>
+    <form id="frm-iv-new" method="POST" action="?page=investments">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="save">
+        <input type="hidden" name="edit_id" value="0">
+        <input type="hidden" name="person_filter" value="<?= he_v($person) ?>">
+    </form>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr>
+            <th>Datum</th><th>Bereich</th><th>Art</th><th>Person</th><th>Notiz</th>
+            <th>Betrag</th><th></th>
+        </tr></thead>
+        <tbody><tr>
+            <td><input class="inline-input new-input" type="date" form="frm-iv-new" name="datum" value="<?= date('Y-m-d') ?>"></td>
+            <td><select class="inline-input new-input" form="frm-iv-new" name="bereich">
+                <?= sel_v($bereiche_list, 'Grid EA') ?>
+            </select></td>
+            <td><input class="inline-input new-input" form="frm-iv-new" name="einnahmeart" placeholder="z.B. Zinsen"></td>
+            <td><select class="inline-input new-input" form="frm-iv-new" name="person">
+                <?= sel_v($personen, $def_person) ?>
+            </select></td>
+            <td><input class="inline-input new-input" form="frm-iv-new" name="notiz" placeholder="Notiz"></td>
+            <td><input class="inline-input new-input input-right input-narrow" form="frm-iv-new" name="betrag" placeholder="0,00"></td>
+            <td class="col-actions">
+                <button type="button" class="btn btn-primary btn-xs" id="btn-new-iv">+ Hinzufügen</button>
+            </td>
+        </tr></tbody>
+    </table></div>
+</div>
+
+<!-- Alle Einträge mit Bulk-Edit -->
 <div class="card mt-4" id="card-investments">
     <div class="card-head">
         <div class="card-head-left">

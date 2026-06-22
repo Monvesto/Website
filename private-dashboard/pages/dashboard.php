@@ -91,7 +91,7 @@ function fmt(float $v, bool $sign = false): string {
     return ($v < 0 ? '–' : '') . $s . ' €';
 }
 function pct(float $v): string { return number_format($v * 100, 1, ',', '.') . '%'; }
-function pct_raw(float $v): string { return number_format($v * 100, 1, ',', '.'); }
+function pct_raw(float $v): string { return number_format($v * 100, 1, '.', ''); }
 function progress_class(float $p): string {
     if ($p >= 0.75) return 'progress-green';
     if ($p >= 0.4)  return 'progress-amber';
@@ -227,32 +227,42 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
             <h2 class="card-title">🎯 Ziele & Fortschritt</h2>
             <a href="?page=ziele" class="link-subtle">Alle bearbeiten →</a>
         </div>
-        <div class="goals-list">
+        <div class="table-wrap"><table class="data-table">
+            <thead><tr>
+                <th>Ziel</th>
+                <th>Kategorie</th>
+                <th>Fortschritt</th>
+                <th class="col-right">Aktuell</th>
+                <th class="col-right">Zielwert</th>
+                <th>Termin</th>
+            </tr></thead>
+            <tbody>
             <?php foreach ($ziele as $z):
                 $range = abs((float)$z['zielwert'] - (float)$z['startwert']);
                 $curr  = abs((float)$z['aktueller_wert'] - (float)$z['startwert']);
                 $prog  = $range > 0 ? min(1, $curr / $range) : 0;
                 $pcls  = progress_class($prog);
+                $pct_r = number_format($prog * 100, 1, '.', '');
             ?>
-            <div class="goal-row">
-                <div class="goal-header">
-                    <div class="goal-name"><?= htmlspecialchars($z['ziel']) ?></div>
-                    <div class="goal-meta">
-                        <span class="goal-pct <?= $pcls ?>"><?= pct($prog) ?></span>
-                        <?php if ($z['zieltermin']): ?><span class="goal-date"><?= days_left($z['zieltermin']) ?></span><?php endif; ?>
+            <tr>
+                <td><?= htmlspecialchars($z['ziel']) ?></td>
+                <td><?php if ($z['kategorie']): ?><span class="badge badge-neutral"><?= htmlspecialchars($z['kategorie']) ?></span><?php endif; ?></td>
+                <td>
+                    <div class="progress-wrap">
+                        <div class="progress-track"><div class="progress-fill <?= $pcls ?>" data-width="<?= $pct_r ?>"></div></div>
+                        <span class="progress-label <?= $pcls ?>"><?= $pct_r ?>%</span>
                     </div>
-                </div>
-                <div class="goal-bar-track">
-                    <div class="goal-bar-fill <?= $pcls ?>" data-width="<?= pct_raw($prog) ?>"></div>
-                </div>
-                <div class="goal-values">
-                    <span><?= number_format((float)$z['aktueller_wert'],0,',','.') ?></span>
-                    <span class="text-muted">von <?= number_format((float)$z['zielwert'],0,',','.') ?></span>
-                </div>
-            </div>
+                </td>
+                <td class="col-right fw-700"><?= number_format((float)$z['aktueller_wert'],0,',','.') ?></td>
+                <td class="col-right text-muted"><?= number_format((float)$z['zielwert'],0,',','.') ?></td>
+                <td><?php if ($z['zieltermin']): ?><span class="<?= strtotime($z['zieltermin']) < time() ? 'date-overdue' : '' ?>"><?= days_left($z['zieltermin']) ?></span><?php endif; ?></td>
+            </tr>
             <?php endforeach; ?>
-            <?php if (empty($ziele)): ?><p class="empty-state">Noch keine Ziele.</p><?php endif; ?>
-        </div>
+            <?php if (empty($ziele)): ?>
+            <tr><td colspan="6" class="empty-state">Noch keine Ziele.</td></tr>
+            <?php endif; ?>
+            </tbody>
+        </table></div>
     </div>
 
     <div class="card">

@@ -488,7 +488,7 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
             <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
             <th>Kategorie</th>
             <th>Turnus</th>
-            <th class="col-right">Betrag</th>
+            <th>Betrag</th>
             <th></th>
         </tr></thead>
         <tbody><tr>
@@ -600,7 +600,7 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
             <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
             <th>Kategorie</th>
             <th>Turnus</th>
-            <th class="col-right">Betrag</th>
+            <th>Betrag</th>
             <th></th>
         </tr></thead>
         <tbody><tr>
