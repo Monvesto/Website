@@ -1,4 +1,8 @@
 <?php
+// ════════════════════════════════════════════════
+// tasks.php – Aufgaben mit Bulk-Edit + Person-Filter
+// Neue Aufgabe als tfoot in der Tabelle
+// ════════════════════════════════════════════════
 $db     = get_db();
 $person = $_GET['person'] ?? 'Marcel';
 if (!in_array($person, ['Marcel','Kim','Beide'], true)) $person = 'Marcel';
@@ -127,12 +131,7 @@ $def_person   = $person === 'Beide' ? 'Marcel' : $person;
     </form>
     <div class="table-wrap"><table class="data-table">
         <thead><tr>
-            <th>Aufgabe</th>
-            <th>Kategorie</th>
-            <th>Priorität</th>
-            <th>Zuständig</th>
-            <th>Fällig</th>
-            <th></th>
+            <th>Aufgabe</th><th>Kategorie</th><th>Priorität</th><th>Zuständig</th><th>Fällig</th><th></th>
         </tr></thead>
         <tbody>
         <?php foreach ($offen as $t): $tid = $t['id']; ?>
@@ -202,8 +201,26 @@ $def_person   = $person === 'Beide' ? 'Marcel' : $person;
         <?php if (empty($offen)): ?>
         <tr><td colspan="6" class="empty-state">Keine offenen Aufgaben.</td></tr>
         <?php endif; ?>
-        <tr class="new-row-label"><td colspan="6"><span class="new-label">Neue Aufgabe</span></td></tr>
-        <tr class="new-row">
+        </tbody>
+    </table></div>
+</div>
+
+<!-- Neue Aufgabe Card -->
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">Neue Aufgabe</h2></div>
+    <form id="frm-t-new" method="POST" action="?page=tasks">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="save">
+        <input type="hidden" name="edit_id" value="0">
+        <input type="hidden" name="person_filter" value="<?= he_t($person) ?>">
+        <input type="hidden" name="notes" value="">
+        <input type="hidden" name="interval_type" value="">
+    </form>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr>
+            <th>Aufgabe</th><th>Kategorie</th><th>Priorität</th><th>Zuständig</th><th>Fällig</th><th></th>
+        </tr></thead>
+        <tbody><tr>
             <td><input class="inline-input new-input" form="frm-t-new" name="task" placeholder="Aufgabe" required></td>
             <td><input class="inline-input new-input" form="frm-t-new" name="category" placeholder="Kategorie"></td>
             <td><select class="inline-input new-input" form="frm-t-new" name="priority">
@@ -214,18 +231,9 @@ $def_person   = $person === 'Beide' ? 'Marcel' : $person;
             </select></td>
             <td><input class="inline-input new-input" type="date" form="frm-t-new" name="due_date"></td>
             <td class="col-actions">
-                <form id="frm-t-new" method="POST" action="?page=tasks" hidden>
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="act" value="save">
-                    <input type="hidden" name="edit_id" value="0">
-                    <input type="hidden" name="person_filter" value="<?= he_t($person) ?>">
-                    <input type="hidden" name="notes" value="">
-                    <input type="hidden" name="interval_type" value="">
-                </form>
                 <button type="button" class="btn btn-primary btn-xs" id="btn-new-t">+ Hinzufügen</button>
             </td>
-        </tr>
-        </tbody>
+        </tr></tbody>
     </table></div>
 </div>
 

@@ -1,4 +1,8 @@
 <?php
+// ════════════════════════════════════════════════
+// maintenance.php – Wartungen mit Bulk-Edit + Person-Filter
+// Neue Wartung als tfoot in der Tabelle
+// ════════════════════════════════════════════════
 $db     = get_db();
 $person = $_GET['person'] ?? 'Marcel';
 if (!in_array($person, ['Marcel','Kim','Beide'], true)) $person = 'Marcel';
@@ -9,14 +13,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pf  = $_POST['person_filter'] ?? $person;
 
     if ($act === 'save') {
-        $on  = trim($_POST['object_name'] ?? '');
-        $ta  = trim($_POST['task'] ?? '');
-        $it  = $_POST['interval_type'] ?? '';
-        $ld  = ($_POST['last_done'] ?? '') ?: null;
-        $nd  = ($_POST['next_due'] ?? '') ?: null;
-        $no  = trim($_POST['notes'] ?? '');
+        $on   = trim($_POST['object_name'] ?? '');
+        $ta   = trim($_POST['task'] ?? '');
+        $it   = $_POST['interval_type'] ?? '';
+        $ld   = ($_POST['last_done'] ?? '') ?: null;
+        $nd   = ($_POST['next_due'] ?? '') ?: null;
+        $no   = trim($_POST['notes'] ?? '');
         $resp = $_POST['responsible'] ?? 'Marcel';
-        $id  = (int)($_POST['edit_id'] ?? 0);
+        $id   = (int)($_POST['edit_id'] ?? 0);
         if ($id > 0) {
             $db->prepare("UPDATE maintenance SET object_name=?,task=?,interval_type=?,last_done=?,next_due=?,notes=?,responsible=?,person=? WHERE id=?")->execute([$on,$ta,$it,$ld,$nd,$no,$resp,$resp,$id]);
         } else {
@@ -120,15 +124,8 @@ $def_person = $person === 'Beide' ? 'Marcel' : $person;
     </form>
     <div class="table-wrap"><table class="data-table">
         <thead><tr>
-            <th>Objekt</th>
-            <th>Aufgabe</th>
-            <th>Intervall</th>
-            <th>Zuständig</th>
-            <th>Zuletzt</th>
-            <th>Nächste</th>
-            <th>Status</th>
-            <th>Notiz</th>
-            <th></th>
+            <th>Objekt</th><th>Aufgabe</th><th>Intervall</th><th>Zuständig</th>
+            <th>Zuletzt</th><th>Nächste</th><th>Status</th><th>Notiz</th><th></th>
         </tr></thead>
         <tbody>
         <?php foreach ($items as $i): $iid = $i['id'];
@@ -195,8 +192,25 @@ $def_person = $person === 'Beide' ? 'Marcel' : $person;
         <?php if (empty($items)): ?>
         <tr><td colspan="9" class="empty-state">Keine Wartungen.</td></tr>
         <?php endif; ?>
-        <tr class="new-row-label"><td colspan="9"><span class="new-label">Neue Wartung</span></td></tr>
-        <tr class="new-row">
+        </tbody>
+    </table></div>
+</div>
+
+<!-- Neue Wartung Card -->
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">Neue Wartung</h2></div>
+    <form id="frm-m-new" method="POST" action="?page=maintenance">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="save">
+        <input type="hidden" name="edit_id" value="0">
+        <input type="hidden" name="person_filter" value="<?= he_m($person) ?>">
+    </form>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr>
+            <th>Objekt</th><th>Aufgabe</th><th>Intervall</th><th>Zuständig</th>
+            <th>Zuletzt</th><th>Nächste</th><th>Notiz</th><th></th>
+        </tr></thead>
+        <tbody><tr>
             <td><input class="inline-input new-input" form="frm-m-new" name="object_name" placeholder="Objekt" required></td>
             <td><input class="inline-input new-input" form="frm-m-new" name="task" placeholder="Aufgabe" required></td>
             <td><select class="inline-input new-input" form="frm-m-new" name="interval_type">
@@ -207,18 +221,10 @@ $def_person = $person === 'Beide' ? 'Marcel' : $person;
             </select></td>
             <td><input class="inline-input new-input" type="date" form="frm-m-new" name="last_done"></td>
             <td><input class="inline-input new-input" type="date" form="frm-m-new" name="next_due"></td>
-            <td></td>
             <td><input class="inline-input new-input" form="frm-m-new" name="notes" placeholder="Notiz"></td>
             <td class="col-actions">
-                <form id="frm-m-new" method="POST" action="?page=maintenance" hidden>
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="act" value="save">
-                    <input type="hidden" name="edit_id" value="0">
-                    <input type="hidden" name="person_filter" value="<?= he_m($person) ?>">
-                </form>
                 <button type="button" class="btn btn-primary btn-xs" id="btn-new-m">+ Hinzufügen</button>
             </td>
-        </tr>
-        </tbody>
+        </tr></tbody>
     </table></div>
 </div>

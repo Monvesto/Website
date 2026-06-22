@@ -1,4 +1,8 @@
 <?php
+// ════════════════════════════════════════════════
+// immobilien.php – Immobilien mit Bulk-Edit + Person-Filter
+// Neues Objekt als tfoot in der Tabelle
+// ════════════════════════════════════════════════
 $db     = get_db();
 $person = $_GET['person'] ?? 'Marcel';
 if (!in_array($person, ['Marcel','Kim','Beide'], true)) $person = 'Marcel';
@@ -12,11 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id  = (int)($_POST['edit_id'] ?? 0);
         $on  = trim($_POST['objekt_name'] ?? '');
         $ed  = $_POST['einzugsdatum'] ?: null;
-        $km  = str_replace(',','.',$_POST['kaltmiete'] ?? '0');
-        $nk  = str_replace(',','.',$_POST['nebenkosten'] ?? '0');
-        $fk  = str_replace(',','.',$_POST['fixkosten'] ?? '0');
-        $ck  = str_replace(',','.',$_POST['kreditkosten'] ?? '0');
-        $ka  = str_replace(',','.',$_POST['kaution'] ?? '0');
+        $km  = parse_betrag($_POST['kaltmiete'] ?? '0');
+        $nk  = parse_betrag($_POST['nebenkosten'] ?? '0');
+        $fk  = parse_betrag($_POST['fixkosten'] ?? '0');
+        $ck  = parse_betrag($_POST['kreditkosten'] ?? '0');
+        $ka  = parse_betrag($_POST['kaution'] ?? '0');
         $mi  = trim($_POST['mieter'] ?? '');
         $bem = trim($_POST['bemerkung'] ?? '');
         $per = $_POST['person'] ?? 'Marcel';
@@ -37,11 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $on  = trim($row['objekt_name'] ?? '');
             if ($on === '') continue;
             $ed  = $row['einzugsdatum'] ?: null;
-            $km  = str_replace(',','.',$row['kaltmiete'] ?? '0');
-            $nk  = str_replace(',','.',$row['nebenkosten'] ?? '0');
-            $fk  = str_replace(',','.',$row['fixkosten'] ?? '0');
-            $ck  = str_replace(',','.',$row['kreditkosten'] ?? '0');
-            $ka  = str_replace(',','.',$row['kaution'] ?? '0');
+            $km  = parse_betrag($row['kaltmiete'] ?? '0');
+            $nk  = parse_betrag($row['nebenkosten'] ?? '0');
+            $fk  = parse_betrag($row['fixkosten'] ?? '0');
+            $ck  = parse_betrag($row['kreditkosten'] ?? '0');
+            $ka  = parse_betrag($row['kaution'] ?? '0');
             $mi  = trim($row['mieter'] ?? '');
             $bem = trim($row['bemerkung'] ?? '');
             $per = $row['person'] ?? 'Marcel';
@@ -75,8 +79,6 @@ function fmt_i(float $v): string { return number_format($v, 2, ',', '.') . ' €
 function he_i(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); }
 ?>
 
-<?php if (isset($_GET['msg'])): ?><div class="alert alert-success">Gespeichert.</div><?php endif; ?>
-
 <div class="finance-topbar">
     <div class="tab-bar"></div>
     <div class="person-switcher">
@@ -85,6 +87,8 @@ function he_i(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-
         <?php endforeach; ?>
     </div>
 </div>
+
+<?php if (isset($_GET['msg'])): ?><div class="alert alert-success">Gespeichert.</div><?php endif; ?>
 
 <div class="card mt-4" id="card-immobilien">
     <div class="card-head">
@@ -109,12 +113,9 @@ function he_i(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-
         <table class="data-table">
             <thead><tr>
                 <th>Objekt</th><th>Person</th><th>Mieter</th><th>Einzug</th>
-                <th class="col-right">Kaution</th>
-                <th class="col-right">Kaltmiete</th>
-                <th class="col-right">NK</th>
-                <th class="col-right">Fixkosten</th>
-                <th class="col-right">Kreditkosten</th>
-                <th class="col-right">Cashflow</th>
+                <th class="col-right">Kaution</th><th class="col-right">Kaltmiete</th>
+                <th class="col-right">NK</th><th class="col-right">Fixkosten</th>
+                <th class="col-right">Kreditkosten</th><th class="col-right">Cashflow</th>
                 <th>Status</th><th></th>
             </tr></thead>
             <tbody>
@@ -203,32 +204,43 @@ function he_i(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-
                 </td>
                 <td colspan="2"></td>
             </tr>
-            <tr class="new-row-label"><td colspan="12"><span class="new-label">Neues Objekt</span></td></tr>
-            <tr class="new-row">
-                <td><input class="inline-input new-input" form="frm-i-new" name="objekt_name" placeholder="Objektname" required></td>
-                <td><select class="inline-input new-input" form="frm-i-new" name="person">
-                    <?php foreach ($personen as $p): ?><option value="<?= $p ?>"<?= $p===$def_person?' selected':'' ?>><?= $p ?></option><?php endforeach; ?>
-                </select></td>
-                <td><input class="inline-input new-input" form="frm-i-new" name="mieter" placeholder="Mieter"></td>
-                <td><input class="inline-input new-input" type="date" form="frm-i-new" name="einzugsdatum"></td>
-                <td><input class="inline-input new-input input-right input-narrow" form="frm-i-new" name="kaution" placeholder="0,00"></td>
-                <td><input class="inline-input new-input input-right input-narrow" form="frm-i-new" name="kaltmiete" placeholder="0,00"></td>
-                <td><input class="inline-input new-input input-right input-narrow" form="frm-i-new" name="nebenkosten" placeholder="0,00"></td>
-                <td><input class="inline-input new-input input-right input-narrow" form="frm-i-new" name="fixkosten" placeholder="0,00"></td>
-                <td><input class="inline-input new-input input-right input-narrow" form="frm-i-new" name="kreditkosten" placeholder="0,00"></td>
-                <td></td><td></td>
-                <td class="col-actions">
-                    <form id="frm-i-new" method="POST" action="?page=immobilien" hidden>
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="save">
-                        <input type="hidden" name="edit_id" value="0">
-                        <input type="hidden" name="person_filter" value="<?= he_i($person) ?>">
-                        <input type="hidden" name="bemerkung" value="">
-                    </form>
-                    <button type="button" class="btn btn-primary btn-xs" id="btn-new-i">+ Hinzufügen</button>
-                </td>
-            </tr>
             </tbody>
         </table>
     </div>
+</div>
+
+<!-- Neues Objekt Card -->
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">Neues Objekt</h2></div>
+    <form id="frm-i-new" method="POST" action="?page=immobilien">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="save">
+        <input type="hidden" name="edit_id" value="0">
+        <input type="hidden" name="person_filter" value="<?= he_i($person) ?>">
+        <input type="hidden" name="bemerkung" value="">
+    </form>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr>
+            <th>Objekt</th><th>Person</th><th>Mieter</th><th>Einzug</th>
+            <th class="col-right">Kaution</th><th class="col-right">Kaltmiete</th>
+            <th class="col-right">NK</th><th class="col-right">Fixkosten</th>
+            <th class="col-right">Kreditkosten</th><th></th>
+        </tr></thead>
+        <tbody><tr>
+            <td><input class="inline-input new-input" form="frm-i-new" name="objekt_name" placeholder="Objektname" required></td>
+            <td><select class="inline-input new-input" form="frm-i-new" name="person">
+                <?php foreach ($personen as $p): ?><option value="<?= $p ?>"<?= $p===$def_person?' selected':'' ?>><?= $p ?></option><?php endforeach; ?>
+            </select></td>
+            <td><input class="inline-input new-input" form="frm-i-new" name="mieter" placeholder="Mieter"></td>
+            <td><input class="inline-input new-input" type="date" form="frm-i-new" name="einzugsdatum"></td>
+            <td><input class="inline-input new-input input-right input-narrow" form="frm-i-new" name="kaution" placeholder="0,00"></td>
+            <td><input class="inline-input new-input input-right input-narrow" form="frm-i-new" name="kaltmiete" placeholder="0,00"></td>
+            <td><input class="inline-input new-input input-right input-narrow" form="frm-i-new" name="nebenkosten" placeholder="0,00"></td>
+            <td><input class="inline-input new-input input-right input-narrow" form="frm-i-new" name="fixkosten" placeholder="0,00"></td>
+            <td><input class="inline-input new-input input-right input-narrow" form="frm-i-new" name="kreditkosten" placeholder="0,00"></td>
+            <td class="col-actions">
+                <button type="button" class="btn btn-primary btn-xs" id="btn-new-i">+ Hinzufügen</button>
+            </td>
+        </tr></tbody>
+    </table></div>
 </div>

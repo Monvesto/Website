@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($act === 'zahlung_create') {
         $bez = trim($_POST['bezeichnung'] ?? '');
-        $bet = str_replace(',','.',$_POST['betrag'] ?? '0');
+        $bet = parse_betrag($_POST['betrag'] ?? '0');
         $per = $_POST['person'] ?? 'Marcel';
         $kat = trim($_POST['kategorie'] ?? '');
         $tur = $_POST['turnus'] ?? 'Monatlich';
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id  = (int)$id;
             $row = $_POST['rows'][$id] ?? [];
             $bez = trim($row['bezeichnung'] ?? '');
-            $bet = str_replace(',', '.', $row['betrag'] ?? '0');
+            $bet = parse_betrag($row['betrag'] ?? '0');
             $per = $row['person'] ?? 'Beide';
             $kat = trim($row['kategorie'] ?? '');
             $tur = $row['turnus'] ?? 'Monatlich';
@@ -98,7 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: ?page=checkliste&tab=verwaltung&person=$person"); exit;
     }
 
-    // Sortierung Zahlungen
     if ($act === 'zahlung_reorder') {
         $id  = (int)$_POST['id'];
         $dir = $_POST['dir'] ?? '';
@@ -119,7 +118,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: ?page=checkliste&tab=verwaltung&person=$person"); exit;
     }
 
-    // Sortierung Mieten
     if ($act === 'miete_reorder') {
         $id  = (int)$_POST['id'];
         $dir = $_POST['dir'] ?? '';
@@ -223,7 +221,6 @@ function sort_btns_m(int $id): string {
 }
 ?>
 
-<!-- TABS + MONATSNAVIGATION -->
 <div class="finance-topbar">
     <div class="tab-bar">
         <a href="?page=checkliste&tab=zahlungen&monat=<?= $monat_param ?>&person=<?= $person ?>" class="tab-link <?= $tab==='zahlungen'?'active':'' ?>">💳 Zahlungen</a>
@@ -286,6 +283,7 @@ function sort_btns_m(int $id): string {
                     <input type="hidden" name="act" value="set_status">
                     <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
                     <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
                     <input type="hidden" name="status" value="1">
                     <button type="submit" class="btn btn-ok btn-xs">✓ Bezahlt</button>
                 </form>
@@ -293,6 +291,7 @@ function sort_btns_m(int $id): string {
                     <input type="hidden" name="act" value="set_status">
                     <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
                     <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
                     <input type="hidden" name="status" value="3">
                     <button type="submit" class="btn btn-ghost btn-xs">? Klärung</button>
                 </form>
@@ -328,6 +327,7 @@ function sort_btns_m(int $id): string {
                     <input type="hidden" name="act" value="set_status">
                     <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
                     <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
                     <input type="hidden" name="status" value="1">
                     <button type="submit" class="btn btn-ok btn-xs">✓ Bezahlt</button>
                 </form>
@@ -335,6 +335,7 @@ function sort_btns_m(int $id): string {
                     <input type="hidden" name="act" value="set_status">
                     <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
                     <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
                     <input type="hidden" name="status" value="0">
                     <button type="submit" class="btn btn-ghost btn-xs">↩ Zurück</button>
                 </form>
@@ -365,6 +366,7 @@ function sort_btns_m(int $id): string {
                     <input type="hidden" name="act" value="set_status">
                     <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
                     <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
                     <input type="hidden" name="status" value="0">
                     <button type="submit" class="btn btn-ghost btn-xs">↩ Offen</button>
                 </form>
@@ -372,6 +374,7 @@ function sort_btns_m(int $id): string {
                     <input type="hidden" name="act" value="set_status">
                     <input type="hidden" name="zahlung_id" value="<?= $z['id'] ?>">
                     <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
                     <input type="hidden" name="status" value="3">
                     <button type="submit" class="btn btn-ghost btn-xs">? Klärung</button>
                 </form>
@@ -388,7 +391,7 @@ function sort_btns_m(int $id): string {
 <div class="kpi-grid kpi-grid--4 mt-4">
     <div class="kpi-card">
         <div class="kpi-label">Offen</div>
-        <div class="kpi-value <?= count($m_offen)>0?>"><?= count($m_offen) ?></div>
+        <div class="kpi-value"><?= count($m_offen) ?></div>
     </div>
     <div class="kpi-card <?= count($m_verspaetet)>0?'kpi-card--alert':'' ?>">
         <div class="kpi-label">Verspätet</div>
@@ -422,6 +425,7 @@ function sort_btns_m(int $id): string {
                     <input type="hidden" name="act" value="set_miete_status">
                     <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
                     <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
                     <input type="hidden" name="status" value="1">
                     <button type="submit" class="btn btn-ok btn-xs">✓ Eingegangen</button>
                 </form>
@@ -429,6 +433,7 @@ function sort_btns_m(int $id): string {
                     <input type="hidden" name="act" value="set_miete_status">
                     <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
                     <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
                     <input type="hidden" name="status" value="2">
                     <button type="submit" class="btn btn-danger btn-xs">! Verspätet</button>
                 </form>
@@ -463,6 +468,7 @@ function sort_btns_m(int $id): string {
                     <input type="hidden" name="act" value="set_miete_status">
                     <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
                     <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
                     <input type="hidden" name="status" value="1">
                     <button type="submit" class="btn btn-ok btn-xs">✓ Eingegangen</button>
                 </form>
@@ -470,6 +476,7 @@ function sort_btns_m(int $id): string {
                     <input type="hidden" name="act" value="set_miete_status">
                     <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
                     <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
                     <input type="hidden" name="status" value="0">
                     <button type="submit" class="btn btn-ghost btn-xs">↩ Zurück</button>
                 </form>
@@ -499,6 +506,7 @@ function sort_btns_m(int $id): string {
                     <input type="hidden" name="act" value="set_miete_status">
                     <input type="hidden" name="miete_id" value="<?= $m['id'] ?>">
                     <input type="hidden" name="monat" value="<?= $monat_param ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
                     <input type="hidden" name="status" value="0">
                     <button type="submit" class="btn btn-ghost btn-xs">↩ Zurück</button>
                 </form>
@@ -512,7 +520,6 @@ function sort_btns_m(int $id): string {
 
 <?php elseif ($tab === 'uebersicht'): ?>
 
-<!-- ════ ÜBERSICHT ════ -->
 <?php
 $monate_ue = [];
 for ($i = 9; $i >= 0; $i--) $monate_ue[] = date('Y-m', strtotime("first day of -$i month"));
@@ -625,13 +632,10 @@ $monate_kurz = ['01'=>'Jan','02'=>'Feb','03'=>'Mrz','04'=>'Apr','05'=>'Mai','06'
     </table></div>
 </div>
 
-<?php endif; ?>
-
-<?php if ($tab === 'verwaltung'): ?>
-<!-- ════ VERWALTUNG ════ -->
+<?php elseif ($tab === 'verwaltung'): ?>
 
 <?php
-$def_person = ($person === 'Beide') ? 'Marcel' : $person;
+$def_person   = ($person === 'Beide') ? 'Marcel' : $person;
 $personen_chk = ['Marcel','Kim','Beide'];
 $turnusse_chk = ['Monatlich','Quartalsweise','Jährlich'];
 $typen_chk    = ['Kaltmiete','Warmmiete','Garage','Sonstiges'];
@@ -642,9 +646,7 @@ function sel_chk(array $opts, string $cur): string {
 }
 ?>
 
-<!-- Zahlungen -->
-<!-- Bulk-Form außerhalb der Card -->
-<form id="frm-zv-bulk" method="POST" action="?page=checkliste" class="form-hidden">
+<form id="frm-zv-bulk" method="POST" action="?page=checkliste">
     <?= csrf_field() ?>
     <input type="hidden" name="act" value="zahlungen_bulk_save">
     <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
@@ -661,63 +663,76 @@ function sel_chk(array $opts, string $cur): string {
         </div>
         <div class="bulk-bar">
             <button type="button" class="btn btn-ghost btn-sm" id="btn-edit-zv">✏ Bearbeiten</button>
-            <button type="button" class="btn btn-primary btn-sm" id="btn-save-zv" hidden>✓ Speichern</button>
+            <button type="submit" form="frm-zv-bulk" class="btn btn-primary btn-sm btn-hidden" id="btn-save-zv">✓ Speichern</button>
         </div>
     </div>
     <div class="table-wrap"><table class="data-table data-table--compact">
-        <thead><tr><th class="col-sort"></th><th>Bezeichnung</th><th>Betrag</th><th>Person</th><th>Kategorie</th><th>Turnus</th><th></th></tr></thead>
+        <thead><tr><th class="col-sort"></th><th>Bezeichnung</th><th>Betrag</th><th>Person</th><th>Kategorie</th><th>Turnus</th></tr></thead>
         <tbody>
         <?php foreach ($zahlungen as $z): $zid = $z['id']; ?>
         <tr>
             <td class="col-sort"><?= sort_btns_z($zid) ?></td>
             <td>
                 <span class="ft-bulk"><?= he2($z['bezeichnung']) ?></span>
-                <input class="inline-input fi-bulk" form="frm-zv-bulk" name="rows[<?= $zid ?>][bezeichnung]" value="<?= he2($z['bezeichnung']) ?>" hidden>
+                <input class="inline-input fi-bulk" form="frm-zv-bulk" name="rows[<?= $zid ?>][bezeichnung]" value="<?= he2($z['bezeichnung']) ?>">
             </td>
             <td>
                 <span class="ft-bulk fw-700"><?= fmt_chk((float)$z['betrag']) ?></span>
-                <input class="inline-input fi-bulk input-narrow" form="frm-zv-bulk" name="rows[<?= $zid ?>][betrag]" value="<?= he2(number_format((float)$z['betrag'],2,',','.')) ?>" hidden>
+                <input class="inline-input fi-bulk input-narrow" form="frm-zv-bulk" name="rows[<?= $zid ?>][betrag]" value="<?= he2(number_format((float)$z['betrag'],2,',','.')) ?>">
             </td>
             <td>
                 <span class="ft-bulk"><?= he2($z['person']) ?></span>
-                <select class="inline-input fi-bulk" form="frm-zv-bulk" name="rows[<?= $zid ?>][person]" hidden><?= sel_chk($personen_chk, $z['person']) ?></select>
+                <select class="inline-input fi-bulk" form="frm-zv-bulk" name="rows[<?= $zid ?>][person]"><?= sel_chk($personen_chk, $z['person']) ?></select>
             </td>
             <td>
                 <span class="ft-bulk"><span class="badge badge-neutral"><?= he2($z['kategorie']??'–') ?></span></span>
-                <input class="inline-input fi-bulk" form="frm-zv-bulk" name="rows[<?= $zid ?>][kategorie]" value="<?= he2($z['kategorie']??'') ?>" hidden>
+                <input class="inline-input fi-bulk" form="frm-zv-bulk" name="rows[<?= $zid ?>][kategorie]" value="<?= he2($z['kategorie']??'') ?>">
             </td>
             <td>
                 <span class="ft-bulk"><?= he2($z['turnus']) ?></span>
-                <select class="inline-input fi-bulk" form="frm-zv-bulk" name="rows[<?= $zid ?>][turnus]" hidden><?= sel_chk($turnusse_chk, $z['turnus']) ?></select>
+                <select class="inline-input fi-bulk" form="frm-zv-bulk" name="rows[<?= $zid ?>][turnus]"><?= sel_chk($turnusse_chk, $z['turnus']) ?></select>
             </td>
             <td class="col-actions">
-                <button type="submit" form="frm-del-z-<?= $zid ?>" class="btn btn-danger btn-xs fi-bulk btn-delete-confirm" hidden>✕</button>
+                <form id="frm-del-z-<?= $zid ?>" method="POST" action="?page=checkliste" hidden>
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="act" value="zahlung_delete">
+                    <input type="hidden" name="id" value="<?= $zid ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
+                </form>
+                <button type="submit" form="frm-del-z-<?= $zid ?>" class="btn btn-danger btn-xs fi-bulk btn-delete-confirm">✕</button>
             </td>
         </tr>
         <?php endforeach; ?>
-        <tr class="new-row-label"><td colspan="7"><span class="new-label">Neue Zahlung</span></td></tr>
-        <tr class="new-row">
-            <td></td>
+        </tbody>
+    </table></div>
+</div>
+
+<!-- Neue Zahlung Card -->
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">Neue Zahlung</h2></div>
+    <form id="frm-z-new" method="POST" action="?page=checkliste">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="zahlung_create">
+        <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
+    </form>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr>
+            <th>Bezeichnung</th><th>Betrag</th><th>Person</th><th>Kategorie</th><th>Turnus</th><th></th>
+        </tr></thead>
+        <tbody><tr>
             <td><input class="inline-input new-input" form="frm-z-new" name="bezeichnung" placeholder="Bezeichnung" required></td>
             <td><input class="inline-input new-input input-narrow" form="frm-z-new" name="betrag" placeholder="0,00"></td>
             <td><select class="inline-input new-input" form="frm-z-new" name="person"><?= sel_chk($personen_chk, $def_person) ?></select></td>
             <td><input class="inline-input new-input" form="frm-z-new" name="kategorie" placeholder="z.B. Wohnen"></td>
             <td><select class="inline-input new-input" form="frm-z-new" name="turnus"><?= sel_chk($turnusse_chk, 'Monatlich') ?></select></td>
             <td class="col-actions">
-                <form id="frm-z-new" method="POST" action="?page=checkliste" class="form-hidden"><?= csrf_field() ?>
-                    <input type="hidden" name="act" value="zahlung_create">
-                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
-                </form>
                 <button type="button" class="btn btn-primary btn-xs" id="btn-new-z">+ Hinzufügen</button>
             </td>
-        </tr>
-        </tbody>
+        </tr></tbody>
     </table></div>
 </div>
 
-<!-- Mieteinnahmen -->
-<!-- Bulk-Form außerhalb der Card -->
-<form id="frm-mv-bulk" method="POST" action="?page=checkliste" class="form-hidden">
+<form id="frm-mv-bulk" method="POST" action="?page=checkliste">
     <?= csrf_field() ?>
     <input type="hidden" name="act" value="mieten_bulk_save">
     <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
@@ -734,67 +749,64 @@ function sel_chk(array $opts, string $cur): string {
         </div>
         <div class="bulk-bar">
             <button type="button" class="btn btn-ghost btn-sm" id="btn-edit-mv">✏ Bearbeiten</button>
-            <button type="button" class="btn btn-primary btn-sm" id="btn-save-mv" hidden>✓ Speichern</button>
+            <button type="submit" form="frm-mv-bulk" class="btn btn-primary btn-sm btn-hidden" id="btn-save-mv">✓ Speichern</button>
         </div>
     </div>
     <div class="table-wrap"><table class="data-table data-table--compact">
-        <thead><tr><th class="col-sort"></th><th>Bezeichnung</th><th>Typ</th><th>Person</th><th></th></tr></thead>
+        <thead><tr><th class="col-sort"></th><th>Bezeichnung</th><th>Typ</th><th>Person</th></tr></thead>
         <tbody>
         <?php foreach ($mieten as $m): $mid = $m['id']; ?>
         <tr>
             <td class="col-sort"><?= sort_btns_m($mid) ?></td>
             <td>
                 <span class="ft-bulk"><?= he2($m['bezeichnung']) ?></span>
-                <input class="inline-input fi-bulk" form="frm-mv-bulk" name="rows[<?= $mid ?>][bezeichnung]" value="<?= he2($m['bezeichnung']) ?>" hidden>
+                <input class="inline-input fi-bulk" form="frm-mv-bulk" name="rows[<?= $mid ?>][bezeichnung]" value="<?= he2($m['bezeichnung']) ?>">
             </td>
             <td>
                 <span class="ft-bulk"><span class="badge badge-neutral"><?= he2($m['typ']) ?></span></span>
-                <select class="inline-input fi-bulk" form="frm-mv-bulk" name="rows[<?= $mid ?>][typ]" hidden><?= sel_chk($typen_chk, $m['typ']) ?></select>
+                <select class="inline-input fi-bulk" form="frm-mv-bulk" name="rows[<?= $mid ?>][typ]"><?= sel_chk($typen_chk, $m['typ']) ?></select>
             </td>
             <td>
                 <span class="ft-bulk"><?= he2($m['person'] ?? 'Beide') ?></span>
-                <select class="inline-input fi-bulk" form="frm-mv-bulk" name="rows[<?= $mid ?>][person]" hidden><?= sel_chk($personen_chk, $m['person'] ?? 'Beide') ?></select>
+                <select class="inline-input fi-bulk" form="frm-mv-bulk" name="rows[<?= $mid ?>][person]"><?= sel_chk($personen_chk, $m['person'] ?? 'Beide') ?></select>
             </td>
             <td class="col-actions">
-                <button type="submit" form="frm-del-m-<?= $mid ?>" class="btn btn-danger btn-xs fi-bulk btn-delete-confirm" hidden>✕</button>
+                <form id="frm-del-m-<?= $mid ?>" method="POST" action="?page=checkliste" hidden>
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="act" value="miete_delete">
+                    <input type="hidden" name="id" value="<?= $mid ?>">
+                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
+                </form>
+                <button type="submit" form="frm-del-m-<?= $mid ?>" class="btn btn-danger btn-xs fi-bulk btn-delete-confirm">✕</button>
             </td>
         </tr>
         <?php endforeach; ?>
-        <tr class="new-row-label"><td colspan="5"><span class="new-label">Neue Mieteinnahme</span></td></tr>
-        <tr class="new-row">
-            <td></td>
-            <td><input class="inline-input new-input" form="frm-m-new" name="bezeichnung" placeholder="z.B. Hemeringen EG" required></td>
-            <td><select class="inline-input new-input" form="frm-m-new" name="typ"><?= sel_chk($typen_chk, 'Kaltmiete') ?></select></td>
-            <td><select class="inline-input new-input" form="frm-m-new" name="person"><?= sel_chk($personen_chk, $def_person) ?></select></td>
-            <td class="col-actions">
-                <form id="frm-m-new" method="POST" action="?page=checkliste" class="form-hidden"><?= csrf_field() ?>
-                    <input type="hidden" name="act" value="miete_create">
-                    <input type="hidden" name="immobilien_id" value="0">
-                    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
-                </form>
-                <button type="button" class="btn btn-primary btn-xs" id="btn-new-m">+ Hinzufügen</button>
-            </td>
-        </tr>
         </tbody>
     </table></div>
 </div>
 
-<!-- Delete-Forms für Zahlungen (außerhalb aller anderen Forms) -->
-<?php foreach ($zahlungen as $z): ?>
-<form id="frm-del-z-<?= $z['id'] ?>" method="POST" action="?page=checkliste" class="form-hidden"><?= csrf_field() ?>
-    <input type="hidden" name="act" value="zahlung_delete">
-    <input type="hidden" name="id" value="<?= $z['id'] ?>">
-    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
-</form>
-<?php endforeach; ?>
-
-<!-- Delete-Forms für Mieten (außerhalb aller anderen Forms) -->
-<?php foreach ($mieten as $m): ?>
-<form id="frm-del-m-<?= $m['id'] ?>" method="POST" action="?page=checkliste" class="form-hidden"><?= csrf_field() ?>
-    <input type="hidden" name="act" value="miete_delete">
-    <input type="hidden" name="id" value="<?= $m['id'] ?>">
-    <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
-</form>
-<?php endforeach; ?>
+<!-- Neue Mieteinnahme Card -->
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">Neue Mieteinnahme</h2></div>
+    <form id="frm-m-new" method="POST" action="?page=checkliste">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="miete_create">
+        <input type="hidden" name="immobilien_id" value="0">
+        <input type="hidden" name="person_filter" value="<?= he2($person) ?>">
+    </form>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr>
+            <th>Bezeichnung</th><th>Typ</th><th>Person</th><th></th>
+        </tr></thead>
+        <tbody><tr>
+            <td><input class="inline-input new-input" form="frm-m-new" name="bezeichnung" placeholder="z.B. Hemeringen EG" required></td>
+            <td><select class="inline-input new-input" form="frm-m-new" name="typ"><?= sel_chk($typen_chk, 'Kaltmiete') ?></select></td>
+            <td><select class="inline-input new-input" form="frm-m-new" name="person"><?= sel_chk($personen_chk, $def_person) ?></select></td>
+            <td class="col-actions">
+                <button type="button" class="btn btn-primary btn-xs" id="btn-new-m">+ Hinzufügen</button>
+            </td>
+        </tr></tbody>
+    </table></div>
+</div>
 
 <?php endif; ?>

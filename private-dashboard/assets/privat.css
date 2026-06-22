@@ -287,7 +287,7 @@ select.fi-hidden { display: none; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 24px;
+  padding: 10px 24px;
   border-bottom: 0.5px solid var(--border);
   gap: 12px;
   flex-wrap: wrap;
@@ -1046,3 +1046,87 @@ select { cursor: pointer; }
     justify-content: center;
 }
 
+/* Verstecktes Form in col-actions nimmt keinen Platz ein */
+td.col-actions form[hidden],
+td.col-actions form.form-hidden {
+    display: none;
+}
+
+/* col-actions Zelle wird unsichtbar wenn nur fi-hidden Buttons drin sind */
+td.col-actions:not(:has(> button:not(.fi-hidden))) {
+    width: 0;
+    padding: 0 !important;
+    overflow: hidden;
+    border-left: none;
+}
+
+/* ── Neue-Eintrag Zeile (außerhalb Tabelle, aber gleiche Optik) ── */
+.new-entry-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-top: 0.5px solid var(--border);
+    background: var(--white);
+    flex-wrap: wrap;
+}
+
+.new-entry-row .inline-input {
+    border-color: var(--green);
+}
+
+/* ── Neue-Eintrag Zeile – schmal, gleiche Optik wie Tabellenzeilen ── */
+.new-entry-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-top: 0.5px solid var(--border);
+    background: var(--white);
+    flex-wrap: wrap;
+}
+
+.new-entry-bar .inline-input {
+    border-color: var(--green);
+    background: var(--green-light);
+    flex: 1;
+    min-width: 80px;
+}
+
+.new-entry-bar .input-narrow {
+    max-width: 90px;
+    flex: 0 0 90px;
+}
+
+/* ── tfoot alle Zellen Basis ── */
+tfoot tr td {
+    padding: 5px 12px;
+    border-top: 0.5px solid var(--border);
+    background: var(--white);
+    vertical-align: middle;
+}
+
+/* ── tfoot Titelzeile (Neue Einnahme etc.) ── */
+tr.tfoot-label td {
+    background: var(--white) !important;
+    padding: 14px 24px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: var(--text) !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    border-top: 1px solid var(--border) !important;
+    border-bottom: 0.5px solid var(--border) !important;
+}
+
+/* ── tfoot Spaltenüberschriften ── */
+tr.tfoot-header td {
+    background: var(--bg) !important;
+    padding: 4px 12px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: var(--text-muted) !important;
+    border-bottom: 0.5px solid var(--border) !important;
+}

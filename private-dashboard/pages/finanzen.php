@@ -1,4 +1,8 @@
 <?php
+// ════════════════════════════════════════════════
+// finanzen.php – Einnahmen, Ausgaben, Schulden
+// Tabs + Person-Filter + Bulk-Edit
+// ════════════════════════════════════════════════
 $db      = get_db();
 $tab     = $_GET['tab'] ?? 'uebersicht';
 $person  = $_GET['person'] ?? 'Marcel';
@@ -245,6 +249,7 @@ $personen      = ['Marcel','Kim','Beide'];
 $turnusse      = ['Monatlich','Vierteljährlich','Halbjährlich','Jährlich','Einmalig'];
 $kat_einnahmen = ['Gehalt','Nebeneinkommen','Immobilien','Investments','Sonstiges'];
 $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','Lebensmittel','Haustiere','Gesundheit','Pflege','Schulden','Immobilien','Investments','Business','Bank','Sonstiges'];
+$def_person    = $person === 'Beide' ? 'Marcel' : $person;
 ?>
 
 <?php if ($success): ?><div class="alert alert-success"><?= he($success) ?></div><?php endif; ?>
@@ -264,6 +269,7 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
 </div>
 
 <?php if ($tab === 'uebersicht'): ?>
+<!-- ════ ÜBERSICHT ════ -->
 
 <div class="kpi-grid kpi-grid--4 mt-4">
     <div class="kpi-card">
@@ -389,6 +395,7 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
 </div>
 
 <?php elseif ($tab === 'einnahmen'): ?>
+<!-- ════ EINNAHMEN ════ -->
 
 <div class="card mt-4" id="card-einnahmen">
     <div class="card-head">
@@ -418,6 +425,7 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                 <th>Kategorie</th><th>Turnus</th>
                 <th class="col-right">Betrag</th>
                 <th class="col-right">Monatlich</th>
+                <th></th>
             </tr></thead>
             <tbody>
             <?php foreach ($einnahmen_alle as $e): $eid = $e['id']; ?>
@@ -459,34 +467,47 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                 </td>
             </tr>
             <?php endforeach; ?>
-            <tr class="new-row-label"><td colspan="<?= $person==='Beide'?8:7 ?>"><span class="new-label">Neuer Datensatz</span></td></tr>
-            <tr class="new-row">
-                <td></td>
-                <td><input class="inline-input new-input" form="frm-e-new" name="bezeichnung" placeholder="Bezeichnung" required></td>
-                <?php if($person==='Beide'): ?>
-                <td><select class="inline-input new-input" form="frm-e-new" name="person"><?= sel($personen,'Marcel') ?></select></td>
-                <?php endif; ?>
-                <td><select class="inline-input new-input" form="frm-e-new" name="kategorie"><?= kat_sel($kat_einnahmen,'') ?></select></td>
-                <td><select class="inline-input new-input" form="frm-e-new" name="turnus"><?= sel($turnusse,'Monatlich') ?></select></td>
-                <td><input class="inline-input new-input input-right input-narrow" form="frm-e-new" name="betrag" placeholder="0,00"></td>
-                <td></td>
-                <td class="col-actions">
-                    <form id="frm-e-new" method="POST" action="?page=finanzen" hidden>
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="einnahme_save">
-                        <input type="hidden" name="edit_id" value="0">
-                        <input type="hidden" name="person_filter" value="<?= he($person) ?>">
-                        <input type="hidden" name="person" value="<?= he($person==='Beide'?'Marcel':$person) ?>">
-                    </form>
-                    <button type="button" class="btn btn-primary btn-xs" id="btn-new-e">+ Hinzufügen</button>
-                </td>
-            </tr>
             </tbody>
         </table>
     </div>
 </div>
 
+<!-- Neue Einnahme Card -->
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">Neue Einnahme</h2></div>
+    <form id="frm-e-new" method="POST" action="?page=finanzen">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="einnahme_save">
+        <input type="hidden" name="edit_id" value="0">
+        <input type="hidden" name="person_filter" value="<?= he($person) ?>">
+        <input type="hidden" name="person" value="<?= he($def_person) ?>">
+    </form>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr>
+            <th>Bezeichnung</th>
+            <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
+            <th>Kategorie</th>
+            <th>Turnus</th>
+            <th class="col-right">Betrag</th>
+            <th></th>
+        </tr></thead>
+        <tbody><tr>
+            <td><input class="inline-input new-input" form="frm-e-new" name="bezeichnung" placeholder="Bezeichnung" required></td>
+            <?php if($person==='Beide'): ?>
+            <td><select class="inline-input new-input" form="frm-e-new" name="person"><?= sel($personen,$def_person) ?></select></td>
+            <?php endif; ?>
+            <td><select class="inline-input new-input" form="frm-e-new" name="kategorie"><?= kat_sel($kat_einnahmen,'') ?></select></td>
+            <td><select class="inline-input new-input" form="frm-e-new" name="turnus"><?= sel($turnusse,'Monatlich') ?></select></td>
+            <td><input class="inline-input new-input input-right input-narrow" form="frm-e-new" name="betrag" placeholder="0,00"></td>
+            <td class="col-actions">
+                <button type="button" class="btn btn-primary btn-xs" id="btn-new-e">+ Hinzufügen</button>
+            </td>
+        </tr></tbody>
+    </table></div>
+</div>
+
 <?php elseif ($tab === 'ausgaben'): ?>
+<!-- ════ AUSGABEN ════ -->
 
 <div class="card mt-4" id="card-ausgaben">
     <div class="card-head">
@@ -516,6 +537,7 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                 <th>Kategorie</th><th>Turnus</th>
                 <th class="col-right">Betrag</th>
                 <th class="col-right">Monatlich</th>
+                <th></th>
             </tr></thead>
             <tbody>
             <?php foreach ($ausgaben_alle as $a): $aid = $a['id']; ?>
@@ -557,34 +579,47 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                 </td>
             </tr>
             <?php endforeach; ?>
-            <tr class="new-row-label"><td colspan="<?= $person==='Beide'?8:7 ?>"><span class="new-label">Neuer Datensatz</span></td></tr>
-            <tr class="new-row">
-                <td></td>
-                <td><input class="inline-input new-input" form="frm-a-new" name="bezeichnung" placeholder="Bezeichnung" required></td>
-                <?php if($person==='Beide'): ?>
-                <td><select class="inline-input new-input" form="frm-a-new" name="person"><?= sel($personen,'Marcel') ?></select></td>
-                <?php endif; ?>
-                <td><select class="inline-input new-input" form="frm-a-new" name="kategorie"><?= kat_sel($kat_ausgaben,'') ?></select></td>
-                <td><select class="inline-input new-input" form="frm-a-new" name="turnus"><?= sel($turnusse,'Monatlich') ?></select></td>
-                <td><input class="inline-input new-input input-right input-narrow" form="frm-a-new" name="betrag" placeholder="0,00"></td>
-                <td></td>
-                <td class="col-actions">
-                    <form id="frm-a-new" method="POST" action="?page=finanzen" hidden>
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="ausgabe_save">
-                        <input type="hidden" name="edit_id" value="0">
-                        <input type="hidden" name="person_filter" value="<?= he($person) ?>">
-                        <input type="hidden" name="person" value="<?= he($person==='Beide'?'Marcel':$person) ?>">
-                    </form>
-                    <button type="button" class="btn btn-primary btn-xs" id="btn-new-a">+ Hinzufügen</button>
-                </td>
-            </tr>
             </tbody>
         </table>
     </div>
 </div>
 
+<!-- Neue Ausgabe Card -->
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">Neue Ausgabe</h2></div>
+    <form id="frm-a-new" method="POST" action="?page=finanzen">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="ausgabe_save">
+        <input type="hidden" name="edit_id" value="0">
+        <input type="hidden" name="person_filter" value="<?= he($person) ?>">
+        <input type="hidden" name="person" value="<?= he($def_person) ?>">
+    </form>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr>
+            <th>Bezeichnung</th>
+            <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
+            <th>Kategorie</th>
+            <th>Turnus</th>
+            <th class="col-right">Betrag</th>
+            <th></th>
+        </tr></thead>
+        <tbody><tr>
+            <td><input class="inline-input new-input" form="frm-a-new" name="bezeichnung" placeholder="Bezeichnung" required></td>
+            <?php if($person==='Beide'): ?>
+            <td><select class="inline-input new-input" form="frm-a-new" name="person"><?= sel($personen,$def_person) ?></select></td>
+            <?php endif; ?>
+            <td><select class="inline-input new-input" form="frm-a-new" name="kategorie"><?= kat_sel($kat_ausgaben,'') ?></select></td>
+            <td><select class="inline-input new-input" form="frm-a-new" name="turnus"><?= sel($turnusse,'Monatlich') ?></select></td>
+            <td><input class="inline-input new-input input-right input-narrow" form="frm-a-new" name="betrag" placeholder="0,00"></td>
+            <td class="col-actions">
+                <button type="button" class="btn btn-primary btn-xs" id="btn-new-a">+ Hinzufügen</button>
+            </td>
+        </tr></tbody>
+    </table></div>
+</div>
+
 <?php elseif ($tab === 'schulden'): ?>
+<!-- ════ SCHULDEN ════ -->
 
 <div class="card mt-4" id="card-schulden">
     <div class="card-head">
@@ -613,6 +648,7 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                 <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
                 <th>Startsumme</th><th>Restsumme</th>
                 <th>Rate/Mon.</th><th>Abbezahlt</th><th>Notiz</th>
+                <th></th>
             </tr></thead>
             <tbody>
             <?php foreach ($schulden_alle as $s): $sid = $s['id'];
@@ -665,32 +701,45 @@ $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','
                 </td>
             </tr>
             <?php endforeach; ?>
-            <tr class="new-row-label"><td colspan="<?= $person==='Beide'?9:8 ?>"><span class="new-label">Neuer Datensatz</span></td></tr>
-            <tr class="new-row">
-                <td></td>
-                <td><input class="inline-input new-input" form="frm-s-new" name="glaeubiger" placeholder="Gläubiger" required></td>
-                <?php if($person==='Beide'): ?>
-                <td><select class="inline-input new-input" form="frm-s-new" name="person"><?= sel($personen,'Marcel') ?></select></td>
-                <?php endif; ?>
-                <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="startsumme" placeholder="0,00"></td>
-                <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="restsumme" placeholder="0,00"></td>
-                <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="rate" placeholder="0,00"></td>
-                <td></td>
-                <td><input class="inline-input new-input" form="frm-s-new" name="notiz" placeholder="optional"></td>
-                <td class="col-actions">
-                    <form id="frm-s-new" method="POST" action="?page=finanzen" hidden>
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="schuld_save">
-                        <input type="hidden" name="edit_id" value="0">
-                        <input type="hidden" name="person_filter" value="<?= he($person) ?>">
-                        <input type="hidden" name="person" value="<?= he($person==='Beide'?'Marcel':$person) ?>">
-                    </form>
-                    <button type="button" class="btn btn-primary btn-xs" id="btn-new-s">+ Hinzufügen</button>
-                </td>
-            </tr>
             </tbody>
         </table>
     </div>
+</div>
+
+<!-- Neue Verbindlichkeit Card -->
+<div class="card mt-4">
+    <div class="card-head"><h2 class="card-title">Neue Verbindlichkeit</h2></div>
+    <form id="frm-s-new" method="POST" action="?page=finanzen">
+        <?= csrf_field() ?>
+        <input type="hidden" name="act" value="schuld_save">
+        <input type="hidden" name="edit_id" value="0">
+        <input type="hidden" name="person_filter" value="<?= he($person) ?>">
+        <input type="hidden" name="person" value="<?= he($def_person) ?>">
+    </form>
+    <div class="table-wrap"><table class="data-table">
+        <thead><tr>
+            <th>Gläubiger</th>
+            <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
+            <th>Startsumme</th>
+            <th>Restsumme</th>
+            <th>Rate/Mon.</th>
+            <th>Notiz</th>
+            <th></th>
+        </tr></thead>
+        <tbody><tr>
+            <td><input class="inline-input new-input" form="frm-s-new" name="glaeubiger" placeholder="Gläubiger" required></td>
+            <?php if($person==='Beide'): ?>
+            <td><select class="inline-input new-input" form="frm-s-new" name="person"><?= sel($personen,$def_person) ?></select></td>
+            <?php endif; ?>
+            <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="startsumme" placeholder="0,00"></td>
+            <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="restsumme" placeholder="0,00"></td>
+            <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="rate" placeholder="0,00"></td>
+            <td><input class="inline-input new-input" form="frm-s-new" name="notiz" placeholder="Notiz"></td>
+            <td class="col-actions">
+                <button type="button" class="btn btn-primary btn-xs" id="btn-new-s">+ Hinzufügen</button>
+            </td>
+        </tr></tbody>
+    </table></div>
 </div>
 
 <?php endif; ?>
