@@ -134,7 +134,9 @@ $nav = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title><?= htmlspecialchars($page_title) ?> – Monvesto Privat</title>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="assets/privat.css">
+    <link rel="icon" href="favicon.ico">
 </head>
 <body>
 <div class="app-layout">

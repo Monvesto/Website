@@ -199,18 +199,18 @@ $errors = [
         <form method="POST" action="?page=profil">
             <?= csrf_field() ?>
             <input type="hidden" name="act" value="change_password">
+            <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" autocomplete="username" hidden>
             <div class="form-grid form-grid--profil">
                 <div class="form-group fg-wide">
                     <label>Aktuelles Passwort</label>
-                    <input type="password" name="old_password" required>
-                </div>
+                    <input type="password" name="old_password" required autocomplete="current-password">                </div>
                 <div class="form-group">
                     <label>Neues Passwort</label>
-                    <input type="password" name="new_password" placeholder="min. 8 Zeichen" required>
+                    <input type="password" name="new_password" placeholder="min. 8 Zeichen" required autocomplete="new-password">
                 </div>
                 <div class="form-group">
                     <label>Passwort bestätigen</label>
-                    <input type="password" name="new_password2" required>
+                    <input type="password" name="new_password2" required autocomplete="new-password">
                 </div>
             </div>
             <div class="form-actions form-actions--pad">
