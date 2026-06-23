@@ -1,46 +1,32 @@
 <?php
 // ════════════════════════════════════════════════
 // pages/admin.php – Admin-Panel
-//
-// Nur für Nutzer mit role='admin' zugänglich.
-// Funktionen:
-//   - Nutzerübersicht (alle registrierten User)
-//   - Neuen User anlegen (mit Profil)
-//   - User aktivieren/deaktivieren
-//   - Rolle ändern (admin/user)
-//   - Profile eines Users verwalten
-//   - MAX_PROFILES Limit anpassen
 // ════════════════════════════════════════════════
 
 $db = get_db();
 
-// ── Zugriff nur für Admins ──
 if (!is_admin()) {
     echo '<div class="alert alert-error">⚠ Kein Zugriff. Diese Seite ist nur für Administratoren.</div>';
     return;
 }
 
-// ════════════════════════════════════════════════
-// POST-Handler
-// ════════════════════════════════════════════════
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
     $act = $_POST['act'] ?? '';
 
-    // ── Neuen User anlegen ──
     if ($act === 'create_user') {
         $username     = trim($_POST['username'] ?? '');
         $email        = trim($_POST['email'] ?? '');
         $display_name = trim($_POST['display_name'] ?? '');
         $password     = $_POST['password'] ?? '';
         $role         = $_POST['role'] ?? 'user';
-
         if ($username && $email && $display_name && $password) {
             try {
-                $db->prepare("INSERT INTO users (username,email,password,display_name,role) VALUES (?,?,?,?,?)")
-                   ->execute([$username,$email,password_hash($password,PASSWORD_DEFAULT),$display_name,$role]);
+                $geburtsdatum = trim($_POST['geburtsdatum'] ?? '') ?: null;
+                $verified     = isset($_POST['verified']) && $_POST['verified'] === '1' ? 1 : 0;
+                $db->prepare("INSERT INTO users (username,email,password,display_name,role,geburtsdatum,verified) VALUES (?,?,?,?,?,?,?)")
+                  ->execute([$username,$email,password_hash($password,PASSWORD_DEFAULT),$display_name,$role,$geburtsdatum,$verified]);
                 $uid = (int)$db->lastInsertId();
-                // Default-Profil anlegen
                 $db->prepare("INSERT INTO user_profiles (user_id,profile_name,is_default,sort_order) VALUES (?,?,1,0)")
                    ->execute([$uid,$display_name]);
                 header("Location: ?page=admin&msg=user_created"); exit;
@@ -50,16 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // ── User aktivieren/deaktivieren ──
     if ($act === 'toggle_user') {
         $uid = (int)($_POST['user_id'] ?? 0);
-        if ($uid && $uid !== current_user_id()) { // Sich selbst nicht deaktivieren
+        if ($uid && $uid !== current_user_id()) {
             $db->prepare("UPDATE users SET aktiv = 1-aktiv WHERE id=?")->execute([$uid]);
         }
         header("Location: ?page=admin&msg=saved"); exit;
     }
 
-    // ── Rolle ändern ──
     if ($act === 'set_role') {
         $uid  = (int)($_POST['user_id'] ?? 0);
         $role = in_array($_POST['role']??'', ['admin','user']) ? $_POST['role'] : 'user';
@@ -69,21 +53,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: ?page=admin&msg=saved"); exit;
     }
 
-    // ── Profil zu User hinzufügen ──
+    if ($act === 'toggle_verified') {
+        $uid = (int)($_POST['user_id'] ?? 0);
+        if ($uid) {
+            $db->prepare("UPDATE users SET verified = 1-verified WHERE id=?")->execute([$uid]);
+        }
+        header("Location: ?page=admin&msg=saved"); exit;
+    }
+
     if ($act === 'add_profile') {
         $uid          = (int)($_POST['user_id'] ?? 0);
         $profile_name = trim($_POST['profile_name'] ?? '');
-
-        // Anzahl bestehender Profile prüfen
-        $count = (int)$db->prepare("SELECT COUNT(*) FROM user_profiles WHERE user_id=?")
-                         ->execute([$uid]) ? $db->query("SELECT COUNT(*) FROM user_profiles WHERE user_id=$uid")->fetchColumn() : 0;
-
+        $count = (int)$db->query("SELECT COUNT(*) FROM user_profiles WHERE user_id=$uid")->fetchColumn();
         if ($uid && $profile_name && $count < MAX_PROFILES) {
             try {
                 $sort = (int)$db->query("SELECT COALESCE(MAX(sort_order),0)+1 FROM user_profiles WHERE user_id=$uid")->fetchColumn();
                 $db->prepare("INSERT INTO user_profiles (user_id,profile_name,is_default,sort_order) VALUES (?,?,0,?)")
                    ->execute([$uid,$profile_name,$sort]);
-                // Session-Profile neu laden wenn eigener User
                 if ($uid === current_user_id()) load_user_profiles($db, $uid);
                 header("Location: ?page=admin&msg=profile_added"); exit;
             } catch (PDOException $e) {
@@ -92,10 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // ── Profil löschen ──
     if ($act === 'delete_profile') {
         $pid = (int)($_POST['profile_id'] ?? 0);
-        // Default-Profil nicht löschen
         $profile = $db->prepare("SELECT * FROM user_profiles WHERE id=?");
         $profile->execute([$pid]);
         $profile = $profile->fetch();
@@ -106,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: ?page=admin&msg=saved"); exit;
     }
 
-    // ── Passwort zurücksetzen ──
     if ($act === 'reset_password') {
         $uid      = (int)($_POST['user_id'] ?? 0);
         $new_pass = $_POST['new_password'] ?? '';
@@ -118,15 +101,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 if (defined('HANDLE_POST_ONLY')) return;
 
-// ── Daten laden ──
 $users    = $db->query("SELECT u.*, (SELECT COUNT(*) FROM user_profiles WHERE user_id=u.id) as profile_count FROM users u ORDER BY u.created_at ASC")->fetchAll();
 $profiles = $db->query("SELECT p.*, u.username FROM user_profiles p JOIN users u ON p.user_id=u.id ORDER BY p.user_id, p.sort_order")->fetchAll();
 
-// Profile nach user_id gruppieren
 $profiles_by_user = [];
 foreach ($profiles as $p) $profiles_by_user[$p['user_id']][] = $p;
 
-$msgs = ['user_created'=>'User angelegt.','saved'=>'Gespeichert.','profile_added'=>'Profil hinzugefügt.','password_reset'=>'Passwort zurückgesetzt.'];
+$msgs   = ['user_created'=>'Nutzer angelegt.','saved'=>'Gespeichert.','profile_added'=>'Profil hinzugefügt.','password_reset'=>'Passwort zurückgesetzt.'];
 $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_exists'=>'Profil mit diesem Namen existiert bereits.'];
 ?>
 
@@ -143,28 +124,55 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
             <h2 class="card-title">👥 Nutzerverwaltung</h2>
             <span class="badge badge-neutral"><?= count($users) ?> Nutzer</span>
         </div>
-        <div style="font-size:13px;color:var(--text-muted)">
-            Max. Profile pro Nutzer: <strong><?= MAX_PROFILES ?></strong>
-        </div>
+        <span class="text-muted" style="font-size:13px">Max. Profile pro Nutzer: <strong><?= MAX_PROFILES ?></strong></span>
     </div>
-    <div class="table-wrap"><table class="data-table">
-        <thead><tr>
-            <th>Username</th><th>Display-Name</th><th>E-Mail</th>
-            <th>Rolle</th><th>Profile</th><th>Registriert</th><th>Status</th><th></th>
-        </tr></thead>
-        <tbody>
-        <?php foreach ($users as $u): ?>
-        <tr class="<?= !$u['aktiv']?'row-done':'' ?>">
-            <td><?= htmlspecialchars($u['username']) ?></td>
-            <td><?= htmlspecialchars($u['display_name']) ?></td>
-            <td style="font-size:12px"><?= htmlspecialchars($u['email']) ?></td>
-            <td>
-                <span class="badge <?= $u['role']==='admin'?'badge-ok':'badge-neutral' ?>"><?= $u['role'] ?></span>
-            </td>
-            <td>
-                <!-- Profile des Users anzeigen -->
+
+<!-- Spalten-Header -->
+<div class="admin-user-header">
+    <div>Nutzerdaten</div>
+    <div>Profile</div>
+    <div>Verifiziert</div>
+    <div>Status</div>
+    <div>Rolle</div>
+    <div>Passwort</div>
+</div>
+
+    <?php foreach ($users as $u): ?>
+    <div class="admin-user-card <?= !$u['aktiv'] ? 'admin-user-inactive' : '' ?>">
+
+        <!-- ── Zeile 1 ── -->
+        <div class="admin-user-top">
+
+            <!-- Nutzerdaten -->
+            <div class="admin-user-info">
+                <div class="admin-user-name"><?= htmlspecialchars($u['username']) ?></div>
+                <div class="admin-user-meta"><?= htmlspecialchars($u['email']) ?></div>
+            </div>
+
+            <!-- Info -->
+            <div class="admin-user-info">
+                <div class="admin-user-meta">
+                    🎂 <?= !empty($u['geburtsdatum']) ? date('d.m.Y', strtotime($u['geburtsdatum'])) : '<span class="text-light">–</span>' ?><br>
+                    📅 Seit <?= date('d.m.Y', strtotime($u['created_at'])) ?>
+                </div>
+            </div>
+
+            <!-- Verifiziert -->
+            <div class="admin-user-actions">
+                <form method="POST" action="?page=admin" class="form-inline">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="act" value="toggle_verified">
+                    <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
+                    <button type="submit" class="btn btn-xs <?= $u['verified'] ? 'btn-ok' : 'btn-ghost' ?>">
+                        <?= $u['verified'] ? '✓ Verifiziert' : '✗ Nicht verifiziert' ?>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Profile -->
+            <div class="admin-user-profiles">
                 <?php foreach ($profiles_by_user[$u['id']] ?? [] as $p): ?>
-                <span class="badge badge-neutral" style="margin-right:3px">
+                <span class="admin-profile-tag">
                     <?= htmlspecialchars($p['profile_name']) ?>
                     <?= $p['is_default'] ? ' ★' : '' ?>
                     <?php if (!$p['is_default']): ?>
@@ -172,67 +180,79 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
                         <?= csrf_field() ?>
                         <input type="hidden" name="act" value="delete_profile">
                         <input type="hidden" name="profile_id" value="<?= $p['id'] ?>">
-                        <button type="submit" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:10px;padding:0 2px" title="Profil löschen">✕</button>
+                        <button type="submit" class="admin-profile-del btn-delete-confirm" title="Profil löschen">✕</button>
                     </form>
                     <?php endif; ?>
                 </span>
                 <?php endforeach; ?>
-                <!-- Profil hinzufügen wenn unter Limit -->
                 <?php if (($u['profile_count'] ?? 0) < MAX_PROFILES): ?>
-                <form method="POST" action="?page=admin" class="form-inline" style="display:inline-flex;gap:4px;margin-left:4px">
+                <form method="POST" action="?page=admin" class="admin-profile-add-form">
                     <?= csrf_field() ?>
                     <input type="hidden" name="act" value="add_profile">
                     <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                    <input type="text" name="profile_name" placeholder="+ Profil" style="width:80px;padding:2px 6px;font-size:12px;border:1px solid var(--border);border-radius:5px">
+                    <input type="text" name="profile_name" placeholder="+ Profil">
                     <button type="submit" class="btn btn-primary btn-xs">+</button>
                 </form>
                 <?php endif; ?>
-            </td>
-            <td style="font-size:12px"><?= date('d.m.Y', strtotime($u['created_at'])) ?></td>
-            <td><span class="badge <?= $u['aktiv']?'badge-ok':'badge-neutral' ?>"><?= $u['aktiv']?'Aktiv':'Inaktiv' ?></span></td>
-            <td class="col-actions" style="display:flex;gap:4px;flex-wrap:wrap">
+            </div>
+
+        </div>
+
+        <!-- ── Zeile 2: Aktionen ── -->
+        <div class="admin-user-bottom">
+            <div class="admin-user-bottom-left">
                 <?php if ($u['id'] !== current_user_id()): ?>
-                <!-- Aktivieren/Deaktivieren -->
                 <form method="POST" action="?page=admin" class="form-inline">
                     <?= csrf_field() ?>
                     <input type="hidden" name="act" value="toggle_user">
                     <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                    <button type="submit" class="btn btn-ghost btn-xs"><?= $u['aktiv']?'Deakt.':'Akt.' ?></button>
+                    <button type="submit"
+                        class="btn btn-xs btn-delete-confirm <?= $u['aktiv'] ? 'btn-amber' : 'btn-ok' ?>"
+                        data-confirm-msg="Nutzer '<?= htmlspecialchars($u['username']) ?>' wirklich <?= $u['aktiv'] ? 'deaktivieren' : 'aktivieren' ?>?">
+                        <?= $u['aktiv'] ? 'Deaktivieren' : 'Aktivieren' ?>
+                    </button>
                 </form>
-                <!-- Rolle ändern -->
                 <form method="POST" action="?page=admin" class="form-inline">
                     <?= csrf_field() ?>
                     <input type="hidden" name="act" value="set_role">
                     <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                    <input type="hidden" name="role" value="<?= $u['role']==='admin'?'user':'admin' ?>">
-                    <button type="submit" class="btn btn-ghost btn-xs"><?= $u['role']==='admin'?'→ User':'→ Admin' ?></button>
+                    <input type="hidden" name="role" value="<?= $u['role']==='admin' ? 'user' : 'admin' ?>">
+                    <button type="submit"
+                        class="btn btn-primary btn-xs btn-delete-confirm"
+                        data-confirm-msg="Rolle von '<?= htmlspecialchars($u['username']) ?>' zu <?= $u['role']==='admin' ? 'Nutzer' : 'Admin' ?> ändern?">
+                        <?= $u['role']==='admin' ? '→ Nutzer' : '→ Admin' ?>
+                    </button>
                 </form>
+                <?php else: ?>
+                <span class="badge badge-ok">Aktiv (du)</span>
+                <span class="text-muted" style="font-size:12px">–</span>
                 <?php endif; ?>
-                <!-- Passwort zurücksetzen -->
-                <form method="POST" action="?page=admin" class="form-inline" style="display:inline-flex;gap:4px">
+            </div>
+            <div class="admin-user-bottom-right">
+                <form method="POST" action="?page=admin" class="admin-pw-form">
                     <?= csrf_field() ?>
                     <input type="hidden" name="act" value="reset_password">
                     <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                    <input type="password" name="new_password" placeholder="Neues PW" style="width:100px;padding:2px 6px;font-size:12px;border:1px solid var(--border);border-radius:5px">
-                    <button type="submit" class="btn btn-ghost btn-xs">PW setzen</button>
+                    <input type="password" name="new_password" placeholder="Neues Passwort">
+                    <button type="submit" class="btn btn-primary btn-xs admin-pw-confirm">PW setzen</button>
                 </form>
-            </td>
-        </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table></div>
+            </div>
+        </div>
+
+    </div>
+    <?php endforeach; ?>
 </div>
 
 <!-- ════ NEUEN USER ANLEGEN ════ -->
 <div class="card mt-4">
-    <div class="card-head"><h2 class="card-title">Neuen Nutzer anlegen</h2></div>
+    <div class="card-head"><h2 class="card-title">➕ Neuen Nutzer anlegen</h2></div>
     <form method="POST" action="?page=admin">
         <?= csrf_field() ?>
         <input type="hidden" name="act" value="create_user">
-        <div class="form-grid">
+        <div class="form-grid form-grid--compact">
             <div class="form-group">
                 <label>Display-Name (Profilname)</label>
-                <input type="text" name="display_name" placeholder="z.B. Kim" required>
+                <input type="text" name="display_name" placeholder="z.B. Max" required>
             </div>
             <div class="form-group">
                 <label>Benutzername</label>
@@ -240,17 +260,28 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
             </div>
             <div class="form-group">
                 <label>E-Mail</label>
-                <input type="email" name="email" placeholder="email@beispiel.de" required>
+                <input type="text" name="email" placeholder="email@beispiel.de" required inputmode="email" autocomplete="email">
             </div>
             <div class="form-group">
                 <label>Passwort</label>
-                <input type="password" name="password" placeholder="Passwort (min. 8 Zeichen)" required>
+                <input type="password" name="password" placeholder="min. 8 Zeichen" required>
             </div>
             <div class="form-group">
                 <label>Rolle</label>
                 <select name="role">
-                    <option value="user">User</option>
+                    <option value="user">Nutzer</option>
                     <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Geburtsdatum</label>
+                <input type="date" name="geburtsdatum">
+            </div>
+            <div class="form-group">
+                <label>Verifiziert</label>
+                <select name="verified">
+                    <option value="0">Nicht verifiziert</option>
+                    <option value="1">Verifiziert</option>
                 </select>
             </div>
         </div>
@@ -259,3 +290,38 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
         </div>
     </form>
 </div>
+
+<script>
+// PW-Confirm für admin
+document.querySelectorAll('.admin-pw-confirm').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        var form = btn.closest('form');
+        var pw   = form.querySelector('input[name="new_password"]').value;
+        if (!pw || pw.length < 8) {
+            alert('Bitte ein Passwort mit mindestens 8 Zeichen eingeben.');
+            return;
+        }
+        customConfirm(
+            'Passwort wirklich zurücksetzen?',
+            function() { form.submit(); },
+            'PW setzen',
+            'btn-primary'
+        );
+    });
+});
+
+// Rolle/Status Confirm via data-confirm-msg
+document.querySelectorAll('[data-confirm-msg]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        var form = btn.closest('form');
+        customConfirm(
+            btn.getAttribute('data-confirm-msg'),
+            function() { form.submit(); },
+            btn.textContent.trim(),
+            btn.classList.contains('btn-amber') ? 'btn-amber' : 'btn-primary'
+        );
+    });
+});
+</script>

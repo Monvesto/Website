@@ -29,6 +29,13 @@ $allowed = [
 if (!in_array($page, $allowed, true)) $page = 'dashboard';
 $page_file = __DIR__ . '/pages/' . $page . '.php';
 
+// ── Profil-Check ──
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !in_array($page, ['profil', 'admin'], true)) {
+    if (empty(get_person_options())) {
+        die('<p style="font-family:sans-serif;padding:2rem">Dein Account hat kein Profil. Bitte wende dich an den Administrator.<br><br><a href="logout.php">Abmelden</a></p>');
+    }
+}
+
 // ── POST zuerst verarbeiten – bevor HTML ausgegeben wird ──
 // Jede Page-Datei prüft selbst ob POST vorliegt und redirectet.
 // HANDLE_POST_ONLY verhindert dass die Seite HTML ausgibt.

@@ -182,3 +182,33 @@ function parse_betrag(string $v): string {
 function uid(): int {
     return (int)($_SESSION['user_id'] ?? 0);
 }
+
+// ════════════════════════════════════════════════
+// MIGRATION 6 – Geburtsdatum in users
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        $has_col = $db->query("SHOW COLUMNS FROM `users` LIKE 'geburtsdatum'")->rowCount() > 0;
+        if (!$has_col) {
+            $db->exec("ALTER TABLE `users` ADD COLUMN geburtsdatum DATE NULL DEFAULT NULL");
+        }
+    } catch (PDOException $e) {
+        error_log('Migration geburtsdatum: ' . $e->getMessage());
+    }
+})();
+
+// ════════════════════════════════════════════════
+// MIGRATION 7 – Verified-Spalte in users
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        $has_col = $db->query("SHOW COLUMNS FROM `users` LIKE 'verified'")->rowCount() > 0;
+        if (!$has_col) {
+            $db->exec("ALTER TABLE `users` ADD COLUMN verified TINYINT(1) NOT NULL DEFAULT 0");
+        }
+    } catch (PDOException $e) {
+        error_log('Migration verified: ' . $e->getMessage());
+    }
+})();

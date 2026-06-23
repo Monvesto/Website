@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-group">
                 <label>Display-Name (dein Profilname)</label>
-                <input type="text" name="display_name" placeholder="z.B. Marcel"
+                <input type="text" name="display_name" placeholder="z.B. Max Mustermann"
                        value="<?= htmlspecialchars($_POST['display_name'] ?? '') ?>" required autofocus>
             </div>
             <div class="form-group">
@@ -151,8 +151,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="form-group">
                 <label>E-Mail</label>
-                <input type="email" name="email" placeholder="email@beispiel.de"
-                       value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+                <input type="text" name="email" placeholder="email@beispiel.de"
+                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required
+                    inputmode="email" autocomplete="email">
             </div>
             <div class="form-group">
                 <label>Passwort (min. 8 Zeichen)</label>

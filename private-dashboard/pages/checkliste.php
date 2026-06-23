@@ -577,7 +577,7 @@ $alle_mieten->execute([$uid]); $alle_mieten = $alle_mieten->fetchAll();
         <tr class="new-row-label"><td colspan="5"><span class="new-label">Neue Mieteinnahme</span></td></tr>
         <tr class="new-row">
             <td></td>
-            <td><input class="inline-input new-input" form="frm-mc-new" name="bezeichnung" placeholder="z.B. Hemeringen EG" required></td>
+            <td><input class="inline-input new-input" form="frm-mc-new" name="bezeichnung" placeholder="z.B. Hannover" required></td>
             <td><select class="inline-input new-input" form="frm-mc-new" name="typ"><?= sel_chk($typen_chk,'Kaltmiete') ?></select></td>
             <td><select class="inline-input new-input" form="frm-mc-new" name="person"><?= sel_chk($person_options,$def_person) ?></select></td>
             <td class="col-actions">

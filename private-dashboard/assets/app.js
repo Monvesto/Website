@@ -1,8 +1,9 @@
 // Global verfügbar für finanzen.js und andere Scripts
-function customConfirm(message, onConfirm) {
+function customConfirm(message, onConfirm, confirmLabel, confirmClass) {
+    confirmLabel = confirmLabel || 'Löschen';
+    confirmClass = confirmClass || 'btn-danger';
     var existing = document.getElementById('confirm-modal');
     if (existing) existing.remove();
-
     var modal = document.createElement('div');
     modal.id = 'confirm-modal';
     modal.innerHTML = [
@@ -11,12 +12,11 @@ function customConfirm(message, onConfirm) {
         '  <p id="confirm-msg">' + message + '</p>',
         '  <div id="confirm-btns">',
         '    <button id="confirm-no" class="btn btn-ghost btn-sm">Abbrechen</button>',
-        '    <button id="confirm-yes" class="btn btn-danger btn-sm">Löschen</button>',
+        '    <button id="confirm-yes" class="btn ' + confirmClass + ' btn-sm">' + confirmLabel + '</button>',
         '  </div>',
         '</div>'
     ].join('');
     document.body.appendChild(modal);
-
     document.getElementById('confirm-no').addEventListener('click', function() {
         modal.remove();
     });
@@ -129,4 +129,47 @@ function customConfirm(message, onConfirm) {
         if (form) form.submit();
     };
 
+})();
+
+// ── Tooltip ──
+(function() {
+    var tip = document.createElement('div');
+    tip.id = 'tooltip-popup';
+    document.body.appendChild(tip);
+
+    document.querySelectorAll('.tooltip-icon[data-tip]').forEach(function(el) {
+        el.addEventListener('mouseenter', function() {
+            tip.textContent = el.getAttribute('data-tip');
+            tip.style.display = 'block';
+            var r = el.getBoundingClientRect();
+            var left = r.left + (r.width / 2) - (tip.offsetWidth / 2);
+            var top  = r.bottom + 6;
+            // Nicht über rechten Rand
+            if (left + tip.offsetWidth > window.innerWidth - 10) {
+                left = window.innerWidth - tip.offsetWidth - 10;
+            }
+            // Nicht über linken Rand
+            if (left < 10) left = 10;
+            tip.style.left = left + 'px';
+            tip.style.top  = top  + 'px';
+        });
+        el.addEventListener('mouseleave', function() {
+            tip.style.display = 'none';
+        });
+    });
+})();
+
+// ── Profil Speichern Confirm ──
+(function() {
+    var form = document.querySelector('form[data-confirm]');
+    if (!form) return;
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        customConfirm(
+            form.getAttribute('data-confirm'),
+            function() { form.submit(); },
+            'Speichern',
+            'btn-primary'
+        );
+    });
 })();
