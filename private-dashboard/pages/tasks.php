@@ -1,11 +1,15 @@
 <?php
 // ════════════════════════════════════════════════
 // tasks.php – Aufgaben mit Bulk-Edit + Person-Filter
-// Neue Aufgabe als tfoot in der Tabelle
+// user_id Filter: alle Queries auf eingeloggten User beschränkt
 // ════════════════════════════════════════════════
 $db     = get_db();
-$person = $_GET['person'] ?? 'Marcel';
-if (!in_array($person, ['Marcel','Kim','Beide'], true)) $person = 'Marcel';
+$uid    = current_user_id();
+$person_options = get_person_options();
+$person = $_GET['person'] ?? ($person_options[0] ?? 'Marcel');
+if (!in_array($person, $person_options, true)) $person = $person_options[0] ?? 'Marcel';
+$is_all     = person_is_all($person);
+$def_person = $is_all ? ($person_options[0] ?? 'Marcel') : $person;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
@@ -16,15 +20,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $task = trim($_POST['task'] ?? '');
         $cat  = trim($_POST['category'] ?? '');
         $prio = $_POST['priority'] ?? 'Mittel';
-        $resp = $_POST['responsible'] ?? 'Marcel';
+        $resp = $_POST['responsible'] ?? $def_person;
         $it   = $_POST['interval_type'] ?? '';
         $due  = ($_POST['due_date'] ?? '') !== '' ? $_POST['due_date'] : null;
         $no   = trim($_POST['notes'] ?? '');
         $id   = (int)($_POST['edit_id'] ?? 0);
         if ($id > 0) {
-            $db->prepare("UPDATE tasks SET task=?,category=?,priority=?,responsible=?,interval_type=?,due_date=?,notes=?,person=? WHERE id=?")->execute([$task,$cat,$prio,$resp,$it,$due,$no,$resp,$id]);
+            $db->prepare("UPDATE tasks SET task=?,category=?,priority=?,responsible=?,interval_type=?,due_date=?,notes=?,person=? WHERE id=? AND user_id=?")->execute([$task,$cat,$prio,$resp,$it,$due,$no,$resp,$id,$uid]);
         } else {
-            $db->prepare("INSERT INTO tasks (task,category,priority,responsible,interval_type,due_date,notes,person,status) VALUES (?,?,?,?,?,?,?,?,'Offen')")->execute([$task,$cat,$prio,$resp,$it,$due,$no,$resp]);
+            $db->prepare("INSERT INTO tasks (user_id,task,category,priority,responsible,interval_type,due_date,notes,person,status) VALUES (?,?,?,?,?,?,?,?,?,'Offen')")->execute([$uid,$task,$cat,$prio,$resp,$it,$due,$no,$resp]);
         }
         header("Location: ?page=tasks&person=$pf&msg=saved"); exit;
     }
@@ -36,41 +40,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $task = trim($row['task'] ?? '');
             $cat  = trim($row['category'] ?? '');
             $prio = $row['priority'] ?? 'Mittel';
-            $resp = $row['responsible'] ?? 'Marcel';
+            $resp = $row['responsible'] ?? $def_person;
             $it   = $row['interval_type'] ?? '';
             $due  = ($row['due_date'] ?? '') !== '' ? $row['due_date'] : null;
             $no   = trim($row['notes'] ?? '');
             if ($task === '') continue;
-            $db->prepare("UPDATE tasks SET task=?,category=?,priority=?,responsible=?,interval_type=?,due_date=?,notes=?,person=? WHERE id=?")->execute([$task,$cat,$prio,$resp,$it,$due,$no,$resp,$id]);
+            $db->prepare("UPDATE tasks SET task=?,category=?,priority=?,responsible=?,interval_type=?,due_date=?,notes=?,person=? WHERE id=? AND user_id=?")->execute([$task,$cat,$prio,$resp,$it,$due,$no,$resp,$id,$uid]);
         }
         header("Location: ?page=tasks&person=$pf&msg=saved"); exit;
     }
 
     if ($act === 'set_status') {
-        $db->prepare("UPDATE tasks SET status=? WHERE id=?")->execute([$_POST['status'], (int)$_POST['id']]);
+        $db->prepare("UPDATE tasks SET status=? WHERE id=? AND user_id=?")->execute([$_POST['status'], (int)$_POST['id'], $uid]);
         header("Location: ?page=tasks&person=$pf&msg=saved"); exit;
     }
 
     if ($act === 'delete') {
-        $db->prepare("DELETE FROM tasks WHERE id=?")->execute([(int)$_POST['id']]);
+        $db->prepare("DELETE FROM tasks WHERE id=? AND user_id=?")->execute([(int)$_POST['id'], $uid]);
         header("Location: ?page=tasks&person=$pf&msg=saved"); exit;
     }
 }
 if (defined('HANDLE_POST_ONLY')) return;
 
-function get_tasks(PDO $db, string $status, string $person, int $limit = 0): array {
+function get_tasks(PDO $db, string $status, bool $is_all, string $person, int $uid, int $limit = 0): array {
     $lim = $limit > 0 ? "LIMIT $limit" : '';
     $ord = $status === 'Offen' ? 'due_date ASC' : 'updated_at DESC';
-    if ($person === 'Beide') {
-        return $db->query("SELECT * FROM tasks WHERE status='$status' ORDER BY $ord $lim")->fetchAll();
+    if ($is_all) {
+        $s = $db->prepare("SELECT * FROM tasks WHERE user_id=? AND status=? ORDER BY $ord $lim");
+        $s->execute([$uid, $status]);
+    } else {
+        $s = $db->prepare("SELECT * FROM tasks WHERE user_id=? AND status=? AND (person=? OR person='Beide') ORDER BY $ord $lim");
+        $s->execute([$uid, $status, $person]);
     }
-    $s = $db->prepare("SELECT * FROM tasks WHERE status=? AND (person=? OR person='Beide') ORDER BY $ord $lim");
-    $s->execute([$status, $person]);
     return $s->fetchAll();
 }
 
-$offen    = get_tasks($db, 'Offen', $person);
-$erledigt = get_tasks($db, 'Erledigt', $person, 20);
+$offen    = get_tasks($db, 'Offen',    $is_all, $person, $uid);
+$erledigt = get_tasks($db, 'Erledigt', $is_all, $person, $uid, 20);
 
 $overdue = [];
 foreach ($offen as $t) {
@@ -91,15 +97,13 @@ function fmt_due_t(?string $d): string {
     return $fmt;
 }
 
-$personen     = ['Marcel','Kim','Beide'];
 $prioritaeten = ['Hoch','Mittel','Niedrig'];
-$def_person   = $person === 'Beide' ? 'Marcel' : $person;
 ?>
 
 <div class="finance-topbar">
     <div class="tab-bar"></div>
     <div class="person-switcher">
-        <?php foreach (['Marcel','Kim','Beide'] as $p): ?>
+        <?php foreach ($person_options as $p): ?>
         <a href="?page=tasks&person=<?= $p ?>" class="person-btn <?= $person===$p?'active':'' ?>"><?= $p ?></a>
         <?php endforeach; ?>
     </div>
@@ -110,7 +114,7 @@ $def_person   = $person === 'Beide' ? 'Marcel' : $person;
 <div class="card mt-4" id="card-tasks">
     <div class="card-head">
         <div class="card-head-left">
-            <h2 class="card-title">✅ Offene Aufgaben<?= $person!=='Beide'?' – '.$person:'' ?></h2>
+            <h2 class="card-title">✅ Offene Aufgaben<?= !$is_all?' – '.$person:'' ?></h2>
             <div class="badge-row">
                 <span class="badge badge-neutral"><?= count($offen) ?> offen</span>
                 <?php if (count($overdue)): ?><span class="badge badge-danger"><?= count($overdue) ?> überfällig</span><?php endif; ?>
@@ -155,7 +159,7 @@ $def_person   = $person === 'Beide' ? 'Marcel' : $person;
             <td>
                 <span class="ft-bulk"><?= he_t($t['responsible']??'–') ?></span>
                 <select class="inline-input fi-bulk" form="frm-t-bulk" name="rows[<?= $tid ?>][responsible]">
-                    <?php foreach ($personen as $p): ?>
+                    <?php foreach ($person_options as $p): ?>
                     <option value="<?= $p ?>"<?= $p===$t['responsible']?' selected':'' ?>><?= $p ?></option>
                     <?php endforeach; ?>
                 </select>
@@ -183,19 +187,15 @@ $def_person   = $person === 'Beide' ? 'Marcel' : $person;
             </td>
         </tr>
         <?php if (!empty($t['notes'])): ?>
-        <tr class="row-notiz">
-            <td colspan="6" class="notiz-cell">
-                <span class="ft-bulk">💬 <?= he_t($t['notes']) ?></span>
-                <input class="inline-input fi-bulk" form="frm-t-bulk" name="rows[<?= $tid ?>][notes]" value="<?= he_t($t['notes']??'') ?>" placeholder="Notiz">
-            </td>
-        </tr>
+        <tr class="row-notiz"><td colspan="6" class="notiz-cell">
+            <span class="ft-bulk">💬 <?= he_t($t['notes']) ?></span>
+            <input class="inline-input fi-bulk" form="frm-t-bulk" name="rows[<?= $tid ?>][notes]" value="<?= he_t($t['notes']??'') ?>" placeholder="Notiz">
+        </td></tr>
         <?php else: ?>
-        <tr class="row-notiz">
-            <td colspan="6" class="notiz-cell">
-                <span class="ft-bulk"></span>
-                <input class="inline-input fi-bulk" form="frm-t-bulk" name="rows[<?= $tid ?>][notes]" value="" placeholder="Notiz">
-            </td>
-        </tr>
+        <tr class="row-notiz"><td colspan="6" class="notiz-cell">
+            <span class="ft-bulk"></span>
+            <input class="inline-input fi-bulk" form="frm-t-bulk" name="rows[<?= $tid ?>][notes]" value="" placeholder="Notiz">
+        </td></tr>
         <?php endif; ?>
         <?php endforeach; ?>
         <?php if (empty($offen)): ?>
@@ -227,7 +227,7 @@ $def_person   = $person === 'Beide' ? 'Marcel' : $person;
                 <?php foreach ($prioritaeten as $p): ?><option<?= $p==='Mittel'?' selected':'' ?>><?= $p ?></option><?php endforeach; ?>
             </select></td>
             <td><select class="inline-input new-input" form="frm-t-new" name="responsible">
-                <?php foreach ($personen as $p): ?><option value="<?= $p ?>"<?= $p===$def_person?' selected':'' ?>><?= $p ?></option><?php endforeach; ?>
+                <?php foreach ($person_options as $p): ?><option value="<?= $p ?>"<?= $p===$def_person?' selected':'' ?>><?= $p ?></option><?php endforeach; ?>
             </select></td>
             <td><input class="inline-input new-input" type="date" form="frm-t-new" name="due_date"></td>
             <td class="col-actions">

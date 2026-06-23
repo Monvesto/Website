@@ -24,7 +24,9 @@ function initFinanzen() {
             iv: 'card-investments',
             zv: 'card-z-bulk',
             mv: 'card-m-bulk',
-            zl: 'card-ziele'
+            zl: 'card-ziele',
+            ab: 'card-abos',
+            vs: 'card-versicherungen'
         };
         var card = document.getElementById(cardMap[type]);
         if (!card) return;
@@ -69,14 +71,14 @@ function initFinanzen() {
     }
 
     // ── Bearbeiten-Buttons registrieren ──
-    ['e', 'a', 's', 't', 'm', 'i', 'iv', 'zl', 'zv', 'mv'].forEach(function(type) {
+    ['e', 'a', 's', 't', 'm', 'i', 'iv', 'zl', 'zv', 'mv','ab','vs'].forEach(function(type) {
         var btnEdit = document.getElementById('btn-edit-' + type);
         if (btnEdit) btnEdit.addEventListener('click', function() { bulkEdit(type); });
     });
 
     // ── Hinzufügen-Buttons registrieren ──
     // mc = Neue Mieteinnahme (Checkliste), z = Neue Zahlung (Checkliste)
-    ['e', 'a', 's', 't', 'm', 'i', 'iv', 'z', 'zl', 'mc'].forEach(function(type) {
+    ['e', 'a', 's', 't', 'm', 'i', 'iv', 'z', 'zl', 'mc','ab','vs'].forEach(function(type) {
         var btn = document.getElementById('btn-new-' + type);
         if (btn) btn.addEventListener('click', function() {
             var frm = document.getElementById('frm-' + type + '-new');

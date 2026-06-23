@@ -15,3 +15,7 @@ define('APP_URL',  'https://www.monvesto.de/private-dashboard');
 define('SESSION_NAME', 'mvp_sess');
 
 date_default_timezone_set('Europe/Berlin');
+
+// GoCardless Open Banking API
+define('GOCARDLESS_SECRET_ID',  '');
+define('GOCARDLESS_SECRET_KEY', '');

@@ -2,8 +2,10 @@
 // ════════════════════════════════════════════════
 // finanzen.php – Einnahmen, Ausgaben, Schulden
 // Tabs + Person-Filter + Bulk-Edit
+// user_id Filter: alle Queries auf eingeloggten User beschränkt
 // ════════════════════════════════════════════════
 $db      = get_db();
+$uid     = current_user_id();
 $tab     = $_GET['tab'] ?? 'uebersicht';
 $person  = $_GET['person'] ?? 'Marcel';
 $errors  = [];
@@ -34,9 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($errors)) {
             $id = (int)($_POST['edit_id'] ?? 0);
             if ($id > 0) {
-                $db->prepare('UPDATE einnahmen SET bezeichnung=?,betrag=?,betrag_original=?,person=?,kategorie=?,turnus=? WHERE id=?')->execute([$bez,$bet,$bet_orig,$per,$kat,$tur,$id]);
+                $db->prepare('UPDATE einnahmen SET bezeichnung=?,betrag=?,betrag_original=?,person=?,kategorie=?,turnus=? WHERE id=? AND user_id=?')->execute([$bez,$bet,$bet_orig,$per,$kat,$tur,$id,$uid]);
             } else {
-                $db->prepare('INSERT INTO einnahmen (bezeichnung,betrag,betrag_original,person,kategorie,turnus) VALUES (?,?,?,?,?,?)')->execute([$bez,$bet,$bet_orig,$per,$kat,$tur]);
+                $db->prepare('INSERT INTO einnahmen (user_id,bezeichnung,betrag,betrag_original,person,kategorie,turnus) VALUES (?,?,?,?,?,?,?)')->execute([$uid,$bez,$bet,$bet_orig,$per,$kat,$tur]);
             }
             header("Location: ?page=finanzen&tab=einnahmen&person=$pf&msg=saved"); exit;
         }
@@ -54,13 +56,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $bet_orig = (float)parse_betrag($row['betrag'] ?? '0');
             $bet      = to_monthly($bet_orig, $tur);
             if ($bez === '') continue;
-            $db->prepare('UPDATE einnahmen SET bezeichnung=?,betrag=?,betrag_original=?,person=?,kategorie=?,turnus=? WHERE id=?')->execute([$bez,$bet,$bet_orig,$per,$kat,$tur,$id]);
+            $db->prepare('UPDATE einnahmen SET bezeichnung=?,betrag=?,betrag_original=?,person=?,kategorie=?,turnus=? WHERE id=? AND user_id=?')->execute([$bez,$bet,$bet_orig,$per,$kat,$tur,$id,$uid]);
         }
         header("Location: ?page=finanzen&tab=einnahmen&person=$pf&msg=saved"); exit;
     }
 
     if ($act === 'einnahme_delete') {
-        $db->prepare('DELETE FROM einnahmen WHERE id=?')->execute([(int)$_POST['id']]);
+        $db->prepare('DELETE FROM einnahmen WHERE id=? AND user_id=?')->execute([(int)$_POST['id'],$uid]);
         header("Location: ?page=finanzen&tab=einnahmen&person=$pf&msg=saved"); exit;
     }
 
@@ -75,9 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($errors)) {
             $id = (int)($_POST['edit_id'] ?? 0);
             if ($id > 0) {
-                $db->prepare('UPDATE ausgaben SET bezeichnung=?,betrag=?,betrag_original=?,person=?,kategorie=?,turnus=? WHERE id=?')->execute([$bez,$bet,$bet_orig,$per,$kat,$tur,$id]);
+                $db->prepare('UPDATE ausgaben SET bezeichnung=?,betrag=?,betrag_original=?,person=?,kategorie=?,turnus=? WHERE id=? AND user_id=?')->execute([$bez,$bet,$bet_orig,$per,$kat,$tur,$id,$uid]);
             } else {
-                $db->prepare('INSERT INTO ausgaben (bezeichnung,betrag,betrag_original,person,kategorie,turnus) VALUES (?,?,?,?,?,?)')->execute([$bez,$bet,$bet_orig,$per,$kat,$tur]);
+                $db->prepare('INSERT INTO ausgaben (user_id,bezeichnung,betrag,betrag_original,person,kategorie,turnus) VALUES (?,?,?,?,?,?,?)')->execute([$uid,$bez,$bet,$bet_orig,$per,$kat,$tur]);
             }
             header("Location: ?page=finanzen&tab=ausgaben&person=$pf&msg=saved"); exit;
         }
@@ -95,13 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $bet_orig = (float)parse_betrag($row['betrag'] ?? '0');
             $bet      = to_monthly($bet_orig, $tur);
             if ($bez === '') continue;
-            $db->prepare('UPDATE ausgaben SET bezeichnung=?,betrag=?,betrag_original=?,person=?,kategorie=?,turnus=? WHERE id=?')->execute([$bez,$bet,$bet_orig,$per,$kat,$tur,$id]);
+            $db->prepare('UPDATE ausgaben SET bezeichnung=?,betrag=?,betrag_original=?,person=?,kategorie=?,turnus=? WHERE id=? AND user_id=?')->execute([$bez,$bet,$bet_orig,$per,$kat,$tur,$id,$uid]);
         }
         header("Location: ?page=finanzen&tab=ausgaben&person=$pf&msg=saved"); exit;
     }
 
     if ($act === 'ausgabe_delete') {
-        $db->prepare('DELETE FROM ausgaben WHERE id=?')->execute([(int)$_POST['id']]);
+        $db->prepare('DELETE FROM ausgaben WHERE id=? AND user_id=?')->execute([(int)$_POST['id'],$uid]);
         header("Location: ?page=finanzen&tab=ausgaben&person=$pf&msg=saved"); exit;
     }
 
@@ -116,9 +118,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($errors)) {
             $id = (int)($_POST['edit_id'] ?? 0);
             if ($id > 0) {
-                $db->prepare('UPDATE verbindlichkeiten SET glaeubiger=?,startsumme=?,restsumme=?,rate=?,notiz=?,person=? WHERE id=?')->execute([$gl,$ss,$rs,$rt,$no,$per,$id]);
+                $db->prepare('UPDATE verbindlichkeiten SET glaeubiger=?,startsumme=?,restsumme=?,rate=?,notiz=?,person=? WHERE id=? AND user_id=?')->execute([$gl,$ss,$rs,$rt,$no,$per,$id,$uid]);
             } else {
-                $db->prepare('INSERT INTO verbindlichkeiten (glaeubiger,startsumme,restsumme,rate,notiz,person) VALUES (?,?,?,?,?,?)')->execute([$gl,$ss,$rs,$rt,$no,$per]);
+                $db->prepare('INSERT INTO verbindlichkeiten (user_id,glaeubiger,startsumme,restsumme,rate,notiz,person) VALUES (?,?,?,?,?,?,?)')->execute([$uid,$gl,$ss,$rs,$rt,$no,$per]);
             }
             header("Location: ?page=finanzen&tab=schulden&person=$pf&msg=saved"); exit;
         }
@@ -136,13 +138,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $no  = trim($row['notiz'] ?? '');
             $per = $row['person'] ?? 'Marcel';
             if ($gl === '') continue;
-            $db->prepare('UPDATE verbindlichkeiten SET glaeubiger=?,startsumme=?,restsumme=?,rate=?,notiz=?,person=? WHERE id=?')->execute([$gl,$ss,$rs,$rt,$no,$per,$id]);
+            $db->prepare('UPDATE verbindlichkeiten SET glaeubiger=?,startsumme=?,restsumme=?,rate=?,notiz=?,person=? WHERE id=? AND user_id=?')->execute([$gl,$ss,$rs,$rt,$no,$per,$id,$uid]);
         }
         header("Location: ?page=finanzen&tab=schulden&person=$pf&msg=saved"); exit;
     }
 
     if ($act === 'schuld_delete') {
-        $db->prepare('DELETE FROM verbindlichkeiten WHERE id=?')->execute([(int)$_POST['id']]);
+        $db->prepare('DELETE FROM verbindlichkeiten WHERE id=? AND user_id=?')->execute([(int)$_POST['id'],$uid]);
         header("Location: ?page=finanzen&tab=schulden&person=$pf&msg=saved"); exit;
     }
 
@@ -152,19 +154,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dir     = $_POST['dir'] ?? '';
         $allowed_tables = ['einnahmen','ausgaben','verbindlichkeiten'];
         if (in_array($table, $allowed_tables, true) && $id > 0 && in_array($dir, ['up','down'], true)) {
-            $cur = $db->prepare("SELECT position FROM `$table` WHERE id=?");
-            $cur->execute([$id]);
+            $cur = $db->prepare("SELECT position FROM `$table` WHERE id=? AND user_id=?");
+            $cur->execute([$id, $uid]);
             $curPos = (int)($cur->fetchColumn() ?? 0);
             if ($dir === 'up') {
-                $nb = $db->prepare("SELECT id, position FROM `$table` WHERE position < ? ORDER BY position DESC LIMIT 1");
+                $nb = $db->prepare("SELECT id, position FROM `$table` WHERE position < ? AND user_id=? ORDER BY position DESC LIMIT 1");
             } else {
-                $nb = $db->prepare("SELECT id, position FROM `$table` WHERE position > ? ORDER BY position ASC LIMIT 1");
+                $nb = $db->prepare("SELECT id, position FROM `$table` WHERE position > ? AND user_id=? ORDER BY position ASC LIMIT 1");
             }
-            $nb->execute([$curPos]);
+            $nb->execute([$curPos, $uid]);
             $neighbor = $nb->fetch();
             if ($neighbor) {
-                $db->prepare("UPDATE `$table` SET position=? WHERE id=?")->execute([$neighbor['position'], $id]);
-                $db->prepare("UPDATE `$table` SET position=? WHERE id=?")->execute([$curPos, $neighbor['id']]);
+                $db->prepare("UPDATE `$table` SET position=? WHERE id=? AND user_id=?")->execute([$neighbor['position'], $id, $uid]);
+                $db->prepare("UPDATE `$table` SET position=? WHERE id=? AND user_id=?")->execute([$curPos, $neighbor['id'], $uid]);
             }
         }
         $redirect = $_POST['redirect'] ?? '?page=finanzen';
@@ -177,18 +179,20 @@ if (defined('HANDLE_POST_ONLY')) return;
 $msgs = ['saved' => 'Gespeichert.'];
 if (isset($_GET['msg'], $msgs[$_GET['msg']])) $success = $msgs[$_GET['msg']];
 
-function get_rows(PDO $db, string $table, string $person): array {
+function get_rows(PDO $db, string $table, string $person, int $uid): array {
     if ($person === 'Beide') {
-        return $db->query("SELECT * FROM $table ORDER BY position, id")->fetchAll();
+        $s = $db->prepare("SELECT * FROM $table WHERE user_id=? ORDER BY position, id");
+        $s->execute([$uid]);
+        return $s->fetchAll();
     }
-    $s = $db->prepare("SELECT * FROM $table WHERE (person=? OR person='Beide') ORDER BY position, id");
-    $s->execute([$person]);
+    $s = $db->prepare("SELECT * FROM $table WHERE user_id=? AND (person=? OR person='Beide') ORDER BY position, id");
+    $s->execute([$uid, $person]);
     return $s->fetchAll();
 }
 
-$einnahmen_alle = get_rows($db, 'einnahmen', $person);
-$ausgaben_alle  = get_rows($db, 'ausgaben',  $person);
-$schulden_alle  = get_rows($db, 'verbindlichkeiten', $person);
+$einnahmen_alle = get_rows($db, 'einnahmen', $person, $uid);
+$ausgaben_alle  = get_rows($db, 'ausgaben',  $person, $uid);
+$schulden_alle  = get_rows($db, 'verbindlichkeiten', $person, $uid);
 
 function sum_active(array $rows): float {
     $sum=0; foreach($rows as $r) $sum+=$r["aktiv"]?(float)$r["betrag"]:0; return $sum;
@@ -245,11 +249,13 @@ function reorder_btns(string $table, int $id, string $tab, string $person): stri
     </form>';
 }
 
-$personen      = ['Marcel','Kim','Beide'];
+// ── Person-Switcher aus User-Profilen laden ──
+$person_options = get_person_options();
+$def_person     = $person === 'Beide' || $person === 'Alle' ? ($person_options[0] ?? 'Marcel') : $person;
+
 $turnusse      = ['Monatlich','Vierteljährlich','Halbjährlich','Jährlich','Einmalig'];
 $kat_einnahmen = ['Gehalt','Nebeneinkommen','Immobilien','Investments','Sonstiges'];
 $kat_ausgaben  = ['Wohnen','KFZ','Versicherung','Kommunikation','Unterhaltung','Lebensmittel','Haustiere','Gesundheit','Pflege','Schulden','Immobilien','Investments','Business','Bank','Sonstiges'];
-$def_person    = $person === 'Beide' ? 'Marcel' : $person;
 ?>
 
 <?php if ($success): ?><div class="alert alert-success"><?= he($success) ?></div><?php endif; ?>
@@ -262,25 +268,30 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
         <?php endforeach; ?>
     </div>
     <div class="person-switcher">
-        <?php foreach (['Marcel','Kim','Beide'] as $p): ?>
+        <?php foreach ($person_options as $p): ?>
         <a href="?page=finanzen&tab=<?= $tab ?>&person=<?= $p ?>" class="person-btn <?= $person===$p?'active':'' ?>"><?= $p ?></a>
         <?php endforeach; ?>
     </div>
 </div>
+
+<?php
+// person_is_all() prüft ob "Beide" oder "Alle" gewählt
+$is_all = person_is_all($person);
+?>
 
 <?php if ($tab === 'uebersicht'): ?>
 <!-- ════ ÜBERSICHT ════ -->
 
 <div class="kpi-grid kpi-grid--4 mt-4">
     <div class="kpi-card">
-        <div class="kpi-label">📥 Einnahmen<?= $person!=='Beide'?' '.$person:'' ?></div>
+        <div class="kpi-label">📥 Einnahmen<?= !$is_all?' '.$person:'' ?></div>
         <div class="kpi-value kpi-value--md text-green"><?= fmt2($ein_gesamt) ?></div>
-        <?php if ($person==='Beide'): ?><div class="kpi-sub">Marcel <?= fmt2($ein_marcel) ?> · Kim <?= fmt2($ein_kim) ?></div><?php endif; ?>
+        <?php if ($is_all): ?><div class="kpi-sub"><?= $person_options[0] ?? '' ?> <?= fmt2($ein_marcel) ?> · <?= $person_options[1] ?? '' ?> <?= fmt2($ein_kim) ?></div><?php endif; ?>
     </div>
     <div class="kpi-card">
-        <div class="kpi-label">📤 Ausgaben<?= $person!=='Beide'?' '.$person:'' ?></div>
+        <div class="kpi-label">📤 Ausgaben<?= !$is_all?' '.$person:'' ?></div>
         <div class="kpi-value kpi-value--md text-red"><?= fmt2($aus_gesamt) ?></div>
-        <?php if ($person==='Beide'): ?><div class="kpi-sub">Marcel <?= fmt2($aus_marcel) ?> · Kim <?= fmt2($aus_kim) ?></div><?php endif; ?>
+        <?php if ($is_all): ?><div class="kpi-sub"><?= $person_options[0] ?? '' ?> <?= fmt2($aus_marcel) ?> · <?= $person_options[1] ?? '' ?> <?= fmt2($aus_kim) ?></div><?php endif; ?>
     </div>
     <div class="kpi-card <?= $ueb_gesamt>=0?'kpi-card--info':'kpi-card--alert' ?>">
         <div class="kpi-label">💰 Überschuss</div>
@@ -294,10 +305,10 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
     </div>
 </div>
 
-<?php if ($person==='Beide'): ?>
+<?php if ($is_all): ?>
 <div class="dashboard-row mt-4">
     <div class="card">
-        <div class="card-head"><h2 class="card-title">👤 Marcel</h2></div>
+        <div class="card-head"><h2 class="card-title">👤 <?= he($person_options[0] ?? 'Profil 1') ?></h2></div>
         <div class="split-pad">
             <div class="finance-split-row"><span>Einnahmen</span><span class="text-green fw-700"><?= fmt2($ein_marcel) ?></span></div>
             <div class="finance-split-row"><span>Ausgaben</span><span class="text-red fw-700"><?= fmt2($aus_marcel) ?></span></div>
@@ -305,7 +316,7 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
         </div>
     </div>
     <div class="card">
-        <div class="card-head"><h2 class="card-title">👤 Kim</h2></div>
+        <div class="card-head"><h2 class="card-title">👤 <?= he($person_options[1] ?? 'Profil 2') ?></h2></div>
         <div class="split-pad">
             <div class="finance-split-row"><span>Einnahmen</span><span class="text-green fw-700"><?= fmt2($ein_kim) ?></span></div>
             <div class="finance-split-row"><span>Ausgaben</span><span class="text-red fw-700"><?= fmt2($aus_kim) ?></span></div>
@@ -319,19 +330,19 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
     <div class="card">
         <div class="card-head"><h2 class="card-title">Einnahmen im Detail</h2><span class="badge badge-ok"><?= fmt2($ein_gesamt) ?>/Mon.</span></div>
         <div class="table-wrap"><table class="data-table">
-            <thead><tr><th>Bezeichnung</th><?php if($person==='Beide'): ?><th>Person</th><?php endif; ?><th>Kategorie</th><th class="col-right">Betrag</th><th class="col-right">Monatlich</th></tr></thead>
+            <thead><tr><th>Bezeichnung</th><?php if($is_all): ?><th>Person</th><?php endif; ?><th>Kategorie</th><th class="col-right">Betrag</th><th class="col-right">Monatlich</th></tr></thead>
             <tbody>
             <?php foreach ($einnahmen_alle as $e): if (!$e['aktiv']) continue; ?>
             <tr>
                 <td><?= he($e['bezeichnung']) ?></td>
-                <?php if($person==='Beide'): ?><td><?= he($e['person']) ?></td><?php endif; ?>
+                <?php if($is_all): ?><td><?= he($e['person']) ?></td><?php endif; ?>
                 <td><span class="badge badge-neutral"><?= he($e['kategorie']??'–') ?></span></td>
                 <td class="col-right fw-700 text-green"><?= fmt2((float)$e['betrag_original']) ?> <span class="text-muted" style="font-size:0.8em"><?= $e['turnus']!=='Monatlich'?he($e['turnus']):'' ?></span></td>
                 <td class="col-right text-muted"><?= $e['turnus']!=='Monatlich'?fmt2((float)$e['betrag']).'/Mon.':'' ?></td>
             </tr>
             <?php endforeach; ?>
             <tr class="row-total">
-                <td colspan="<?= $person==='Beide'?4:3 ?>" class="fw-700">Gesamt</td>
+                <td colspan="<?= $is_all?4:3 ?>" class="fw-700">Gesamt</td>
                 <td class="col-right fw-700 text-green"><?= fmt2($ein_gesamt) ?>/Mon.</td>
             </tr>
             </tbody>
@@ -340,19 +351,19 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
     <div class="card">
         <div class="card-head"><h2 class="card-title">Ausgaben im Detail</h2><span class="badge badge-danger"><?= fmt2($aus_gesamt) ?>/Mon.</span></div>
         <div class="table-wrap"><table class="data-table">
-            <thead><tr><th>Bezeichnung</th><?php if($person==='Beide'): ?><th>Person</th><?php endif; ?><th>Kategorie</th><th class="col-right">Betrag</th><th class="col-right">Monatlich</th></tr></thead>
+            <thead><tr><th>Bezeichnung</th><?php if($is_all): ?><th>Person</th><?php endif; ?><th>Kategorie</th><th class="col-right">Betrag</th><th class="col-right">Monatlich</th></tr></thead>
             <tbody>
             <?php foreach ($ausgaben_alle as $a): if (!$a['aktiv']) continue; ?>
             <tr>
                 <td><?= he($a['bezeichnung']) ?></td>
-                <?php if($person==='Beide'): ?><td><?= he($a['person']) ?></td><?php endif; ?>
+                <?php if($is_all): ?><td><?= he($a['person']) ?></td><?php endif; ?>
                 <td><span class="badge badge-neutral"><?= he($a['kategorie']??'–') ?></span></td>
                 <td class="col-right fw-700 text-red"><?= fmt2((float)$a['betrag_original']) ?> <span class="text-muted" style="font-size:0.8em"><?= $a['turnus']!=='Monatlich'?he($a['turnus']):'' ?></span></td>
                 <td class="col-right text-muted"><?= $a['turnus']!=='Monatlich'?fmt2((float)$a['betrag']).'/Mon.':'' ?></td>
             </tr>
             <?php endforeach; ?>
             <tr class="row-total">
-                <td colspan="<?= $person==='Beide'?4:3 ?>" class="fw-700">Gesamt</td>
+                <td colspan="<?= $is_all?4:3 ?>" class="fw-700">Gesamt</td>
                 <td class="col-right fw-700 text-red"><?= fmt2($aus_gesamt) ?>/Mon.</td>
             </tr>
             </tbody>
@@ -377,7 +388,7 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
         <tbody>
         <?php foreach ($kat_summen as $kat => $sum):
             $anteil = $kat_total > 0 ? $sum / $kat_total : 0;
-            $pct    = number_format($anteil*100, 1, ',', '.');
+            $pct    = number_format($anteil*100, 1, '.', '');
         ?>
         <tr>
             <td><?= he($kat) ?></td>
@@ -400,7 +411,7 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
 <div class="card mt-4" id="card-einnahmen">
     <div class="card-head">
         <div class="card-head-left">
-            <h2 class="card-title">Einnahmen<?= $person!=='Beide'?' – '.$person:'' ?></h2>
+            <h2 class="card-title">Einnahmen<?= !$is_all?' – '.$person:'' ?></h2>
             <span class="card-sum text-green"><?= fmt2($ein_gesamt) ?>/Mon.</span>
         </div>
         <div class="bulk-bar">
@@ -421,7 +432,7 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
             <thead><tr>
                 <th class="col-sort"></th>
                 <th>Bezeichnung</th>
-                <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
+                <?php if($is_all): ?><th>Person</th><?php endif; ?>
                 <th>Kategorie</th><th>Turnus</th>
                 <th class="col-right">Betrag</th>
                 <th class="col-right">Monatlich</th>
@@ -435,10 +446,10 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
                     <span class="ft-bulk"><?= he($e['bezeichnung']) ?></span>
                     <input class="inline-input fi-bulk" form="frm-e-bulk" name="rows[<?= $eid ?>][bezeichnung]" value="<?= he($e['bezeichnung']) ?>" required>
                 </td>
-                <?php if($person==='Beide'): ?>
+                <?php if($is_all): ?>
                 <td>
                     <span class="ft-bulk"><?= he($e['person']) ?></span>
-                    <select class="inline-input fi-bulk" form="frm-e-bulk" name="rows[<?= $eid ?>][person]"><?= sel($personen,$e['person']) ?></select>
+                    <select class="inline-input fi-bulk" form="frm-e-bulk" name="rows[<?= $eid ?>][person]"><?= sel($person_options,$e['person']) ?></select>
                 </td>
                 <?php endif; ?>
                 <td>
@@ -480,28 +491,23 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
         <input type="hidden" name="act" value="einnahme_save">
         <input type="hidden" name="edit_id" value="0">
         <input type="hidden" name="person_filter" value="<?= he($person) ?>">
-        <input type="hidden" name="person" value="<?= he($def_person) ?>">
+        <?php if(!$is_all): ?><input type="hidden" name="person" value="<?= he($def_person) ?>"><?php endif; ?>
     </form>
     <div class="table-wrap"><table class="data-table">
         <thead><tr>
             <th>Bezeichnung</th>
-            <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
-            <th>Kategorie</th>
-            <th>Turnus</th>
-            <th>Betrag</th>
-            <th></th>
+            <?php if($is_all): ?><th>Person</th><?php endif; ?>
+            <th>Kategorie</th><th>Turnus</th><th>Betrag</th><th></th>
         </tr></thead>
         <tbody><tr>
             <td><input class="inline-input new-input" form="frm-e-new" name="bezeichnung" placeholder="Bezeichnung" required></td>
-            <?php if($person==='Beide'): ?>
-            <td><select class="inline-input new-input" form="frm-e-new" name="person"><?= sel($personen,$def_person) ?></select></td>
+            <?php if($is_all): ?>
+            <td><select class="inline-input new-input" form="frm-e-new" name="person"><?= sel($person_options,$def_person) ?></select></td>
             <?php endif; ?>
             <td><select class="inline-input new-input" form="frm-e-new" name="kategorie"><?= kat_sel($kat_einnahmen,'') ?></select></td>
             <td><select class="inline-input new-input" form="frm-e-new" name="turnus"><?= sel($turnusse,'Monatlich') ?></select></td>
             <td><input class="inline-input new-input input-right input-narrow" form="frm-e-new" name="betrag" placeholder="0,00"></td>
-            <td class="col-actions">
-                <button type="button" class="btn btn-primary btn-xs" id="btn-new-e">+ Hinzufügen</button>
-            </td>
+            <td class="col-actions"><button type="button" class="btn btn-primary btn-xs" id="btn-new-e">+ Hinzufügen</button></td>
         </tr></tbody>
     </table></div>
 </div>
@@ -512,7 +518,7 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
 <div class="card mt-4" id="card-ausgaben">
     <div class="card-head">
         <div class="card-head-left">
-            <h2 class="card-title">Ausgaben<?= $person!=='Beide'?' – '.$person:'' ?></h2>
+            <h2 class="card-title">Ausgaben<?= !$is_all?' – '.$person:'' ?></h2>
             <span class="card-sum text-red"><?= fmt2($aus_gesamt) ?>/Mon.</span>
         </div>
         <div class="bulk-bar">
@@ -533,7 +539,7 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
             <thead><tr>
                 <th class="col-sort"></th>
                 <th>Bezeichnung</th>
-                <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
+                <?php if($is_all): ?><th>Person</th><?php endif; ?>
                 <th>Kategorie</th><th>Turnus</th>
                 <th class="col-right">Betrag</th>
                 <th class="col-right">Monatlich</th>
@@ -547,10 +553,10 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
                     <span class="ft-bulk"><?= he($a['bezeichnung']) ?></span>
                     <input class="inline-input fi-bulk" form="frm-a-bulk" name="rows[<?= $aid ?>][bezeichnung]" value="<?= he($a['bezeichnung']) ?>" required>
                 </td>
-                <?php if($person==='Beide'): ?>
+                <?php if($is_all): ?>
                 <td>
                     <span class="ft-bulk"><?= he($a['person']) ?></span>
-                    <select class="inline-input fi-bulk" form="frm-a-bulk" name="rows[<?= $aid ?>][person]"><?= sel($personen,$a['person']) ?></select>
+                    <select class="inline-input fi-bulk" form="frm-a-bulk" name="rows[<?= $aid ?>][person]"><?= sel($person_options,$a['person']) ?></select>
                 </td>
                 <?php endif; ?>
                 <td>
@@ -592,28 +598,23 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
         <input type="hidden" name="act" value="ausgabe_save">
         <input type="hidden" name="edit_id" value="0">
         <input type="hidden" name="person_filter" value="<?= he($person) ?>">
-        <input type="hidden" name="person" value="<?= he($def_person) ?>">
+        <?php if(!$is_all): ?><input type="hidden" name="person" value="<?= he($def_person) ?>"><?php endif; ?>
     </form>
     <div class="table-wrap"><table class="data-table">
         <thead><tr>
             <th>Bezeichnung</th>
-            <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
-            <th>Kategorie</th>
-            <th>Turnus</th>
-            <th>Betrag</th>
-            <th></th>
+            <?php if($is_all): ?><th>Person</th><?php endif; ?>
+            <th>Kategorie</th><th>Turnus</th><th>Betrag</th><th></th>
         </tr></thead>
         <tbody><tr>
             <td><input class="inline-input new-input" form="frm-a-new" name="bezeichnung" placeholder="Bezeichnung" required></td>
-            <?php if($person==='Beide'): ?>
-            <td><select class="inline-input new-input" form="frm-a-new" name="person"><?= sel($personen,$def_person) ?></select></td>
+            <?php if($is_all): ?>
+            <td><select class="inline-input new-input" form="frm-a-new" name="person"><?= sel($person_options,$def_person) ?></select></td>
             <?php endif; ?>
             <td><select class="inline-input new-input" form="frm-a-new" name="kategorie"><?= kat_sel($kat_ausgaben,'') ?></select></td>
             <td><select class="inline-input new-input" form="frm-a-new" name="turnus"><?= sel($turnusse,'Monatlich') ?></select></td>
             <td><input class="inline-input new-input input-right input-narrow" form="frm-a-new" name="betrag" placeholder="0,00"></td>
-            <td class="col-actions">
-                <button type="button" class="btn btn-primary btn-xs" id="btn-new-a">+ Hinzufügen</button>
-            </td>
+            <td class="col-actions"><button type="button" class="btn btn-primary btn-xs" id="btn-new-a">+ Hinzufügen</button></td>
         </tr></tbody>
     </table></div>
 </div>
@@ -624,7 +625,7 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
 <div class="card mt-4" id="card-schulden">
     <div class="card-head">
         <div class="card-head-left">
-            <h2 class="card-title">Verbindlichkeiten<?= $person!=='Beide'?' – '.$person:'' ?></h2>
+            <h2 class="card-title">Verbindlichkeiten<?= !$is_all?' – '.$person:'' ?></h2>
             <span class="card-sum text-red"><?= fmt2($schulden_gesamt) ?></span>
         </div>
         <div class="bulk-bar">
@@ -645,7 +646,7 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
             <thead><tr>
                 <th class="col-sort"></th>
                 <th>Gläubiger</th>
-                <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
+                <?php if($is_all): ?><th>Person</th><?php endif; ?>
                 <th>Startsumme</th><th>Restsumme</th>
                 <th>Rate/Mon.</th><th>Abbezahlt</th><th>Notiz</th>
                 <th></th>
@@ -662,10 +663,10 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
                     <span class="ft-bulk"><?= he($s['glaeubiger']) ?></span>
                     <input class="inline-input fi-bulk" form="frm-s-bulk" name="rows[<?= $sid ?>][glaeubiger]" value="<?= he($s['glaeubiger']) ?>" required>
                 </td>
-                <?php if($person==='Beide'): ?>
+                <?php if($is_all): ?>
                 <td>
                     <span class="ft-bulk"><?= he($s['person']) ?></span>
-                    <select class="inline-input fi-bulk" form="frm-s-bulk" name="rows[<?= $sid ?>][person]"><?= sel($personen,$s['person']) ?></select>
+                    <select class="inline-input fi-bulk" form="frm-s-bulk" name="rows[<?= $sid ?>][person]"><?= sel($person_options,$s['person']) ?></select>
                 </td>
                 <?php endif; ?>
                 <td>
@@ -714,30 +715,24 @@ $def_person    = $person === 'Beide' ? 'Marcel' : $person;
         <input type="hidden" name="act" value="schuld_save">
         <input type="hidden" name="edit_id" value="0">
         <input type="hidden" name="person_filter" value="<?= he($person) ?>">
-        <input type="hidden" name="person" value="<?= he($def_person) ?>">
+        <?php if(!$is_all): ?><input type="hidden" name="person" value="<?= he($def_person) ?>"><?php endif; ?>
     </form>
     <div class="table-wrap"><table class="data-table">
         <thead><tr>
             <th>Gläubiger</th>
-            <?php if($person==='Beide'): ?><th>Person</th><?php endif; ?>
-            <th>Startsumme</th>
-            <th>Restsumme</th>
-            <th>Rate/Mon.</th>
-            <th>Notiz</th>
-            <th></th>
+            <?php if($is_all): ?><th>Person</th><?php endif; ?>
+            <th>Startsumme</th><th>Restsumme</th><th>Rate/Mon.</th><th>Notiz</th><th></th>
         </tr></thead>
         <tbody><tr>
             <td><input class="inline-input new-input" form="frm-s-new" name="glaeubiger" placeholder="Gläubiger" required></td>
-            <?php if($person==='Beide'): ?>
-            <td><select class="inline-input new-input" form="frm-s-new" name="person"><?= sel($personen,$def_person) ?></select></td>
+            <?php if($is_all): ?>
+            <td><select class="inline-input new-input" form="frm-s-new" name="person"><?= sel($person_options,$def_person) ?></select></td>
             <?php endif; ?>
             <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="startsumme" placeholder="0,00"></td>
             <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="restsumme" placeholder="0,00"></td>
             <td><input class="inline-input new-input input-narrow" form="frm-s-new" name="rate" placeholder="0,00"></td>
             <td><input class="inline-input new-input" form="frm-s-new" name="notiz" placeholder="Notiz"></td>
-            <td class="col-actions">
-                <button type="button" class="btn btn-primary btn-xs" id="btn-new-s">+ Hinzufügen</button>
-            </td>
+            <td class="col-actions"><button type="button" class="btn btn-primary btn-xs" id="btn-new-s">+ Hinzufügen</button></td>
         </tr></tbody>
     </table></div>
 </div>

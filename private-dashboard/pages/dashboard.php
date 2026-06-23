@@ -1,90 +1,118 @@
 <?php
-$db     = get_db();
-$person = $_GET['person'] ?? 'Marcel';
-if (!in_array($person, ['Marcel','Kim','Beide'], true)) $person = 'Marcel';
+// ════════════════════════════════════════════════
+// dashboard.php – Übersichts-Dashboard
+// Alle Queries gefiltert nach user_id + Person-Profil
+// ════════════════════════════════════════════════
+$db  = get_db();
+$uid = current_user_id();
 
-function db_sum(PDO $db, string $table, string $person, string $extra = ''): float {
-    if ($person === 'Beide') {
-        return (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM $table WHERE aktiv=1 $extra")->fetchColumn();
+// ── Person-Filter aus URL, validiert gegen User-Profile ──
+$person_options = get_person_options();
+$person = $_GET['person'] ?? ($person_options[0] ?? 'Marcel');
+if (!in_array($person, $person_options, true)) $person = $person_options[0] ?? 'Marcel';
+$is_all = person_is_all($person);
+
+// ── Hilfsfunktion: Summe einer Tabelle gefiltert nach user_id + person ──
+function db_sum(PDO $db, string $table, bool $is_all, string $person, int $uid, string $extra = ''): float {
+    if ($is_all) {
+        $s = $db->prepare("SELECT COALESCE(SUM(betrag),0) FROM $table WHERE user_id=? AND aktiv=1 $extra");
+        $s->execute([$uid]);
+    } else {
+        $s = $db->prepare("SELECT COALESCE(SUM(betrag),0) FROM $table WHERE user_id=? AND person=? AND aktiv=1 $extra");
+        $s->execute([$uid, $person]);
     }
-    $s = $db->prepare("SELECT COALESCE(SUM(betrag),0) FROM $table WHERE person=? AND aktiv=1 $extra");
-    $s->execute([$person]);
     return (float)$s->fetchColumn();
 }
 
-$einnahmen = db_sum($db, 'einnahmen', $person);
-$ausgaben  = db_sum($db, 'ausgaben',  $person);
+$einnahmen   = db_sum($db, 'einnahmen', $is_all, $person, $uid);
+$ausgaben    = db_sum($db, 'ausgaben',  $is_all, $person, $uid);
 $ueberschuss = $einnahmen - $ausgaben;
 $sparquote   = $einnahmen > 0 ? $ueberschuss / $einnahmen : 0;
 
-// Immo-Cashflow
-if ($person === 'Beide') {
-    $immo_cashflow = (float)$db->query("SELECT COALESCE(SUM(kaltmiete + nebenkosten - fixkosten - kreditkosten),0) FROM immobilien WHERE aktiv=1")->fetchColumn();
+// ── Immo-Cashflow ──
+if ($is_all) {
+    $s = $db->prepare("SELECT COALESCE(SUM(kaltmiete + nebenkosten - fixkosten - kreditkosten),0) FROM immobilien WHERE user_id=? AND aktiv=1");
+    $s->execute([$uid]);
 } else {
-    $s = $db->prepare("SELECT COALESCE(SUM(kaltmiete + nebenkosten - fixkosten - kreditkosten),0) FROM immobilien WHERE aktiv=1 AND (person=? OR person='Beide')");
-    $s->execute([$person]); $immo_cashflow = (float)$s->fetchColumn();
+    $s = $db->prepare("SELECT COALESCE(SUM(kaltmiete + nebenkosten - fixkosten - kreditkosten),0) FROM immobilien WHERE user_id=? AND aktiv=1 AND (person=? OR person='Beide')");
+    $s->execute([$uid, $person]);
 }
+$immo_cashflow = (float)$s->fetchColumn();
 
-// Investments
-if ($person === 'Beide') {
-    $investments_monat  = (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE DATE_FORMAT(datum,'%Y-%m')=DATE_FORMAT(NOW(),'%Y-%m')")->fetchColumn();
-    $investments_gesamt = (float)$db->query("SELECT COALESCE(SUM(betrag),0) FROM investments")->fetchColumn();
-    $invest_bereiche    = $db->query("SELECT bereich, SUM(betrag) as gesamt FROM investments GROUP BY bereich ORDER BY gesamt DESC")->fetchAll();
+// ── Investments ──
+if ($is_all) {
+    $s = $db->prepare("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE user_id=? AND DATE_FORMAT(datum,'%Y-%m')=DATE_FORMAT(NOW(),'%Y-%m')");
+    $s->execute([$uid]); $investments_monat = (float)$s->fetchColumn();
+    $s = $db->prepare("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE user_id=?");
+    $s->execute([$uid]); $investments_gesamt = (float)$s->fetchColumn();
+    $s = $db->prepare("SELECT bereich, SUM(betrag) as gesamt FROM investments WHERE user_id=? GROUP BY bereich ORDER BY gesamt DESC");
+    $s->execute([$uid]); $invest_bereiche = $s->fetchAll();
 } else {
-    $s = $db->prepare("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE DATE_FORMAT(datum,'%Y-%m')=DATE_FORMAT(NOW(),'%Y-%m') AND (person=? OR person='Beide')");
-    $s->execute([$person]); $investments_monat = (float)$s->fetchColumn();
-    $s = $db->prepare("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE (person=? OR person='Beide')");
-    $s->execute([$person]); $investments_gesamt = (float)$s->fetchColumn();
-    $s = $db->prepare("SELECT bereich, SUM(betrag) as gesamt FROM investments WHERE (person=? OR person='Beide') GROUP BY bereich ORDER BY gesamt DESC");
-    $s->execute([$person]); $invest_bereiche = $s->fetchAll();
+    $s = $db->prepare("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE user_id=? AND DATE_FORMAT(datum,'%Y-%m')=DATE_FORMAT(NOW(),'%Y-%m') AND (person=? OR person='Beide')");
+    $s->execute([$uid,$person]); $investments_monat = (float)$s->fetchColumn();
+    $s = $db->prepare("SELECT COALESCE(SUM(betrag),0) FROM investments WHERE user_id=? AND (person=? OR person='Beide')");
+    $s->execute([$uid,$person]); $investments_gesamt = (float)$s->fetchColumn();
+    $s = $db->prepare("SELECT bereich, SUM(betrag) as gesamt FROM investments WHERE user_id=? AND (person=? OR person='Beide') GROUP BY bereich ORDER BY gesamt DESC");
+    $s->execute([$uid,$person]); $invest_bereiche = $s->fetchAll();
 }
 $invest_total = array_sum(array_column($invest_bereiche, 'gesamt'));
 
-// Schulden
-if ($person === 'Beide') {
-    $schulden_gesamt = (float)$db->query("SELECT COALESCE(SUM(restsumme),0) FROM verbindlichkeiten")->fetchColumn();
+// ── Schulden ──
+if ($is_all) {
+    $s = $db->prepare("SELECT COALESCE(SUM(restsumme),0) FROM verbindlichkeiten WHERE user_id=?");
+    $s->execute([$uid]);
 } else {
-    $s = $db->prepare("SELECT COALESCE(SUM(restsumme),0) FROM verbindlichkeiten WHERE (person=? OR person='Beide')");
-    $s->execute([$person]); $schulden_gesamt = (float)$s->fetchColumn();
+    $s = $db->prepare("SELECT COALESCE(SUM(restsumme),0) FROM verbindlichkeiten WHERE user_id=? AND (person=? OR person='Beide')");
+    $s->execute([$uid,$person]);
+}
+$schulden_gesamt = (float)$s->fetchColumn();
+
+// ── Ziele ──
+if ($is_all) {
+    $s = $db->prepare("SELECT * FROM ziele WHERE user_id=? ORDER BY zieltermin ASC");
+    $s->execute([$uid]);
+} else {
+    $s = $db->prepare("SELECT * FROM ziele WHERE user_id=? AND (person=? OR person='Beide') ORDER BY zieltermin ASC");
+    $s->execute([$uid,$person]);
+}
+$ziele = $s->fetchAll();
+
+// ── Aufgaben ──
+if ($is_all) {
+    $s = $db->prepare("SELECT COUNT(*) FROM tasks WHERE user_id=? AND status='Offen'");
+    $s->execute([$uid]); $open_tasks = (int)$s->fetchColumn();
+    $s = $db->prepare("SELECT COUNT(*) FROM tasks WHERE user_id=? AND status='Offen' AND due_date < CURDATE()");
+    $s->execute([$uid]); $overdue_tasks = (int)$s->fetchColumn();
+    $s = $db->prepare("SELECT task, category, priority, due_date FROM tasks WHERE user_id=? AND status='Offen' ORDER BY due_date ASC LIMIT 5");
+    $s->execute([$uid]); $next_tasks = $s->fetchAll();
+} else {
+    $s = $db->prepare("SELECT COUNT(*) FROM tasks WHERE user_id=? AND status='Offen' AND (person=? OR person='Beide')");
+    $s->execute([$uid,$person]); $open_tasks = (int)$s->fetchColumn();
+    $s = $db->prepare("SELECT COUNT(*) FROM tasks WHERE user_id=? AND status='Offen' AND due_date < CURDATE() AND (person=? OR person='Beide')");
+    $s->execute([$uid,$person]); $overdue_tasks = (int)$s->fetchColumn();
+    $s = $db->prepare("SELECT task, category, priority, due_date FROM tasks WHERE user_id=? AND status='Offen' AND (person=? OR person='Beide') ORDER BY due_date ASC LIMIT 5");
+    $s->execute([$uid,$person]); $next_tasks = $s->fetchAll();
 }
 
-// Ziele
-if ($person === 'Beide') {
-    $ziele = $db->query("SELECT * FROM ziele ORDER BY zieltermin ASC")->fetchAll();
-} else {
-    $s = $db->prepare("SELECT * FROM ziele WHERE (person=? OR person='Beide') ORDER BY zieltermin ASC");
-    $s->execute([$person]); $ziele = $s->fetchAll();
-}
-
-// Aufgaben
-if ($person === 'Beide') {
-    $open_tasks    = (int)$db->query("SELECT COUNT(*) FROM tasks WHERE status='Offen'")->fetchColumn();
-    $overdue_tasks = (int)$db->query("SELECT COUNT(*) FROM tasks WHERE status='Offen' AND due_date < CURDATE()")->fetchColumn();
-    $next_tasks    = $db->query("SELECT task, category, priority, due_date FROM tasks WHERE status='Offen' ORDER BY due_date ASC LIMIT 5")->fetchAll();
-} else {
-    $s = $db->prepare("SELECT COUNT(*) FROM tasks WHERE status='Offen' AND (person=? OR person='Beide')");
-    $s->execute([$person]); $open_tasks = (int)$s->fetchColumn();
-    $s = $db->prepare("SELECT COUNT(*) FROM tasks WHERE status='Offen' AND due_date < CURDATE() AND (person=? OR person='Beide')");
-    $s->execute([$person]); $overdue_tasks = (int)$s->fetchColumn();
-    $s = $db->prepare("SELECT task, category, priority, due_date FROM tasks WHERE status='Offen' AND (person=? OR person='Beide') ORDER BY due_date ASC LIMIT 5");
-    $s->execute([$person]); $next_tasks = $s->fetchAll();
-}
-
-// Wartungen
-$db->exec("UPDATE maintenance SET status = CASE
+// ── Wartungen ──
+$db->prepare("UPDATE maintenance SET status = CASE
     WHEN next_due < CURDATE() THEN 'Überfällig'
     WHEN next_due >= CURDATE() AND next_due <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 'Bald fällig'
-    ELSE 'OK' END WHERE next_due IS NOT NULL");
-if ($person === 'Beide') {
-    $overdue_maint  = (int)$db->query("SELECT COUNT(*) FROM maintenance WHERE status='Überfällig'")->fetchColumn();
-    $next_maint_all = $db->query("SELECT object_name, task, next_due, status FROM maintenance WHERE next_due IS NOT NULL ORDER BY next_due ASC LIMIT 5")->fetchAll();
+    ELSE 'OK' END WHERE next_due IS NOT NULL AND user_id=?")->execute([$uid]);
+
+if ($is_all) {
+    $s = $db->prepare("SELECT COUNT(*) FROM maintenance WHERE user_id=? AND status='Überfällig'");
+    $s->execute([$uid]); $overdue_maint = (int)$s->fetchColumn();
+    $s = $db->prepare("SELECT object_name, task, next_due, status FROM maintenance WHERE user_id=? AND next_due IS NOT NULL ORDER BY next_due ASC LIMIT 5");
+    $s->execute([$uid]); $next_maint_all = $s->fetchAll();
 } else {
-    $s = $db->prepare("SELECT COUNT(*) FROM maintenance WHERE status='Überfällig' AND (person=? OR person='Beide')");
-    $s->execute([$person]); $overdue_maint = (int)$s->fetchColumn();
-    $s = $db->prepare("SELECT object_name, task, next_due, status FROM maintenance WHERE next_due IS NOT NULL AND (person=? OR person='Beide') ORDER BY next_due ASC LIMIT 5");
-    $s->execute([$person]); $next_maint_all = $s->fetchAll();
+    $s = $db->prepare("SELECT COUNT(*) FROM maintenance WHERE user_id=? AND status='Überfällig' AND (person=? OR person='Beide')");
+    $s->execute([$uid,$person]); $overdue_maint = (int)$s->fetchColumn();
+    $s = $db->prepare("SELECT object_name, task, next_due, status FROM maintenance WHERE user_id=? AND next_due IS NOT NULL AND (person=? OR person='Beide') ORDER BY next_due ASC LIMIT 5");
+    $s->execute([$uid,$person]); $next_maint_all = $s->fetchAll();
 }
 
+// ── Hilfsfunktionen ──
 function fmt(float $v, bool $sign = false): string {
     $s = number_format(abs($v), 2, ',', '.');
     if ($sign) return ($v >= 0 ? '+' : '–') . $s . ' €';
@@ -123,9 +151,10 @@ function format_date(?string $d): string {
 $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld'=>'🏦','Krypto'=>'₿','Copy Trading'=>'📊'];
 ?>
 
+<!-- Person-Switcher aus User-Profilen -->
 <div class="dashboard-person-bar">
     <div class="person-switcher">
-        <?php foreach (['Marcel','Kim','Beide'] as $p): ?>
+        <?php foreach ($person_options as $p): ?>
         <a href="?page=dashboard&person=<?= $p ?>" class="person-btn <?= $person===$p?'active':'' ?>"><?= $p ?></a>
         <?php endforeach; ?>
     </div>
@@ -133,12 +162,12 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
 
 <div class="kpi-grid kpi-grid--6">
     <div class="kpi-card">
-        <div class="kpi-label">📥 Einnahmen<?= $person!=='Beide'?' '.$person:'' ?></div>
+        <div class="kpi-label">📥 Einnahmen<?= !$is_all?' '.$person:'' ?></div>
         <div class="kpi-value kpi-value--md text-green"><?= fmt($einnahmen) ?></div>
         <div class="kpi-sub">monatlich</div>
     </div>
     <div class="kpi-card">
-        <div class="kpi-label">📤 Ausgaben<?= $person!=='Beide'?' '.$person:'' ?></div>
+        <div class="kpi-label">📤 Ausgaben<?= !$is_all?' '.$person:'' ?></div>
         <div class="kpi-value kpi-value--md text-red"><?= fmt($ausgaben) ?></div>
         <div class="kpi-sub">monatlich</div>
     </div>
@@ -164,8 +193,6 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
     </div>
 </div>
 
-
-
 <div class="dashboard-row mt-4">
     <div class="card">
         <div class="card-head">
@@ -176,21 +203,19 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
                     <?php if ($overdue_tasks > 0): ?><span class="badge badge-danger"><?= $overdue_tasks ?> überfällig</span><?php endif; ?>
                 </div>
             </div>
-            <a href="?page=tasks&action=new" class="btn btn-primary btn-sm">+ Neu</a>
+            <a href="?page=tasks" class="btn btn-primary btn-sm">+ Neu</a>
         </div>
         <?php if (empty($next_tasks)): ?>
             <p class="empty-state">Keine offenen Aufgaben.</p>
         <?php else: ?>
-        <div class="table-wrap">
-            <table class="data-table">
-                <thead><tr><th>Aufgabe</th><th>Priorität</th><th>Fällig</th></tr></thead>
-                <tbody>
-                <?php foreach ($next_tasks as $t): ?>
-                <tr><td><?= htmlspecialchars($t['task']) ?></td><td><?= priority_badge($t['priority']) ?></td><td><?= format_date($t['due_date']) ?></td></tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+        <div class="table-wrap"><table class="data-table">
+            <thead><tr><th>Aufgabe</th><th>Priorität</th><th>Fällig</th></tr></thead>
+            <tbody>
+            <?php foreach ($next_tasks as $t): ?>
+            <tr><td><?= htmlspecialchars($t['task']) ?></td><td><?= priority_badge($t['priority']) ?></td><td><?= format_date($t['due_date']) ?></td></tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table></div>
         <?php endif; ?>
     </div>
 
@@ -202,21 +227,19 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
                 <div class="badge-row"><span class="badge badge-danger"><?= $overdue_maint ?> überfällig</span></div>
                 <?php endif; ?>
             </div>
-            <a href="?page=maintenance&action=new" class="btn btn-primary btn-sm">+ Neu</a>
+            <a href="?page=maintenance" class="btn btn-primary btn-sm">+ Neu</a>
         </div>
         <?php if (empty($next_maint_all)): ?>
             <p class="empty-state">Keine Wartungen.</p>
         <?php else: ?>
-        <div class="table-wrap">
-            <table class="data-table">
-                <thead><tr><th>Objekt</th><th>Aufgabe</th><th>Fällig</th><th>Status</th></tr></thead>
-                <tbody>
-                <?php foreach ($next_maint_all as $m): ?>
-                <tr><td><?= htmlspecialchars($m['object_name']) ?></td><td><?= htmlspecialchars($m['task']) ?></td><td><?= format_date($m['next_due']) ?></td><td><?= status_badge_m($m['status']) ?></td></tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+        <div class="table-wrap"><table class="data-table">
+            <thead><tr><th>Objekt</th><th>Aufgabe</th><th>Fällig</th><th>Status</th></tr></thead>
+            <tbody>
+            <?php foreach ($next_maint_all as $m): ?>
+            <tr><td><?= htmlspecialchars($m['object_name']) ?></td><td><?= htmlspecialchars($m['task']) ?></td><td><?= format_date($m['next_due']) ?></td><td><?= status_badge_m($m['status']) ?></td></tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table></div>
         <?php endif; ?>
     </div>
 </div>
@@ -229,12 +252,8 @@ $bereich_icons = ['Grid EA'=>'📈','Affiliate'=>'🔗','P2P'=>'💸','Tagesgeld
         </div>
         <div class="table-wrap"><table class="data-table">
             <thead><tr>
-                <th>Ziel</th>
-                <th>Kategorie</th>
-                <th>Fortschritt</th>
-                <th class="col-right">Aktuell</th>
-                <th class="col-right">Zielwert</th>
-                <th>Termin</th>
+                <th>Ziel</th><th>Kategorie</th><th>Fortschritt</th>
+                <th class="col-right">Aktuell</th><th class="col-right">Zielwert</th><th>Termin</th>
             </tr></thead>
             <tbody>
             <?php foreach ($ziele as $z):
