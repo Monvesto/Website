@@ -199,7 +199,7 @@ $errors = [
         <form method="POST" action="?page=profil">
             <?= csrf_field() ?>
             <input type="hidden" name="act" value="change_password">
-            <div class="form-grid">
+            <div class="form-grid form-grid--profil">
                 <div class="form-group fg-wide">
                     <label>Aktuelles Passwort</label>
                     <input type="password" name="old_password" required>
