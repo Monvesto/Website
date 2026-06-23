@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $act = $_POST['act'] ?? '';
 
     if ($act === 'create_user') {
+        $aktiv = isset($_POST['aktiv']) && $_POST['aktiv'] === '1' ? 1 : 0;
         $username     = trim($_POST['username'] ?? '');
         $email        = trim($_POST['email'] ?? '');
         $display_name = trim($_POST['display_name'] ?? '');
@@ -24,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $geburtsdatum = trim($_POST['geburtsdatum'] ?? '') ?: null;
                 $verified     = isset($_POST['verified']) && $_POST['verified'] === '1' ? 1 : 0;
-                $db->prepare("INSERT INTO users (username,email,password,display_name,role,geburtsdatum,verified) VALUES (?,?,?,?,?,?,?)")
+                $db->prepare("INSERT INTO users (username,email,password,display_name,role,geburtsdatum,verified,aktiv) VALUES (?,?,?,?,?,?,?,?)")
                   ->execute([$username,$email,password_hash($password,PASSWORD_DEFAULT),$display_name,$role,$geburtsdatum,$verified]);
                 $uid = (int)$db->lastInsertId();
                 $db->prepare("INSERT INTO user_profiles (user_id,profile_name,is_default,sort_order) VALUES (?,?,1,0)")
@@ -127,80 +128,71 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
         <span class="text-muted" style="font-size:13px">Max. Profile pro Nutzer: <strong><?= MAX_PROFILES ?></strong></span>
     </div>
 
-<!-- Spalten-Header -->
-<div class="admin-user-header">
-    <div>Nutzerdaten</div>
-    <div>Profile</div>
-    <div>Verifiziert</div>
-    <div>Status</div>
-    <div>Rolle</div>
-    <div>Passwort</div>
-</div>
+    <div class="admin-table-wrap">
+        <div class="admin-user-header">
+            <div>Nutzerdaten</div>
+            <div>Info</div>
+            <div>Display-Name</div>
+            <div>Profile</div>
+            <div>Status</div>
+            <div>Verifiziert</div>
+            <div>Rolle</div>
+            <div>Passwort</div>
+        </div>
 
-    <?php foreach ($users as $u): ?>
-    <div class="admin-user-card <?= !$u['aktiv'] ? 'admin-user-inactive' : '' ?>">
-
-        <!-- ── Zeile 1 ── -->
-        <div class="admin-user-top">
+        <?php foreach ($users as $u): ?>
+        <div class="admin-user-row <?= !$u['aktiv'] ? 'admin-user-inactive' : '' ?>">
 
             <!-- Nutzerdaten -->
-            <div class="admin-user-info">
+            <div class="admin-cell">
                 <div class="admin-user-name"><?= htmlspecialchars($u['username']) ?></div>
                 <div class="admin-user-meta"><?= htmlspecialchars($u['email']) ?></div>
             </div>
 
             <!-- Info -->
-            <div class="admin-user-info">
+            <div class="admin-cell">
                 <div class="admin-user-meta">
                     🎂 <?= !empty($u['geburtsdatum']) ? date('d.m.Y', strtotime($u['geburtsdatum'])) : '<span class="text-light">–</span>' ?><br>
-                    📅 Seit <?= date('d.m.Y', strtotime($u['created_at'])) ?>
+                    📅 <?= date('d.m.Y', strtotime($u['created_at'])) ?>
                 </div>
             </div>
 
-            <!-- Verifiziert -->
-            <div class="admin-user-actions">
-                <form method="POST" action="?page=admin" class="form-inline">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="act" value="toggle_verified">
-                    <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                    <button type="submit" class="btn btn-xs <?= $u['verified'] ? 'btn-ok' : 'btn-ghost' ?>">
-                        <?= $u['verified'] ? '✓ Verifiziert' : '✗ Nicht verifiziert' ?>
-                    </button>
-                </form>
+            <!-- Display-Name -->
+            <div class="admin-cell">
+                <div class="admin-user-meta"><?= htmlspecialchars($u['display_name']) ?></div>
             </div>
 
             <!-- Profile -->
-            <div class="admin-user-profiles">
-                <?php foreach ($profiles_by_user[$u['id']] ?? [] as $p): ?>
-                <span class="admin-profile-tag">
-                    <?= htmlspecialchars($p['profile_name']) ?>
-                    <?= $p['is_default'] ? ' ★' : '' ?>
-                    <?php if (!$p['is_default']): ?>
-                    <form method="POST" action="?page=admin" class="form-inline">
+            <div class="admin-cell">
+                <div class="admin-user-profiles">
+                    <?php foreach ($profiles_by_user[$u['id']] ?? [] as $p): ?>
+                    <span class="admin-profile-tag">
+                        <?= htmlspecialchars($p['profile_name']) ?>
+                        <?= $p['is_default'] ? ' ★' : '' ?>
+                        <?php if (!$p['is_default']): ?>
+                        <form method="POST" action="?page=admin" class="form-inline">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="act" value="delete_profile">
+                            <input type="hidden" name="profile_id" value="<?= $p['id'] ?>">
+                            <button type="submit" class="admin-profile-del btn-delete-confirm" title="Profil löschen">✕</button>
+                        </form>
+                        <?php endif; ?>
+                    </span>
+                    <?php endforeach; ?>
+                    <?php if (($u['profile_count'] ?? 0) < MAX_PROFILES): ?>
+                    <form method="POST" action="?page=admin" class="admin-profile-add-form">
                         <?= csrf_field() ?>
-                        <input type="hidden" name="act" value="delete_profile">
-                        <input type="hidden" name="profile_id" value="<?= $p['id'] ?>">
-                        <button type="submit" class="admin-profile-del btn-delete-confirm" title="Profil löschen">✕</button>
+                        <input type="hidden" name="act" value="add_profile">
+                        <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
+                        <input type="text" name="profile_name" placeholder="+ Profil">
+                        <button type="submit" class="btn btn-primary btn-xs">+</button>
                     </form>
                     <?php endif; ?>
-                </span>
-                <?php endforeach; ?>
-                <?php if (($u['profile_count'] ?? 0) < MAX_PROFILES): ?>
-                <form method="POST" action="?page=admin" class="admin-profile-add-form">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="act" value="add_profile">
-                    <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                    <input type="text" name="profile_name" placeholder="+ Profil">
-                    <button type="submit" class="btn btn-primary btn-xs">+</button>
-                </form>
-                <?php endif; ?>
+                </div>
             </div>
 
-        </div>
-
-        <!-- ── Zeile 2: Aktionen ── -->
-        <div class="admin-user-bottom">
-            <div class="admin-user-bottom-left">
+            <!-- Status -->
+            <div class="admin-cell">
                 <?php if ($u['id'] !== current_user_id()): ?>
                 <form method="POST" action="?page=admin" class="form-inline">
                     <?= csrf_field() ?>
@@ -212,6 +204,26 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
                         <?= $u['aktiv'] ? 'Deaktivieren' : 'Aktivieren' ?>
                     </button>
                 </form>
+                <?php else: ?>
+                <span class="badge badge-ok">Aktiv (du)</span>
+                <?php endif; ?>
+            </div>
+
+            <!-- Verifiziert -->
+            <div class="admin-cell">
+                <form method="POST" action="?page=admin" class="form-inline">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="act" value="toggle_verified">
+                    <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
+                    <button type="submit" class="btn btn-xs <?= $u['verified'] ? 'btn-ok' : 'btn-ghost' ?>">
+                        <?= $u['verified'] ? '✓ Ja' : '✗ Nein' ?>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Rolle -->
+            <div class="admin-cell">
+                <?php if ($u['id'] !== current_user_id()): ?>
                 <form method="POST" action="?page=admin" class="form-inline">
                     <?= csrf_field() ?>
                     <input type="hidden" name="act" value="set_role">
@@ -224,23 +236,24 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
                     </button>
                 </form>
                 <?php else: ?>
-                <span class="badge badge-ok">Aktiv (du)</span>
                 <span class="text-muted" style="font-size:12px">–</span>
                 <?php endif; ?>
             </div>
-            <div class="admin-user-bottom-right">
+
+            <!-- Passwort -->
+            <div class="admin-cell">
                 <form method="POST" action="?page=admin" class="admin-pw-form">
                     <?= csrf_field() ?>
                     <input type="hidden" name="act" value="reset_password">
                     <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
                     <input type="password" name="new_password" placeholder="Neues Passwort">
-                    <button type="submit" class="btn btn-primary btn-xs admin-pw-confirm">PW setzen</button>
+                    <button type="submit" class="btn btn-primary btn-xs admin-pw-confirm">Setzen</button>
                 </form>
             </div>
-        </div>
 
+        </div>
+        <?php endforeach; ?>
     </div>
-    <?php endforeach; ?>
 </div>
 
 <!-- ════ NEUEN USER ANLEGEN ════ -->
@@ -251,10 +264,6 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
         <input type="hidden" name="act" value="create_user">
         <div class="form-grid form-grid--compact">
             <div class="form-group">
-                <label>Display-Name (Profilname)</label>
-                <input type="text" name="display_name" placeholder="z.B. Max" required>
-            </div>
-            <div class="form-group">
                 <label>Benutzername</label>
                 <input type="text" name="username" placeholder="Benutzername" required>
             </div>
@@ -263,8 +272,30 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
                 <input type="text" name="email" placeholder="email@beispiel.de" required inputmode="email" autocomplete="email">
             </div>
             <div class="form-group">
-                <label>Passwort</label>
-                <input type="password" name="password" placeholder="min. 8 Zeichen" required>
+                <label>Geburtsdatum</label>
+                <input type="date" name="geburtsdatum">
+            </div>
+            <div class="form-group">
+                <label>Display-Name</label>
+                <input type="text" name="display_name" placeholder="z.B. Max" required>
+            </div>
+            <div class="form-group">
+                <label>Profile</label>
+                <input type="text" name="display_name" placeholder="z.B. Max" required>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="aktiv">
+                    <option value="1">Aktiv</option>
+                    <option value="0">Inaktiv</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Verifiziert</label>
+                <select name="verified">
+                    <option value="0">Nicht verifiziert</option>
+                    <option value="1">Verifiziert</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>Rolle</label>
@@ -274,15 +305,8 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
                 </select>
             </div>
             <div class="form-group">
-                <label>Geburtsdatum</label>
-                <input type="date" name="geburtsdatum">
-            </div>
-            <div class="form-group">
-                <label>Verifiziert</label>
-                <select name="verified">
-                    <option value="0">Nicht verifiziert</option>
-                    <option value="1">Verifiziert</option>
-                </select>
+                <label>Passwort</label>
+                <input type="password" name="password" placeholder="min. 8 Zeichen" required>
             </div>
         </div>
         <div class="form-actions form-actions--pad">
@@ -292,7 +316,6 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
 </div>
 
 <script>
-// PW-Confirm für admin
 document.querySelectorAll('.admin-pw-confirm').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
         e.preventDefault();
@@ -311,7 +334,6 @@ document.querySelectorAll('.admin-pw-confirm').forEach(function(btn) {
     });
 });
 
-// Rolle/Status Confirm via data-confirm-msg
 document.querySelectorAll('[data-confirm-msg]').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
         e.preventDefault();
