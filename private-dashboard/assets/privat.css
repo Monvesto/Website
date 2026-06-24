@@ -1097,15 +1097,37 @@ select { cursor: pointer; }
     /* Tabellen-Spalten ausblenden */
     .tr-table-hide-mobile { display: none !important; }
 
-    /* Label "Gewinn / Verlust (EUR)" → "Rendite (€)" auf Mobile */
+    /* Label "Gewinn / Verlust (EUR)" → "Rendite €" auf Mobile */
     .tr-label-profit {
         font-size: 0;
     }
     .tr-label-profit::after {
-        content: 'Rendite (€)';
+        content: 'Rendite €';
         font-size: 12px;
     }
 
     /* Modal volle Breite */
     .tr-modal-box { min-width: 0; width: 100%; }
+}
+
+/* ── Grafik-Modal Vorschau ── */
+.tr-img-preview         { text-align: center; margin-bottom: 1rem; }
+.tr-img-preview-img     { max-width: 100%; border-radius: 8px; border: 0.5px solid var(--border); }
+.tr-img-preview-actions { margin-top: .5rem; }
+
+/* ── Card-Head mit mehreren Buttons ── */
+.tr-card-head-actions   { display: flex; gap: 8px; align-items: center; }
+
+/* ── Checkbox Label ── */
+.tr-checkbox-label      { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; margin-left: 8px; }
+
+/* Grafik-Modal eigener Backdrop */
+#image-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 1000;
+}
+#image-modal #confirm-box {
+    max-width: 420px;
+    width: 90%;
 }

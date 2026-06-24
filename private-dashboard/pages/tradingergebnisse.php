@@ -214,13 +214,16 @@ $balanceCols = [
 
     <div class="card-head">
         <span class="card-title" id="form-headline">Neuer Eintrag</span>
-        <button class="btn btn-ghost btn-sm" id="btn-myfxbook" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13">
-                <polyline points="1 4 1 10 7 10"/>
-                <path d="M3.51 15a9 9 0 1 0 .49-4.5"/>
-            </svg>
-            MyFxBook laden
-        </button>
+        <div class="tr-card-head-actions">
+            <button class="btn btn-ghost btn-sm" id="btn-gd-test" type="button">GD-Test</button>
+            <button class="btn btn-ghost btn-sm" id="btn-myfxbook" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13">
+                    <polyline points="1 4 1 10 7 10"/>
+                    <path d="M3.51 15a9 9 0 1 0 .49-4.5"/>
+                </svg>
+                MyFxBook laden
+            </button>
+        </div>
     </div>
 
     <div id="tr-grid" class="tr-form-grid">
@@ -320,6 +323,10 @@ $balanceCols = [
     <div class="form-actions form-actions--pad">
         <button class="btn btn-primary" id="btn-save" type="button">Speichern</button>
         <button class="btn btn-ghost btn-sm" id="btn-cancel-edit" type="button" hidden>Abbrechen</button>
+        <label class="tr-checkbox-label">
+            <input type="checkbox" id="chk-create-image" checked>
+            Grafik erstellen
+        </label>
     </div>
 
 </div><!-- /card -->
@@ -369,6 +376,9 @@ $balanceCols = [
                     <td class="text-muted tr-table-hide-mobile"><?= date('d.m. H:i', strtotime($row['updated_at'])) ?></td>
                     <td class="col-actions">
                         <button class="btn btn-xs btn-ghost btn-edit-row" type="button">Bearbeiten</button>
+                        <button class="btn btn-xs btn-ok btn-create-image" type="button"
+                                data-id="<?= $row['id'] ?>"
+                                data-date="<?= $row['entry_date'] ?>">Grafik</button>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -438,6 +448,48 @@ $balanceCols = [
         <div id="confirm-btns">
             <button class="btn btn-ghost btn-sm" id="startbal-cancel">Abbrechen</button>
             <button class="btn btn-primary btn-sm" id="startbal-save">Speichern</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Grafik-Modal ───────────────────────────────────────────────────────── -->
+<div id="image-modal" hidden>
+    <div id="image-backdrop"></div>
+    <div id="confirm-box" class="tr-modal-box">
+        <h3 class="tr-modal-title">Create Image</h3>
+
+        <div class="form-group tr-modal-field">
+            <label>Accounts</label>
+            <select id="img-type">
+                <option value="combined">All 3 Accounts (combined)</option>
+                <option value="main">Main Account</option>
+                <option value="ea">Monvesto EA</option>
+                <option value="challenge">Road to 100k</option>
+            </select>
+        </div>
+
+        <div class="form-group tr-modal-field-last">
+            <label>Format</label>
+            <select id="img-format">
+                <option value="feed">Feed 1080×1080</option>
+                <option value="story">Story 1080×1920</option>
+            </select>
+        </div>
+
+        <input type="hidden" id="img-entry-id" value="">
+
+        <div id="img-preview" class="tr-img-preview" hidden>
+            <img id="img-preview-img" src="" alt="Preview" class="tr-img-preview-img">
+            <div class="tr-img-preview-actions">
+                <a id="img-download-link" href="#" class="btn btn-primary btn-sm" download>
+                    Download PNG
+                </a>
+            </div>
+        </div>
+
+        <div id="confirm-btns">
+            <button class="btn btn-ghost btn-sm" id="image-modal-cancel">Close</button>
+            <button class="btn btn-primary btn-sm" id="image-modal-generate">Create</button>
         </div>
     </div>
 </div>

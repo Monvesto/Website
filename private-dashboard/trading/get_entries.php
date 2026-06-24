@@ -5,7 +5,7 @@
  * GET ?limit=10&stats=1&from=Y-m-d&to=Y-m-d
  */
 
-require_once __DIR__ . '/../../config/bootstrap.php';
+require_once __DIR__ . '/../config/bootstrap.php';
 
 header('Content-Type: application/json; charset=utf-8');
 

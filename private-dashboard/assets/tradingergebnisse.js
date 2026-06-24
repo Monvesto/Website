@@ -49,7 +49,7 @@
                 const elP = document.getElementById(account + '_profit');
                 const elR = document.getElementById(account + '_return');
                 if (type === 'profit') {
-                    elR.value = (val / basis * 100).toFixed(4);
+                    elR.value = (val / basis * 100).toFixed(2);
                 }
                 if (type === 'return') {
                     elP.value = (val / 100 * basis).toFixed(2);
@@ -120,6 +120,12 @@
             resetForm();
             reloadTable();
             reloadStats();
+            if (data.id) createImageAfterSave(data.id);
+            else if (data.action === 'update') {
+                // Bei Update: entry_id aus Formular nehmen
+                const editId = document.getElementById('edit_id').value;
+                if (editId) createImageAfterSave(editId);
+            }
         } else {
             showMessage('error', data.message || 'Fehler.');
         }
@@ -202,6 +208,85 @@
         document.getElementById('startbal-modal').hidden = true;
     });
 
+    // ── GD-Test ───────────────────────────────────────────────────────────────
+    document.getElementById('btn-gd-test').addEventListener('click', async function () {
+        const res  = await fetch(BASE + 'generate_image.php?action=test');
+        const data = await res.json();
+        alert(JSON.stringify(data, null, 2));
+    });
+
+    // ── Grafik-Button in Tabelle ──────────────────────────────────────────────
+    document.getElementById('trading-table').addEventListener('click', function (e) {
+        const btn = e.target.closest('.btn-create-image');
+        if (!btn) return;
+        document.getElementById('img-entry-id').value = btn.dataset.id;
+        document.getElementById('img-preview').hidden = true;
+        document.getElementById('image-modal').hidden = false;
+    });
+
+    document.getElementById('image-modal-cancel').addEventListener('click', function () {
+        document.getElementById('image-modal').hidden = true;
+    });
+    document.getElementById('image-backdrop').addEventListener('click', function () {
+        document.getElementById('image-modal').hidden = true;
+    });
+
+    document.getElementById('image-modal-generate').addEventListener('click', async function () {
+        const btn      = this;
+        const entryId  = document.getElementById('img-entry-id').value;
+        const type     = document.getElementById('img-type').value;
+        const format   = document.getElementById('img-format').value;
+
+        btn.disabled = true;
+        btn.textContent = 'Erstelle...';
+
+        try {
+            const res  = await fetch(BASE + 'generate_image.php?action=generate'
+                + '&entry_id=' + entryId
+                + '&type='     + type
+                + '&format='   + format);
+
+            let data;
+            try { data = await res.json(); }
+            catch (e) {
+                const text = await res.text().catch(() => '');
+                showMessage('error', 'PHP-Fehler: ' + (text || 'Leere Antwort'));
+                btn.disabled = false; btn.textContent = 'Erstellen';
+                return;
+            }
+
+            if (data.success) {
+                const previewEl = document.getElementById('img-preview');
+                document.getElementById('img-preview-img').src = data.url + '?t=' + Date.now();
+                document.getElementById('img-download-link').href =
+                    BASE + 'generate_image.php?action=download'
+                    + '&entry_id=' + entryId
+                    + '&type='     + type
+                    + '&format='   + format;
+                previewEl.hidden = false;
+                showMessage('success', 'Grafik erstellt ✓');
+            } else {
+                showMessage('error', 'Grafik-Fehler: ' + (data.message || 'Unbekannt'));
+            }
+        } catch (e) {
+            showMessage('error', 'Netzwerkfehler: ' + e.message);
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Erstellen';
+    });
+
+    // ── Grafik nach Speichern automatisch erstellen ───────────────────────────
+    async function createImageAfterSave(entryId) {
+        if (!document.getElementById('chk-create-image').checked) return;
+        try {
+            const res = await fetch(BASE + 'generate_image.php?action=generate'
+                + '&entry_id=' + entryId
+                + '&type=combined&format=feed');
+            // Nicht auf JSON warten – Grafik ist optional, Fehler werden ignoriert
+        } catch (e) { /* silent */ }
+    }
+
     // ── Edit-Button in Tabelle ────────────────────────────────────────────────
     document.getElementById('trading-table').addEventListener('click', function (e) {
         const btn = e.target.closest('.btn-edit-row');
@@ -246,7 +331,7 @@
                 document.getElementById(key + '_profit').dispatchEvent(new Event('input'));
             }
             if (acc.today_return !== null) {
-                document.getElementById(key + '_return').value = acc.today_return.toFixed(4);
+                document.getElementById(key + '_return').value = acc.today_return.toFixed(2);
             }
             if (acc.open_positions && acc.open_positions.length > 0) {
                 document.getElementById(key + '_open_json').value = JSON.stringify(acc.open_positions);
@@ -294,7 +379,10 @@
                     + '<td>' + fmtReturn(r.challenge_account_return) + '</td>'
                     + '<td class="text-muted">' + fmtMoney(r.challenge_account_profit) + '</td>'
                     + '<td class="text-muted">' + formatDateTime(r.updated_at) + '</td>'
-                    + '<td class="col-actions"><button class="btn btn-xs btn-ghost btn-edit-row" type="button">Bearbeiten</button></td>'
+                    + '<td class="col-actions">'
+                    + '<button class="btn btn-xs btn-ghost btn-edit-row" type="button">Bearbeiten</button> '
+                    + '<button class="btn btn-xs btn-ok btn-create-image" type="button" data-id="' + r.id + '" data-date="' + r.entry_date + '">Grafik</button>'
+                    + '</td>'
                     + '</tr>';
             }).join('');
         } catch (e) { /* silent */ }
