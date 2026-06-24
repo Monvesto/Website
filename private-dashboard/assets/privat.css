@@ -837,3 +837,275 @@ select { cursor: pointer; }
   .chk-col-label { min-width: 120px; }
   .person-btn { padding: 3px 8px; font-size: 11px; }
 }
+
+/* ════════════════════════════════════════════════
+   TRADING TAGESUPDATE – Seiten-spezifische Klassen
+   Ans Ende der privat.css anhängen.
+   ════════════════════════════════════════════════ */
+
+/* Formular-Grid: Datum | Handelstag | Main | EA | Challenge */
+.tr-form-grid {
+    display: grid;
+    grid-template-columns: 180px 130px 1fr 1fr 1fr;
+    gap: 20px;
+    padding: 20px 24px;
+    align-items: start;
+}
+
+/* Konto-Spalte: Titel */
+.tr-account-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+/* Startkapital-Zeile */
+.tr-startbal-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+.tr-startbal-val { color: var(--text); font-weight: 600; }
+
+/* Feldgruppe */
+.tr-field           { margin-bottom: 8px; }
+.tr-field:last-of-type { margin-bottom: 0; }
+
+/* Offene Positionen Box */
+.tr-positions {
+    margin-top: 6px;
+    padding: 6px 8px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 0.5px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.8;
+}
+
+/* Abstand Formular → Letzte Einträge */
+.tr-form-card { margin-bottom: 24px; }
+
+/* Modal */
+.tr-modal-box        { min-width: 320px; text-align: left; }
+.tr-modal-title      { margin: 0 0 1rem; font-size: 1rem; }
+.tr-modal-field      { margin-bottom: .75rem; }
+.tr-modal-field-last { margin-bottom: 1.25rem; }
+.tr-modal-text       { margin-bottom: 1.25rem; font-size: .9rem; color: var(--text); }
+
+/* KPI-Karten */
+.tr-week            { margin-top: 4px; }
+.tr-week strong     { font-weight: 700; }
+.tr-stat-start      { margin-top: 4px; }
+
+/* KPI-Karten Header mit Bearbeiten-Button */
+.tr-kpi-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+/* ════════════════════════════════════════════════
+   MOBILE – Tradingergebnisse
+   ════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+
+    /* Formular: Datum + Handelstag nebeneinander,
+       dann jedes Konto als eigener Block untereinander */
+    .tr-form-grid {
+        display: block;
+        padding: 12px 16px;
+    }
+
+    /* Datum + Handelstag: 2 Spalten */
+    .tr-date-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    /* Jedes Konto als eigene Card-ähnliche Box */
+    .tr-account-block-wrap {
+        background: var(--bg);
+        border-radius: var(--radius);
+        border: 0.5px solid var(--border);
+        padding: 12px 14px;
+        margin-bottom: 12px;
+    }
+    .tr-account-block-wrap:last-child { margin-bottom: 0; }
+
+    /* Innerhalb eines Konto-Blocks: 2 Spalten für Gewinn + Rendite */
+    .tr-account-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    /* Kontostand-Feld volle Breite */
+    .tr-account-balance {
+        margin-top: 10px;
+    }
+
+    /* Tabelle: EA und Challenge Spalten ausblenden */
+    .tr-table-hide-mobile {
+        display: none;
+    }
+
+    /* Modal schmaler auf Mobile */
+    .tr-modal-box {
+        min-width: 0;
+        width: 100%;
+    }
+
+    /* KPI-Karten auf Mobile kompakter */
+    .kpi-value--md {
+        font-size: 1.3rem;
+    }
+}
+
+/* ════════════════════════════════════════════════
+   TRADING TAGESUPDATE – Seiten-spezifische Klassen
+   Ans Ende der privat.css anhängen.
+   ════════════════════════════════════════════════ */
+
+/* ── Formular-Grid: Desktop 5-spaltig ── */
+.tr-form-grid {
+    display: grid;
+    grid-template-columns: 180px 130px 1fr 1fr 1fr;
+    gap: 20px;
+    padding: 20px 24px;
+    align-items: start;
+}
+
+/* ── Konto-Spalte ── */
+.tr-account-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+.tr-startbal-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+.tr-startbal-val { color: var(--text); font-weight: 600; }
+.tr-field        { margin-bottom: 8px; }
+.tr-field:last-of-type { margin-bottom: 0; }
+
+/* ── Konto-Block (Mobile-Box, Desktop unsichtbar) ── */
+.tr-account-block-wrap {
+    padding: 0;
+}
+
+/* ── Innerhalb Konto: Gewinn + Rendite ── */
+.tr-account-fields {
+    display: block;
+}
+
+/* ── Kontostand-Feld ── */
+.tr-account-balance { margin-top: 0; }
+
+/* ── Offene Positionen ── */
+.tr-positions {
+    margin-top: 6px;
+    padding: 6px 8px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 0.5px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.8;
+}
+
+/* ── Abstände ── */
+.tr-form-card  { margin-bottom: 24px; }
+.tr-week       { margin-top: 4px; }
+.tr-week strong { font-weight: 700; }
+.tr-stat-start  { margin-top: 4px; }
+
+/* ── KPI-Karten Header ── */
+.tr-kpi-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+/* ── Modal ── */
+.tr-modal-box        { min-width: 320px; text-align: left; }
+.tr-modal-title      { margin: 0 0 1rem; font-size: 1rem; }
+.tr-modal-field      { margin-bottom: .75rem; }
+.tr-modal-field-last { margin-bottom: 1.25rem; }
+.tr-modal-text       { margin-bottom: 1.25rem; font-size: .9rem; color: var(--text); }
+
+
+/* ════════════════════════════════════════════════
+   MOBILE ≤ 768px
+   ════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+    /* Grid aufheben – alles untereinander */
+    .tr-form-grid {
+        display: block !important;
+        padding: 12px 16px;
+    }
+
+    /* Datum + Handelstag nebeneinander */
+    .tr-date-row-item {
+        display: inline-block;
+        width: calc(50% - 6px);
+        vertical-align: top;
+    }
+    .tr-date-row-item:first-child { margin-right: 12px; }
+    .tr-date-row-item { margin-bottom: 16px; }
+
+    /* Jedes Konto als eigene Box */
+    .tr-account-block-wrap {
+        background: var(--bg);
+        border-radius: var(--radius);
+        border: 0.5px solid var(--border);
+        padding: 12px 14px;
+        margin-bottom: 12px;
+    }
+    .tr-account-block-wrap:last-child { margin-bottom: 0; }
+
+    /* Gewinn + Rendite nebeneinander */
+    .tr-account-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    /* Kontostand volle Breite */
+    .tr-account-balance { margin-top: 10px; }
+
+    /* Tabellen-Spalten ausblenden */
+    .tr-table-hide-mobile { display: none !important; }
+
+    /* Label "Gewinn / Verlust (EUR)" → "Rendite (€)" auf Mobile */
+    .tr-label-profit {
+        font-size: 0;
+    }
+    .tr-label-profit::after {
+        content: 'Rendite (€)';
+        font-size: 12px;
+    }
+
+    /* Modal volle Breite */
+    .tr-modal-box { min-width: 0; width: 100%; }
+}

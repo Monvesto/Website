@@ -16,6 +16,9 @@ define('SESSION_NAME', 'mvp_sess');
 
 date_default_timezone_set('Europe/Berlin');
 
-// GoCardless Open Banking API
+// GoCardless Open Banking API - Wird es wohl nicht mehr brauchen!
 define('GOCARDLESS_SECRET_ID',  '');
 define('GOCARDLESS_SECRET_KEY', '');
+
+define('MYFXBOOK_EMAIL',    'dein@email.com');
+define('MYFXBOOK_PASSWORD', 'deinPasswort');

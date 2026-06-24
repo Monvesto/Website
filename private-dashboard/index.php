@@ -23,8 +23,9 @@ $allowed = [
     'abos',
     'versicherungen',
     'banking',
+    'profil',
     'admin',
-    'profil'
+    'tradingergebnisse'
 ];
 if (!in_array($page, $allowed, true)) $page = 'dashboard';
 $page_file = __DIR__ . '/pages/' . $page . '.php';
@@ -59,8 +60,9 @@ $titles = [
     'abos'           => 'Abos',
     'versicherungen' => 'Versicherungen',
     'banking'        => 'Banking',
+    'profil'         => 'Profil',
     'admin'          => 'Admin',
-    'profil'         => 'Profil'
+    'tradingergebnisse' => 'Tradingergebnisse',
 ];
 $page_title = $titles[$page] ?? 'Dashboard';
 
@@ -120,12 +122,16 @@ $nav = [
     ],
     ];
     // Admin-Link nur für Admins hinzufügen
-    if (is_admin()) {
-        $nav['admin'] = [
-            'icon'  => '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><circle cx="19" cy="18" r="3"/>',
-            'label' => 'Admin',
-        ];
-    }
+if (is_admin()) {
+    $nav['admin'] = [
+        'icon'  => '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><circle cx="19" cy="18" r="3"/>',
+        'label' => 'Admin',
+    ];
+    $nav['tradingergebnisse'] = [
+        'icon'  => '<polyline points="2 20 7 10 12 15 17 5 22 10"/>',
+        'label' => 'Tradingergebnisse',
+    ];
+}
     ?>
 <!DOCTYPE html>
 <html lang="de">

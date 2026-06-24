@@ -212,3 +212,128 @@ function uid(): int {
         error_log('Migration verified: ' . $e->getMessage());
     }
 })();
+
+// ════════════════════════════════════════════════
+// MIGRATION 8 – Trading Daily Updates
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        $db->exec("CREATE TABLE IF NOT EXISTS `trading_daily_updates` (
+            `id`                        INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `entry_date`                DATE NOT NULL,
+            `trading_day`               SMALLINT UNSIGNED NOT NULL,
+            `main_account_return`       DECIMAL(8,4) DEFAULT NULL,
+            `ea_account_return`         DECIMAL(8,4) DEFAULT NULL,
+            `challenge_account_return`  DECIMAL(8,4) DEFAULT NULL,
+            `created_at`                DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at`                DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uq_entry_date` (`entry_date`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    } catch (PDOException $e) {
+        error_log('Migration trading_daily_updates: ' . $e->getMessage());
+    }
+})();
+
+// ════════════════════════════════════════════════
+// MIGRATION 9 – Trading: neue Felder + Startkontostände
+// Diesen Block ans Ende der config/bootstrap.php anhängen.
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        // ── Neue Spalten in trading_daily_updates ──────────────────────────
+        // Gewinn in € pro Konto
+        foreach ([
+            'main_account_profit'      => "DECIMAL(12,2) DEFAULT NULL AFTER `main_account_return`",
+            'ea_account_profit'        => "DECIMAL(12,2) DEFAULT NULL AFTER `ea_account_return`",
+            'challenge_account_profit' => "DECIMAL(12,2) DEFAULT NULL AFTER `challenge_account_return`",
+            // Aktueller Kontostand (aus MyFxBook oder manuell)
+            'main_account_balance'      => "DECIMAL(12,2) DEFAULT NULL AFTER `main_account_profit`",
+            'ea_account_balance'        => "DECIMAL(12,2) DEFAULT NULL AFTER `ea_account_profit`",
+            'challenge_account_balance' => "DECIMAL(12,2) DEFAULT NULL AFTER `challenge_account_profit`",
+            // Offene Positionen (JSON-String aus MyFxBook)
+            'main_open_positions'      => "TEXT DEFAULT NULL",
+            'ea_open_positions'        => "TEXT DEFAULT NULL",
+            'challenge_open_positions' => "TEXT DEFAULT NULL",
+            // MyFxBook Session-Cache (damit nicht bei jedem Aufruf neu eingeloggt wird)
+            'myfxbook_synced_at'       => "DATETIME DEFAULT NULL",
+        ] as $col => $def) {
+            $has = $db->query("SHOW COLUMNS FROM `trading_daily_updates` LIKE '$col'")->rowCount() > 0;
+            if (!$has) {
+                $db->exec("ALTER TABLE `trading_daily_updates` ADD COLUMN `$col` $def");
+            }
+        }
+
+        // ── Tabelle: trading_account_settings ─────────────────────────────
+        // Speichert Ausgangskontostand + MyFxBook Account-ID pro Konto
+        $db->exec("CREATE TABLE IF NOT EXISTS `trading_account_settings` (
+            `id`              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `account_key`     VARCHAR(20) NOT NULL,   -- 'main' | 'ea' | 'challenge'
+            `label`           VARCHAR(50) NOT NULL,   -- Anzeigename
+            `start_balance`   DECIMAL(12,2) DEFAULT NULL,  -- Ausgangskontostand €
+            `currency`        VARCHAR(5) NOT NULL DEFAULT 'USD',
+            `myfxbook_id`     VARCHAR(20) DEFAULT NULL,    -- MyFxBook Account-ID
+            `updated_at`      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uq_account_key` (`account_key`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        // Standard-Einträge anlegen falls noch nicht vorhanden
+        $defaults = [
+            ['main',      'Main Account',   'USD'],
+            ['ea',        'Monvesto EA',    'USD'],
+            ['challenge', 'Road to 100k',  'USD'],
+        ];
+        $stmtIns = $db->prepare("
+            INSERT IGNORE INTO trading_account_settings (account_key, label, currency)
+            VALUES (?, ?, ?)
+        ");
+        foreach ($defaults as $row) {
+            $stmtIns->execute($row);
+        }
+
+        // ── Tabelle: trading_myfxbook_session ─────────────────────────────
+        // Cacht den MyFxBook Session-Token (max. 1 Token gleichzeitig)
+        $db->exec("CREATE TABLE IF NOT EXISTS `trading_myfxbook_session` (
+            `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `session`    VARCHAR(100) NOT NULL,
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    } catch (PDOException $e) {
+        error_log('Migration 9 trading: ' . $e->getMessage());
+    }
+})();
+
+// ════════════════════════════════════════════════
+// MIGRATION 10 – calc_basis in trading_account_settings
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        $has = $db->query("SHOW COLUMNS FROM `trading_account_settings` LIKE 'calc_basis'")->rowCount() > 0;
+        if (!$has) {
+            $db->exec("ALTER TABLE `trading_account_settings` ADD COLUMN `calc_basis` DECIMAL(12,2) DEFAULT NULL AFTER `start_balance`");
+        }
+    } catch (PDOException $e) {
+        error_log('Migration 10 calc_basis: ' . $e->getMessage());
+    }
+})();
+
+// ════════════════════════════════════════════════
+// MIGRATION 11 – start_date in trading_account_settings
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        $has = $db->query("SHOW COLUMNS FROM `trading_account_settings` LIKE 'start_date'")->rowCount() > 0;
+        if (!$has) {
+            $db->exec("ALTER TABLE `trading_account_settings` ADD COLUMN `start_date` DATE DEFAULT NULL AFTER `start_balance`");
+        }
+    } catch (PDOException $e) {
+        error_log('Migration 11 start_date: ' . $e->getMessage());
+    }
+})();
