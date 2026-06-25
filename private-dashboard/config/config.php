@@ -20,5 +20,10 @@ date_default_timezone_set('Europe/Berlin');
 define('GOCARDLESS_SECRET_ID',  '');
 define('GOCARDLESS_SECRET_KEY', '');
 
+// ── MyFxBook API ──────────────────────────────────────────────
 define('MYFXBOOK_EMAIL',    'dein@email.com');
 define('MYFXBOOK_PASSWORD', 'deinPasswort');
+
+// ── Telegram Trading Autoposter ──────────────────────────────────────────────
+define('TELEGRAM_BOT_TOKEN', '8542547873:AAGgOrPKiuzjyvhAX-NqNQHkgI0kPymiA4E');
+define('TELEGRAM_CHANNEL_ID', '-1003674784826');

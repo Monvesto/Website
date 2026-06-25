@@ -91,15 +91,15 @@ if (!$e) {
     exit;
 }
 
-// ── Kumulative Rendite ────────────────────────────────────────────────────────
-function cumRet($db, string $col, string $date): ?float {
-    $s = $db->prepare("SELECT $col FROM trading_daily_updates WHERE entry_date<=? AND $col IS NOT NULL ORDER BY entry_date ASC");
+// ── Kumulative Rendite: Summe EUR / Startsumme ────────────────────────────────
+function cumRet($db, string $profitCol, string $date, ?float $startBalance): ?float {
+    if (!$startBalance || $startBalance <= 0) return null;
+    $s = $db->prepare("SELECT $profitCol FROM trading_daily_updates WHERE entry_date<=? AND $profitCol IS NOT NULL ORDER BY entry_date ASC");
     $s->execute([$date]);
-    $v = $s->fetchAll(PDO::FETCH_COLUMN);
-    if (!$v) return null;
-    $f = 1.0;
-    foreach ($v as $x) $f *= (1 + (float)$x / 100);
-    return round(($f - 1) * 100, 2);
+    $vals = $s->fetchAll(PDO::FETCH_COLUMN);
+    if (!$vals) return null;
+    $sum = array_sum(array_map('floatval', $vals));
+    return round($sum / $startBalance * 100, 2);
 }
 
 function lastBalance($db, string $col, string $date): ?float {
@@ -109,11 +109,19 @@ function lastBalance($db, string $col, string $date): ?float {
     return $v !== false ? (float)$v : null;
 }
 
+// ── Startsummen laden ─────────────────────────────────────────────────────────
+$settingsStmt = $db->prepare("SELECT account_key, start_balance, currency FROM trading_account_settings");
+$settingsStmt->execute();
+$acctSettings = [];
+foreach ($settingsStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+    $acctSettings[$row['account_key']] = $row;
+}
+
 $d = $e['entry_date'];
 $data = [
-    'main'      => ['label'=>'MAIN ACCOUNT', 'today'=>$e['main_account_return'],      'profit'=>$e['main_account_profit'],      'total'=>cumRet($db,'main_account_return',$d),      'bal'=>null,  'prog'=>null],
-    'ea'        => ['label'=>'MONVESTO EA',   'today'=>$e['ea_account_return'],        'profit'=>$e['ea_account_profit'],        'total'=>cumRet($db,'ea_account_return',$d),        'bal'=>null,  'prog'=>null],
-    'challenge' => ['label'=>'ROAD TO 100K', 'today'=>$e['challenge_account_return'], 'profit'=>$e['challenge_account_profit'], 'total'=>cumRet($db,'challenge_account_return',$d), 'bal'=>lastBalance($db,'challenge_account_balance',$d), 'prog'=>null],
+    'main'      => ['label'=>'MAIN ACCOUNT', 'today'=>$e['main_account_return'],      'profit'=>$e['main_account_profit'],      'total'=>cumRet($db,'main_account_profit',      $d, isset($acctSettings['main']['start_balance'])      ? (float)$acctSettings['main']['start_balance']      : null), 'bal'=>null,  'prog'=>null],
+    'ea'        => ['label'=>'MONVESTO EA',   'today'=>$e['ea_account_return'],        'profit'=>$e['ea_account_profit'],        'total'=>cumRet($db,'ea_account_profit',        $d, isset($acctSettings['ea']['start_balance'])        ? (float)$acctSettings['ea']['start_balance']        : null), 'bal'=>null,  'prog'=>null],
+    'challenge' => ['label'=>'ROAD TO 100K', 'today'=>$e['challenge_account_return'], 'profit'=>$e['challenge_account_profit'], 'total'=>cumRet($db,'challenge_account_profit', $d, isset($acctSettings['challenge']['start_balance']) ? (float)$acctSettings['challenge']['start_balance'] : null), 'bal'=>lastBalance($db,'challenge_account_balance',$d), 'prog'=>null],
 ];
 // Progress: wenn Kontostand vorhanden → echte %, sonst cum. Rendite als Schätzung
 if ($data['challenge']['bal'] !== null) {

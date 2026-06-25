@@ -79,33 +79,41 @@ $stmtLastBal = $db->prepare("
 $stmtLastBal->execute();
 $lastBalances = $stmtLastBal->fetch(PDO::FETCH_ASSOC) ?: [];
 
-// ── Statistiken ───────────────────────────────────────────────────────────────
+// ── Statistiken: Summe EUR / Startsumme ──────────────────────────────────────
 $stmtAll = $db->prepare("
-    SELECT entry_date, main_account_return, ea_account_return, challenge_account_return
+    SELECT entry_date,
+           main_account_profit, ea_account_profit, challenge_account_profit
     FROM trading_daily_updates ORDER BY entry_date ASC
 ");
 $stmtAll->execute();
 $allEntries = $stmtAll->fetchAll(PDO::FETCH_ASSOC);
 
-$buckets = [
-    'main'      => ['all' => [], 'week' => []],
-    'ea'        => ['all' => [], 'week' => []],
-    'challenge' => ['all' => [], 'week' => []],
-];
-foreach ($allEntries as $row) {
-    $d = $row['entry_date'];
-    foreach (['main' => 'main_account_return', 'ea' => 'ea_account_return', 'challenge' => 'challenge_account_return'] as $k => $col) {
-        if ($row[$col] !== null) {
-            $v = (float) $row[$col];
-            $buckets[$k]['all'][] = $v;
-            if ($d >= $lastMonday) $buckets[$k]['week'][] = $v;
-        }
+/**
+ * Gesamtrendite = Summe aller EUR-Gewinne / Startsumme * 100
+ * Wochenrendite = Summe EUR-Gewinne seit Montag / Startsumme * 100
+ */
+function calcReturnFromEur(array $entries, string $profitCol, ?float $startBalance, string $lastMonday): array
+{
+    if (!$startBalance || $startBalance <= 0) return ['all' => null, 'week' => null];
+    $sumAll  = 0.0;
+    $sumWeek = 0.0;
+    foreach ($entries as $row) {
+        if ($row[$profitCol] === null) continue;
+        $p = (float) $row[$profitCol];
+        $sumAll += $p;
+        if ($row['entry_date'] >= $lastMonday) $sumWeek += $p;
     }
+    return [
+        'all'  => round($sumAll  / $startBalance * 100, 2),
+        'week' => round($sumWeek / $startBalance * 100, 2),
+    ];
 }
-$stats = [];
-foreach ($buckets as $k => $b) {
-    $stats[$k] = ['all' => calcCumulativeReturn($b['all']), 'week' => calcCumulativeReturn($b['week'])];
-}
+
+$stats = [
+    'main'      => calcReturnFromEur($allEntries, 'main_account_profit',      isset($accountSettings['main']['start_balance'])      ? (float)$accountSettings['main']['start_balance']      : null, $lastMonday),
+    'ea'        => calcReturnFromEur($allEntries, 'ea_account_profit',        isset($accountSettings['ea']['start_balance'])        ? (float)$accountSettings['ea']['start_balance']        : null, $lastMonday),
+    'challenge' => calcReturnFromEur($allEntries, 'challenge_account_profit', isset($accountSettings['challenge']['start_balance'])  ? (float)$accountSettings['challenge']['start_balance']  : null, $lastMonday),
+];
 
 // ── Letzte 10 Einträge ────────────────────────────────────────────────────────
 $stmtLast = $db->prepare("
@@ -325,7 +333,11 @@ $balanceCols = [
         <button class="btn btn-ghost btn-sm" id="btn-cancel-edit" type="button" hidden>Abbrechen</button>
         <label class="tr-checkbox-label">
             <input type="checkbox" id="chk-create-image" checked>
-            Grafik erstellen
+            Create image
+        </label>
+        <label class="tr-checkbox-label">
+            <input type="checkbox" id="chk-telegram-post">
+            Post to Telegram
         </label>
     </div>
 
@@ -375,10 +387,18 @@ $balanceCols = [
                     <td class="text-muted tr-table-hide-mobile"><?= $row['challenge_account_profit'] !== null ? number_format((float) $row['challenge_account_profit'], 2, '.', ',') : '–' ?></td>
                     <td class="text-muted tr-table-hide-mobile"><?= date('d.m. H:i', strtotime($row['updated_at'])) ?></td>
                     <td class="col-actions">
-                        <button class="btn btn-xs btn-ghost btn-edit-row" type="button">Bearbeiten</button>
+                        <button class="btn btn-xs btn-ghost btn-edit-row" type="button">Edit</button>
                         <button class="btn btn-xs btn-ok btn-create-image" type="button"
                                 data-id="<?= $row['id'] ?>"
-                                data-date="<?= $row['entry_date'] ?>">Grafik</button>
+                                data-date="<?= $row['entry_date'] ?>">Image</button>
+                        <button class="btn btn-xs btn-primary btn-telegram-post" type="button"
+                                data-id="<?= $row['id'] ?>"
+                                data-date="<?= $row['entry_date'] ?>">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.68 7.92c-.12.56-.46.7-.94.44l-2.6-1.92-1.25 1.2c-.14.14-.26.26-.52.26l.18-2.62 4.74-4.28c.2-.18-.04-.28-.32-.1L7.9 14.4l-2.54-.8c-.56-.16-.56-.54.12-.8l9.94-3.84c.46-.16.86.1.72.84z"/>
+                            </svg>
+                            Post
+                        </button>
                     </td>
                 </tr>
                 <?php endforeach; ?>

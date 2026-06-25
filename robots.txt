@@ -37,4 +37,4 @@ Disallow: /
 Sitemap: https://monvesto.de/sitemap.xml
 
 User-agent: *
-Disallow: /privat-dashboard/
+Disallow: /private-dashboard/

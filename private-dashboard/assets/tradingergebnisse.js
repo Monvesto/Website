@@ -120,11 +120,15 @@
             resetForm();
             reloadTable();
             reloadStats();
-            if (data.id) createImageAfterSave(data.id);
-            else if (data.action === 'update') {
-                // Bei Update: entry_id aus Formular nehmen
+            if (data.id) {
+                createImageAfterSave(data.id);
+                telegramPostAfterSave(data.id);
+            } else if (data.action === 'update') {
                 const editId = document.getElementById('edit_id').value;
-                if (editId) createImageAfterSave(editId);
+                if (editId) {
+                    createImageAfterSave(editId);
+                    telegramPostAfterSave(editId);
+                }
             }
         } else {
             showMessage('error', data.message || 'Fehler.');
@@ -208,11 +212,63 @@
         document.getElementById('startbal-modal').hidden = true;
     });
 
+    // ── Telegram-Button in Tabelle ────────────────────────────────────────────
+    document.getElementById('trading-table').addEventListener('click', function (e) {
+        const btn = e.target.closest('.btn-telegram-post');
+        if (!btn) return;
+        if (!confirm('Post to Telegram channel?')) return;
+        const entryId = btn.dataset.id;
+        btn.disabled = true;
+        btn.textContent = '...';
+        fetch(BASE + 'telegram_post.php?action=post&entry_id=' + entryId + '&type=combined&format=feed')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showMessage('success', 'Posted to Telegram ✓');
+                } else {
+                    showMessage('error', 'Telegram: ' + data.message);
+                }
+                btn.disabled = false;
+                btn.textContent = 'Post';
+            })
+            .catch(function(e) {
+                showMessage('error', 'Error: ' + e.message);
+                btn.disabled = false;
+                btn.textContent = 'Post';
+            });
+    });
+
+    // ── Nach Speichern: Telegram auto-post ───────────────────────────────────
+    async function telegramPostAfterSave(entryId) {
+        if (!document.getElementById('chk-telegram-post').checked) return;
+        try {
+            const res  = await fetch(BASE + 'telegram_post.php?action=post&entry_id=' + entryId + '&type=combined&format=feed');
+            const data = await res.json();
+            if (data.success) {
+                showMessage('success', 'Posted to Telegram ✓');
+            } else {
+                showMessage('error', 'Telegram: ' + (data.message || 'Error'));
+            }
+        } catch (e) { /* silent */ }
+    }
+
     // ── GD-Test ───────────────────────────────────────────────────────────────
     document.getElementById('btn-gd-test').addEventListener('click', async function () {
         const res  = await fetch(BASE + 'generate_image.php?action=test');
         const data = await res.json();
-        alert(JSON.stringify(data, null, 2));
+        alert('GD: ' + JSON.stringify(data, null, 2));
+    });
+
+    // Telegram Test
+    const tgTestBtn = document.createElement('button');
+    tgTestBtn.className = 'btn btn-ghost btn-sm';
+    tgTestBtn.textContent = 'TG-Test';
+    tgTestBtn.style.marginLeft = '8px'; // wird durch CSP blockiert aber funktional
+    document.getElementById('btn-gd-test').parentNode.appendChild(tgTestBtn);
+    tgTestBtn.addEventListener('click', async function () {
+        const res  = await fetch(BASE + 'telegram_post.php?action=test');
+        const data = await res.json();
+        alert('Telegram: ' + JSON.stringify(data, null, 2));
     });
 
     // ── Grafik-Button in Tabelle ──────────────────────────────────────────────

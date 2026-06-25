@@ -1,9 +1,26 @@
 <?php
 /**
  * trading/get_entries.php – Einträge + Statistiken
- * ==================================================
- * GET ?limit=10&stats=1&from=Y-m-d&to=Y-m-d
  */
+
+ini_set('display_errors', 0);
+set_exception_handler(function ($e) {
+    if (!headers_sent()) header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['success' => false, 'message' => 'Exception: ' . $e->getMessage()]);
+    exit;
+});
+set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+    if (!headers_sent()) header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['success' => false, 'message' => 'Error: ' . $errstr . ' in ' . basename($errfile) . ':' . $errline]);
+    exit;
+});
+register_shutdown_function(function () {
+    $error = error_get_last();
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        if (!headers_sent()) header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['success' => false, 'message' => 'Fatal: ' . $error['message'] . ' in ' . basename($error['file']) . ':' . $error['line']]);
+    }
+});
 
 require_once __DIR__ . '/../config/bootstrap.php';
 
@@ -56,7 +73,8 @@ $response = ['success' => true, 'entries' => $entries];
 
 if ($withStats) {
     $stmtAll = $db->prepare("
-        SELECT entry_date, main_account_return, ea_account_return, challenge_account_return
+        SELECT entry_date,
+               main_account_profit, ea_account_profit, challenge_account_profit
         FROM trading_daily_updates ORDER BY entry_date ASC
     ");
     $stmtAll->execute();
@@ -66,32 +84,34 @@ if ($withStats) {
     $lastMonday = date('Y-m-d', strtotime('monday this week'));
     if ($lastMonday > $today) $lastMonday = date('Y-m-d', strtotime('monday last week'));
 
-    $buckets = [
-        'main'      => ['all' => [], 'week' => []],
-        'ea'        => ['all' => [], 'week' => []],
-        'challenge' => ['all' => [], 'week' => []],
-    ];
-    foreach ($all as $row) {
-        $d = $row['entry_date'];
-        $map = ['main' => $row['main_account_return'], 'ea' => $row['ea_account_return'], 'challenge' => $row['challenge_account_return']];
-        foreach ($map as $key => $val) {
-            if ($val === null) continue;
-            $f = (float) $val;
-            $buckets[$key]['all'][] = $f;
-            if ($d >= $lastMonday) $buckets[$key]['week'][] = $f;
-        }
+    // Startsummen laden
+    $settingsStmt = $db->prepare("SELECT account_key, start_balance FROM trading_account_settings");
+    $settingsStmt->execute();
+    $startBalances = [];
+    foreach ($settingsStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $startBalances[$row['account_key']] = $row['start_balance'] !== null ? (float)$row['start_balance'] : null;
     }
 
-    $calc = function(array $returns) {
-        if (empty($returns)) return null;
-        $factor = 1.0;
-        foreach ($returns as $r) $factor *= (1 + $r / 100);
-        return round(($factor - 1) * 100, 4);
-    };
-
+    // Summe EUR / Startsumme
+    $profitCols = ['main' => 'main_account_profit', 'ea' => 'ea_account_profit', 'challenge' => 'challenge_account_profit'];
     $stats = [];
-    foreach ($buckets as $key => $data) {
-        $stats[$key] = ['all' => $calc($data['all']), 'week' => $calc($data['week'])];
+    foreach ($profitCols as $key => $col) {
+        $startBal = $startBalances[$key] ?? null;
+        if (!$startBal || $startBal <= 0) {
+            $stats[$key] = ['all' => null, 'week' => null];
+            continue;
+        }
+        $sumAll = $sumWeek = 0.0;
+        foreach ($all as $row) {
+            if ($row[$col] === null) continue;
+            $p = (float)$row[$col];
+            $sumAll += $p;
+            if ($row['entry_date'] >= $lastMonday) $sumWeek += $p;
+        }
+        $stats[$key] = [
+            'all'  => round($sumAll  / $startBal * 100, 2),
+            'week' => round($sumWeek / $startBal * 100, 2),
+        ];
     }
 
     $response['stats']       = $stats;
