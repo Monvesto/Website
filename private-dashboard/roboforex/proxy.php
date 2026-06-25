@@ -28,17 +28,30 @@ $action   = $_REQUEST['action'] ?? 'referralinfo';
 $baseUrl  = 'https://my.roboforex.com';
 $cacheHours = 6; // Cache-Gültigkeit in Stunden
 
-// ── Konto aus DB laden ────────────────────────────────────────────────────────
+// ── Konto aus DB laden (nach Rolle gefiltert) ─────────────────────────────────
 $requestedAccountId = $_REQUEST['account_id'] ?? '';
-$noAccountActions   = ['save_account','delete_account','list_accounts','save_label','delete_label','get_labels'];
+$currentUid         = uid();
+$currentRole        = get_current_role();
 
 if ($requestedAccountId) {
-    $stmt = $db->prepare("SELECT account_id, api_key FROM roboforex_accounts WHERE account_id=? AND active=1");
-    $stmt->execute([$requestedAccountId]);
+    if ($currentRole === 'admin') {
+        $stmt = $db->prepare("SELECT account_id, api_key FROM roboforex_accounts WHERE account_id=? AND active=1");
+        $stmt->execute([$requestedAccountId]);
+    } else {
+        // Partner darf nur eigene Konten abfragen
+        $stmt = $db->prepare("SELECT account_id, api_key FROM roboforex_accounts WHERE account_id=? AND active=1 AND user_id=?");
+        $stmt->execute([$requestedAccountId, $currentUid]);
+    }
 } else {
-    $stmt = $db->prepare("SELECT account_id, api_key FROM roboforex_accounts WHERE active=1 ORDER BY sort_order ASC LIMIT 1");
-    $stmt->execute();
+    if ($currentRole === 'admin') {
+        $stmt = $db->prepare("SELECT account_id, api_key FROM roboforex_accounts WHERE active=1 ORDER BY sort_order ASC LIMIT 1");
+        $stmt->execute();
+    } else {
+        $stmt = $db->prepare("SELECT account_id, api_key FROM roboforex_accounts WHERE active=1 AND user_id=? ORDER BY sort_order ASC LIMIT 1");
+        $stmt->execute([$currentUid]);
+    }
 }
+$noAccountActions = ['save_account','delete_account','list_accounts','save_label','delete_label','get_labels'];
 $account = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$account && !in_array($action, $noAccountActions)) {
@@ -119,35 +132,65 @@ if ($action === 'list_accounts') {
 }
 
 if ($action === 'save_account') {
-    $id    = (int)($_POST['id'] ?? 0);
-    $accId = trim($_POST['account_id'] ?? '');
-    $label = trim($_POST['label']      ?? '');
-    $key   = trim($_POST['api_key']    ?? '');
-    $sort  = (int)($_POST['sort_order'] ?? 0);
+    if (!is_partner()) { echo json_encode(['success' => false, 'message' => 'Kein Zugriff.']); exit; }
+
+    $id     = (int)($_POST['id']         ?? 0);
+    $accId  = trim($_POST['account_id']  ?? '');
+    $label  = trim($_POST['label']       ?? '');
+    $key    = trim($_POST['api_key']     ?? '');
+    $sort   = (int)($_POST['sort_order'] ?? 0);
+
+    // user_id: Admin kann frei zuweisen, Partner bekommt immer seine eigene
+    if (get_current_role() === 'admin') {
+        $userId = (int)($_POST['user_id'] ?? 0) ?: null;
+    } else {
+        $userId = uid(); // Partner → immer eigene user_id
+    }
 
     if (!$accId) { echo json_encode(['success' => false, 'message' => 'Konto-ID ist Pflicht.']); exit; }
 
     if ($id > 0) {
+        // Prüfen ob Partner sein eigenes Konto bearbeitet
+        if (get_current_role() !== 'admin') {
+            $check = $db->prepare("SELECT user_id FROM roboforex_accounts WHERE id=?");
+            $check->execute([$id]);
+            $owner = $check->fetchColumn();
+            if ((int)$owner !== uid()) {
+                echo json_encode(['success' => false, 'message' => 'Kein Zugriff auf dieses Konto.']);
+                exit;
+            }
+        }
         if ($key && !str_contains($key, '•')) {
-            $db->prepare("UPDATE roboforex_accounts SET account_id=?,label=?,api_key=?,sort_order=? WHERE id=?")
-               ->execute([$accId, $label, $key, $sort, $id]);
+            $db->prepare("UPDATE roboforex_accounts SET account_id=?,label=?,api_key=?,sort_order=?,user_id=? WHERE id=?")
+               ->execute([$accId, $label, $key, $sort, $userId, $id]);
         } else {
-            $db->prepare("UPDATE roboforex_accounts SET account_id=?,label=?,sort_order=? WHERE id=?")
-               ->execute([$accId, $label, $sort, $id]);
+            $db->prepare("UPDATE roboforex_accounts SET account_id=?,label=?,sort_order=?,user_id=? WHERE id=?")
+               ->execute([$accId, $label, $sort, $userId, $id]);
         }
     } else {
         if (!$key) { echo json_encode(['success' => false, 'message' => 'API-Key ist Pflicht.']); exit; }
-        $db->prepare("INSERT INTO roboforex_accounts (account_id,label,api_key,sort_order) VALUES (?,?,?,?)
-                      ON DUPLICATE KEY UPDATE label=VALUES(label),api_key=VALUES(api_key),sort_order=VALUES(sort_order)")
-           ->execute([$accId, $label, $key, $sort]);
+        $db->prepare("INSERT INTO roboforex_accounts (account_id,label,api_key,sort_order,user_id) VALUES (?,?,?,?,?)
+                      ON DUPLICATE KEY UPDATE label=VALUES(label),api_key=VALUES(api_key),sort_order=VALUES(sort_order),user_id=VALUES(user_id)")
+           ->execute([$accId, $label, $key, $sort, $userId]);
     }
     echo json_encode(['success' => true, 'message' => 'Konto gespeichert.']);
     exit;
 }
 
 if ($action === 'delete_account') {
+    if (!is_partner()) { echo json_encode(['success' => false, 'message' => 'Kein Zugriff.']); exit; }
     $id = (int)($_POST['id'] ?? 0);
     if (!$id) { echo json_encode(['success' => false, 'message' => 'Ungültige ID.']); exit; }
+    // Partner darf nur eigene Konten löschen
+    if (get_current_role() !== 'admin') {
+        $check = $db->prepare("SELECT user_id FROM roboforex_accounts WHERE id=?");
+        $check->execute([$id]);
+        $owner = $check->fetchColumn();
+        if ((int)$owner !== uid()) {
+            echo json_encode(['success' => false, 'message' => 'Kein Zugriff auf dieses Konto.']);
+            exit;
+        }
+    }
     $db->prepare("DELETE FROM roboforex_accounts WHERE id=?")->execute([$id]);
     echo json_encode(['success' => true]);
     exit;

@@ -591,13 +591,15 @@
     // ════════════════════════════════════════════════════════════════════════
     // KONTO-VERWALTUNG
     // ════════════════════════════════════════════════════════════════════════
-    function openAccountModal(id, label, accountId, apiKey, sort) {
+    function openAccountModal(id, label, accountId, apiKey, sort, userId) {
         document.getElementById('rf-modal-title').textContent   = id ? 'Konto bearbeiten' : 'Konto hinzufügen';
         document.getElementById('rf-modal-id').value            = id || '';
         document.getElementById('rf-modal-label').value         = label || '';
         document.getElementById('rf-modal-account-id').value    = accountId || '';
         document.getElementById('rf-modal-api-key').value       = id ? '••••••••' : '';
         document.getElementById('rf-modal-sort').value          = sort || 0;
+        const userSel = document.getElementById('rf-modal-user');
+        if (userSel) userSel.value = userId || '';
         document.getElementById('rf-account-modal').hidden      = false;
     }
 
@@ -618,7 +620,8 @@
                 editBtn.dataset.label,
                 editBtn.dataset.accountId,
                 editBtn.dataset.apiKey,
-                editBtn.dataset.sort
+                editBtn.dataset.sort,
+                editBtn.dataset.userId
             );
         }
         const delBtn = e.target.closest('.btn-rf-delete-account');
@@ -642,6 +645,8 @@
         fd.append('account_id',  document.getElementById('rf-modal-account-id').value);
         fd.append('api_key',     document.getElementById('rf-modal-api-key').value);
         fd.append('sort_order',  document.getElementById('rf-modal-sort').value);
+        const userSel = document.getElementById('rf-modal-user');
+        if (userSel) fd.append('user_id', userSel.value);
         try {
             const res  = await fetch(BASE + 'proxy.php?action=save_account', { method: 'POST', body: fd });
             const data = await res.json();

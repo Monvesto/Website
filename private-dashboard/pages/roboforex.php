@@ -1,20 +1,28 @@
 <?php
 // ════════════════════════════════════════════════
 // pages/roboforex.php – RoboForex Partner Dashboard
+// Zugänglich für Admin + Partner
 // ════════════════════════════════════════════════
 
-if (!is_admin()) {
+if (!is_partner()) {
     echo '<div class="card"><div class="empty-state">Zugriff verweigert.</div></div>';
     return;
 }
 if (defined('HANDLE_POST_ONLY')) return;
 
-$db = get_db();
+$db          = get_db();
+$currentRole = get_current_role();
+$currentUid  = uid();
 
-// ── Partner-Konten laden ──────────────────────────────────────────────────────
-$stmt = $db->prepare("SELECT * FROM roboforex_accounts WHERE active=1 ORDER BY sort_order ASC, id ASC");
-$stmt->execute();
-$rfAccounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// ── Partner-Konten laden – Admin sieht alle, Partner nur eigene ───────────────
+if ($currentRole === 'admin') {
+    $stmt = $db->prepare("SELECT * FROM roboforex_accounts WHERE active=1 ORDER BY sort_order ASC, id ASC");
+    $stmt->execute();
+} else {
+    $stmt = $db->prepare("SELECT * FROM roboforex_accounts WHERE active=1 AND user_id=? ORDER BY sort_order ASC, id ASC");
+    $stmt->execute([$currentUid]);
+}
+$rfAccounts   = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $firstAccount = $rfAccounts[0] ?? null;
 ?>
 
@@ -55,7 +63,11 @@ $firstAccount = $rfAccounts[0] ?? null;
         <button class="rf-tab" data-tab="clients">Clients</button>
         <button class="rf-tab" data-tab="tree">Partner-Baum</button>
         <button class="rf-tab" data-tab="commission">Provisionen</button>
+        <?php if ($currentRole === 'admin'): ?>
         <button class="rf-tab" data-tab="settings">Konten</button>
+        <?php elseif ($currentRole === 'partner'): ?>
+        <button class="rf-tab" data-tab="settings">Konten</button>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -120,7 +132,7 @@ $firstAccount = $rfAccounts[0] ?? null;
         </div>
     </div>
 
-    <!-- Provisions-Detailübersicht nach Symbol -->
+    <!-- Provisionen nach Symbol -->
     <div class="card">
         <div class="card-head">
             <span class="card-title">Provisionen nach Symbol</span>
@@ -157,7 +169,7 @@ $firstAccount = $rfAccounts[0] ?? null;
         <div class="card-head">
             <span class="card-title">Handelskonten in Partner-Gruppe</span>
             <div class="tr-card-head-actions">
-                <input type="text" id="rf-clients-search" placeholder="Konto-Nr. suchen..." class="input-sm">
+                <input type="text" id="rf-clients-search" placeholder="Konto-Nr. oder Name suchen..." class="input-sm">
                 <span class="text-muted" id="rf-clients-count"></span>
             </div>
         </div>
@@ -174,7 +186,7 @@ $firstAccount = $rfAccounts[0] ?? null;
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td colspan="5" class="empty-state">Lade Daten...</td></tr>
+                    <tr><td colspan="6" class="empty-state">Lade Daten...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -236,29 +248,61 @@ $firstAccount = $rfAccounts[0] ?? null;
     </div>
 </div>
 
-<!-- ── Tab: Konten-Verwaltung ─────────────────────────────────────────────── -->
+<!-- ── Tab: Konten-Verwaltung (Admin + Partner) ───────────────────────────── -->
+<?php if (is_partner()): ?>
 <div id="rf-tab-settings" class="rf-tab-content" hidden>
     <div class="card">
         <div class="card-head">
-            <span class="card-title">Partner-Konten verwalten</span>
+            <span class="card-title">Meine Partner-Konten</span>
             <button class="btn btn-primary btn-sm" id="btn-rf-add-account2">+ Konto hinzufügen</button>
         </div>
         <div class="table-wrap">
             <table class="data-table" id="rf-settings-table">
                 <thead>
                     <tr>
-                        <th>Name</th>
+                        <th>Bezeichnung</th>
                         <th>Konto-ID</th>
+                        <?php if ($currentRole === 'admin'): ?>
+                        <th>Zugewiesen an</th>
+                        <?php endif; ?>
                         <th>API-Key</th>
                         <th>Reihenfolge</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($rfAccounts as $acc): ?>
+                <?php
+                if ($currentRole === 'admin') {
+                    $stmtAll = $db->prepare("
+                        SELECT ra.*, u.username, u.display_name
+                        FROM roboforex_accounts ra
+                        LEFT JOIN users u ON u.id = ra.user_id
+                        ORDER BY ra.sort_order ASC
+                    ");
+                    $stmtAll->execute();
+                } else {
+                    $stmtAll = $db->prepare("
+                        SELECT ra.*, NULL as username, NULL as display_name
+                        FROM roboforex_accounts ra
+                        WHERE ra.user_id = ?
+                        ORDER BY ra.sort_order ASC
+                    ");
+                    $stmtAll->execute([$currentUid]);
+                }
+                foreach ($stmtAll->fetchAll(PDO::FETCH_ASSOC) as $acc):
+                ?>
                 <tr data-id="<?= $acc['id'] ?>">
                     <td class="fw-700"><?= htmlspecialchars($acc['label']) ?></td>
                     <td><?= htmlspecialchars($acc['account_id']) ?></td>
+                    <?php if ($currentRole === 'admin'): ?>
+                    <td><?php
+                        if ($acc['user_id']) {
+                            echo '<span class="badge badge--success">' . htmlspecialchars($acc['display_name'] ?: $acc['username']) . '</span>';
+                        } else {
+                            echo '<span class="badge badge--muted">Admin</span>';
+                        }
+                    ?></td>
+                    <?php endif; ?>
                     <td class="text-muted"><?= substr($acc['api_key'], 0, 8) ?>••••••••</td>
                     <td><?= (int)$acc['sort_order'] ?></td>
                     <td class="col-actions">
@@ -267,27 +311,33 @@ $firstAccount = $rfAccounts[0] ?? null;
                                 data-label="<?= htmlspecialchars($acc['label']) ?>"
                                 data-account-id="<?= htmlspecialchars($acc['account_id']) ?>"
                                 data-api-key="<?= htmlspecialchars($acc['api_key']) ?>"
-                                data-sort="<?= (int)$acc['sort_order'] ?>">
+                                data-sort="<?= (int)$acc['sort_order'] ?>"
+                                data-user-id="<?= (int)($acc['user_id'] ?? 0) ?>">
                             Bearbeiten
                         </button>
+                        <?php
+                        // Löschen: Admin darf alles, Partner nur eigene
+                        $canDelete = $currentRole === 'admin' || (int)($acc['user_id'] ?? 0) === $currentUid;
+                        if ($canDelete):
+                        ?>
                         <button class="btn btn-xs btn-ghost btn-rf-delete-account"
                                 data-id="<?= $acc['id'] ?>"
                                 data-label="<?= htmlspecialchars($acc['label']) ?>">
                             Löschen
                         </button>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>
-                <?php if (empty($rfAccounts)): ?>
-                <tr><td colspan="5" class="empty-state">Noch keine Konten konfiguriert.</td></tr>
-                <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+<?php endif; ?>
 
-<!-- ── Konto-Modal ────────────────────────────────────────────────────────── -->
+<!-- ── Konto-Modal (Admin + Partner) ─────────────────────────────────────── -->
+<?php if (is_partner()): ?>
 <div id="rf-account-modal" hidden>
     <div id="confirm-backdrop"></div>
     <div id="confirm-box" class="tr-modal-box">
@@ -304,6 +354,21 @@ $firstAccount = $rfAccounts[0] ?? null;
             <label for="rf-modal-api-key">API-Key</label>
             <input type="text" id="rf-modal-api-key" placeholder="RoboForex Partner API-Key">
         </div>
+        <?php if ($currentRole === 'admin'): ?>
+        <div class="form-group tr-modal-field">
+            <label for="rf-modal-user">Zuweisen an User</label>
+            <select id="rf-modal-user" class="input-sm">
+                <option value="">– Admin (kein User) –</option>
+                <?php
+                $partnerUsers = $db->prepare("SELECT id, username, display_name FROM users WHERE role IN ('admin','partner') AND aktiv=1 ORDER BY display_name");
+                $partnerUsers->execute();
+                foreach ($partnerUsers->fetchAll(PDO::FETCH_ASSOC) as $u):
+                ?>
+                <option value="<?= $u['id'] ?>"><?= htmlspecialchars($u['display_name'] ?: $u['username']) ?> (<?= htmlspecialchars($u['username']) ?>)</option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <?php endif; ?>
         <div class="form-group tr-modal-field-last">
             <label for="rf-modal-sort">Reihenfolge</label>
             <input type="number" id="rf-modal-sort" value="0" min="0">
@@ -315,6 +380,7 @@ $firstAccount = $rfAccounts[0] ?? null;
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <!-- ── Label-Modal ────────────────────────────────────────────────────────── -->
 <div id="rf-label-modal" hidden>
@@ -336,12 +402,13 @@ $firstAccount = $rfAccounts[0] ?? null;
 <!-- Konfiguration als JSON -->
 <script type="application/json" id="rf-config"><?php
 echo json_encode([
-    'base'       => 'roboforex/',
-    'configured' => !empty($rfAccounts),
-    'accounts'   => array_map(function($a) {
+    'base'            => 'roboforex/',
+    'configured'      => !empty($rfAccounts),
+    'isAdmin'         => $currentRole === 'admin',
+    'accounts'        => array_map(function($a) {
         return ['id' => $a['id'], 'account_id' => $a['account_id'], 'label' => $a['label'] ?: $a['account_id']];
     }, $rfAccounts),
-    'firstAccountId' => $firstAccount ? $firstAccount['account_id'] : '',
+    'firstAccountId'  => $firstAccount ? $firstAccount['account_id'] : '',
 ]);
 ?></script>
 <script src="assets/roboforex.js"></script>

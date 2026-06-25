@@ -15,26 +15,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $act = $_POST['act'] ?? '';
 
     if ($act === 'create_user') {
-        $aktiv = isset($_POST['aktiv']) && $_POST['aktiv'] === '1' ? 1 : 0;
-        $username     = trim($_POST['username'] ?? '');
-        $email        = trim($_POST['email'] ?? '');
+        $username     = trim($_POST['username']     ?? '');
+        $email        = trim($_POST['email']        ?? '');
         $display_name = trim($_POST['display_name'] ?? '');
-        $password     = $_POST['password'] ?? '';
-        $role         = $_POST['role'] ?? 'user';
+        $password     = $_POST['password']          ?? '';
+        $role         = in_array($_POST['role'] ?? '', ['admin','user','partner']) ? $_POST['role'] : 'user';
+        $aktiv        = isset($_POST['aktiv'])    && $_POST['aktiv']    === '1' ? 1 : 0;
+        $verified     = isset($_POST['verified']) && $_POST['verified'] === '1' ? 1 : 0;
+        $geburtsdatum = trim($_POST['geburtsdatum'] ?? '') ?: null;
+
         if ($username && $email && $display_name && $password) {
             try {
-                $geburtsdatum = trim($_POST['geburtsdatum'] ?? '') ?: null;
-                $verified     = isset($_POST['verified']) && $_POST['verified'] === '1' ? 1 : 0;
                 $db->prepare("INSERT INTO users (username,email,password,display_name,role,geburtsdatum,verified,aktiv) VALUES (?,?,?,?,?,?,?,?)")
-                  ->execute([$username,$email,password_hash($password,PASSWORD_DEFAULT),$display_name,$role,$geburtsdatum,$verified]);
-                $uid = (int)$db->lastInsertId();
+                   ->execute([$username, $email, password_hash($password, PASSWORD_DEFAULT), $display_name, $role, $geburtsdatum, $verified, $aktiv]);
+                $newUid = (int)$db->lastInsertId();
                 $db->prepare("INSERT INTO user_profiles (user_id,profile_name,is_default,sort_order) VALUES (?,?,1,0)")
-                   ->execute([$uid,$display_name]);
+                   ->execute([$newUid, $display_name]);
                 header("Location: ?page=admin&msg=user_created"); exit;
             } catch (PDOException $e) {
                 header("Location: ?page=admin&error=duplicate"); exit;
             }
         }
+    }
+
+    if ($act === 'update_user') {
+        $uid          = (int)($_POST['user_id']      ?? 0);
+        $display_name = trim($_POST['display_name']  ?? '');
+        $geburtsdatum = trim($_POST['geburtsdatum']  ?? '') ?: null;
+        if ($uid && $display_name) {
+            $db->prepare("UPDATE users SET display_name=?, geburtsdatum=? WHERE id=?")
+               ->execute([$display_name, $geburtsdatum, $uid]);
+        }
+        header("Location: ?page=admin&msg=saved"); exit;
     }
 
     if ($act === 'toggle_user') {
@@ -47,9 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($act === 'set_role') {
         $uid  = (int)($_POST['user_id'] ?? 0);
-        $role = in_array($_POST['role']??'', ['admin','user']) ? $_POST['role'] : 'user';
+        $role = in_array($_POST['role'] ?? '', ['admin','user','partner']) ? $_POST['role'] : 'user';
         if ($uid && $uid !== current_user_id()) {
-            $db->prepare("UPDATE users SET role=? WHERE id=?")->execute([$role,$uid]);
+            $db->prepare("UPDATE users SET role=? WHERE id=?")->execute([$role, $uid]);
         }
         header("Location: ?page=admin&msg=saved"); exit;
     }
@@ -63,14 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($act === 'add_profile') {
-        $uid          = (int)($_POST['user_id'] ?? 0);
-        $profile_name = trim($_POST['profile_name'] ?? '');
+        $uid          = (int)($_POST['user_id']      ?? 0);
+        $profile_name = trim($_POST['profile_name']  ?? '');
         $count = (int)$db->query("SELECT COUNT(*) FROM user_profiles WHERE user_id=$uid")->fetchColumn();
         if ($uid && $profile_name && $count < MAX_PROFILES) {
             try {
                 $sort = (int)$db->query("SELECT COALESCE(MAX(sort_order),0)+1 FROM user_profiles WHERE user_id=$uid")->fetchColumn();
                 $db->prepare("INSERT INTO user_profiles (user_id,profile_name,is_default,sort_order) VALUES (?,?,0,?)")
-                   ->execute([$uid,$profile_name,$sort]);
+                   ->execute([$uid, $profile_name, $sort]);
                 if ($uid === current_user_id()) load_user_profiles($db, $uid);
                 header("Location: ?page=admin&msg=profile_added"); exit;
             } catch (PDOException $e) {
@@ -80,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($act === 'delete_profile') {
-        $pid = (int)($_POST['profile_id'] ?? 0);
+        $pid     = (int)($_POST['profile_id'] ?? 0);
         $profile = $db->prepare("SELECT * FROM user_profiles WHERE id=?");
         $profile->execute([$pid]);
         $profile = $profile->fetch();
@@ -92,10 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($act === 'reset_password') {
-        $uid      = (int)($_POST['user_id'] ?? 0);
-        $new_pass = $_POST['new_password'] ?? '';
+        $uid      = (int)($_POST['user_id']    ?? 0);
+        $new_pass = $_POST['new_password']     ?? '';
         if ($uid && strlen($new_pass) >= 8) {
-            $db->prepare("UPDATE users SET password=? WHERE id=?")->execute([password_hash($new_pass,PASSWORD_DEFAULT),$uid]);
+            $db->prepare("UPDATE users SET password=? WHERE id=?")->execute([password_hash($new_pass, PASSWORD_DEFAULT), $uid]);
             header("Location: ?page=admin&msg=password_reset"); exit;
         }
     }
@@ -110,6 +122,9 @@ foreach ($profiles as $p) $profiles_by_user[$p['user_id']][] = $p;
 
 $msgs   = ['user_created'=>'Nutzer angelegt.','saved'=>'Gespeichert.','profile_added'=>'Profil hinzugefügt.','password_reset'=>'Passwort zurückgesetzt.'];
 $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_exists'=>'Profil mit diesem Namen existiert bereits.'];
+
+$roleLabels = ['admin' => 'Admin', 'user' => 'Nutzer', 'partner' => 'Partner'];
+$roleBadgeClass = ['admin' => 'badge--warning', 'user' => 'badge--muted', 'partner' => 'badge--success'];
 ?>
 
 <?php if (isset($_GET['msg'])): ?>
@@ -119,20 +134,16 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
 <?php endif; ?>
 
 <!-- ════ NUTZERÜBERSICHT ════ -->
-<div class="card mt-4">
+<div class="card">
     <div class="card-head">
-        <div class="card-head-left">
-            <h2 class="card-title">👥 Nutzerverwaltung</h2>
-            <span class="badge badge-neutral"><?= count($users) ?> Nutzer</span>
-        </div>
-        <span class="text-muted" style="font-size:13px">Max. Profile pro Nutzer: <strong><?= MAX_PROFILES ?></strong></span>
+        <span class="card-title">Nutzerverwaltung</span>
+        <span class="badge badge--muted"><?= count($users) ?> Nutzer</span>
     </div>
 
     <div class="admin-table-wrap">
         <div class="admin-user-header">
             <div>Nutzerdaten</div>
-            <div>Info</div>
-            <div>Display-Name</div>
+            <div>Display-Name / Geburtsdatum</div>
             <div>Profile</div>
             <div>Status</div>
             <div>Verifiziert</div>
@@ -147,19 +158,19 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
             <div class="admin-cell">
                 <div class="admin-user-name"><?= htmlspecialchars($u['username']) ?></div>
                 <div class="admin-user-meta"><?= htmlspecialchars($u['email']) ?></div>
+                <div class="admin-user-meta">📅 <?= date('d.m.Y', strtotime($u['created_at'])) ?></div>
             </div>
 
-            <!-- Info -->
+            <!-- Display-Name + Geburtsdatum -->
             <div class="admin-cell">
-                <div class="admin-user-meta">
-                    🎂 <?= !empty($u['geburtsdatum']) ? date('d.m.Y', strtotime($u['geburtsdatum'])) : '<span class="text-light">–</span>' ?><br>
-                    📅 <?= date('d.m.Y', strtotime($u['created_at'])) ?>
-                </div>
-            </div>
-
-            <!-- Display-Name -->
-            <div class="admin-cell">
-                <div class="admin-user-meta"><?= htmlspecialchars($u['display_name']) ?></div>
+                <div class="admin-user-name"><?= htmlspecialchars($u['display_name']) ?></div>
+                <div class="admin-user-meta">🎂 <?= !empty($u['geburtsdatum']) ? date('d.m.Y', strtotime($u['geburtsdatum'])) : '<span class="text-light">–</span>' ?></div>
+                <button class="btn btn-xs btn-ghost btn-admin-edit-user"
+                        data-id="<?= $u['id'] ?>"
+                        data-display="<?= htmlspecialchars($u['display_name']) ?>"
+                        data-geb="<?= htmlspecialchars($u['geburtsdatum'] ?? '') ?>">
+                    Bearbeiten
+                </button>
             </div>
 
             <!-- Profile -->
@@ -205,7 +216,7 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
                     </button>
                 </form>
                 <?php else: ?>
-                <span class="badge badge-ok">Aktiv (du)</span>
+                <span class="badge badge--success">Aktiv (du)</span>
                 <?php endif; ?>
             </div>
 
@@ -228,15 +239,14 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
                     <?= csrf_field() ?>
                     <input type="hidden" name="act" value="set_role">
                     <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                    <input type="hidden" name="role" value="<?= $u['role']==='admin' ? 'user' : 'admin' ?>">
-                    <button type="submit"
-                        class="btn btn-primary btn-xs btn-delete-confirm"
-                        data-confirm-msg="Rolle von '<?= htmlspecialchars($u['username']) ?>' zu <?= $u['role']==='admin' ? 'Nutzer' : 'Admin' ?> ändern?">
-                        <?= $u['role']==='admin' ? '→ Nutzer' : '→ Admin' ?>
-                    </button>
+                    <select name="role" class="input-sm" onchange="this.form.submit()">
+                        <option value="user"    <?= $u['role']==='user'    ? 'selected' : '' ?>>Nutzer</option>
+                        <option value="partner" <?= $u['role']==='partner' ? 'selected' : '' ?>>Partner</option>
+                        <option value="admin"   <?= $u['role']==='admin'   ? 'selected' : '' ?>>Admin</option>
+                    </select>
                 </form>
                 <?php else: ?>
-                <span class="text-muted" style="font-size:12px">–</span>
+                <span class="badge <?= $roleBadgeClass[$u['role']] ?? 'badge--muted' ?>"><?= $roleLabels[$u['role']] ?? $u['role'] ?></span>
                 <?php endif; ?>
             </div>
 
@@ -257,8 +267,8 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
 </div>
 
 <!-- ════ NEUEN USER ANLEGEN ════ -->
-<div class="card mt-4">
-    <div class="card-head"><h2 class="card-title">➕ Neuen Nutzer anlegen</h2></div>
+<div class="card">
+    <div class="card-head"><span class="card-title">Neuen Nutzer anlegen</span></div>
     <form method="POST" action="?page=admin">
         <?= csrf_field() ?>
         <input type="hidden" name="act" value="create_user">
@@ -272,16 +282,20 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
                 <input type="text" name="email" placeholder="email@beispiel.de" required inputmode="email" autocomplete="email">
             </div>
             <div class="form-group">
-                <label>Geburtsdatum</label>
-                <input type="date" name="geburtsdatum">
-            </div>
-            <div class="form-group">
                 <label>Display-Name</label>
                 <input type="text" name="display_name" placeholder="z.B. Max" required>
             </div>
             <div class="form-group">
-                <label>Profile</label>
-                <input type="text" name="display_name" placeholder="z.B. Max" required>
+                <label>Geburtsdatum</label>
+                <input type="date" name="geburtsdatum">
+            </div>
+            <div class="form-group">
+                <label>Rolle</label>
+                <select name="role">
+                    <option value="user">Nutzer</option>
+                    <option value="partner">Partner</option>
+                    <option value="admin">Admin</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>Status</label>
@@ -298,13 +312,6 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
                 </select>
             </div>
             <div class="form-group">
-                <label>Rolle</label>
-                <select name="role">
-                    <option value="user">Nutzer</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
-            <div class="form-group">
                 <label>Passwort</label>
                 <input type="password" name="password" placeholder="min. 8 Zeichen" required>
             </div>
@@ -315,7 +322,44 @@ $errors = ['duplicate'=>'Benutzername oder E-Mail bereits vergeben.','profile_ex
     </form>
 </div>
 
+<!-- ════ EDIT MODAL ════ -->
+<div id="admin-edit-modal" hidden>
+    <div id="confirm-backdrop"></div>
+    <div id="confirm-box" class="tr-modal-box">
+        <h3 class="tr-modal-title">Nutzer bearbeiten</h3>
+        <form method="POST" action="?page=admin">
+            <?= csrf_field() ?>
+            <input type="hidden" name="act" value="update_user">
+            <input type="hidden" name="user_id" id="admin-edit-uid">
+            <div class="form-group tr-modal-field">
+                <label for="admin-edit-display">Display-Name</label>
+                <input type="text" id="admin-edit-display" name="display_name" required>
+            </div>
+            <div class="form-group tr-modal-field-last">
+                <label for="admin-edit-geb">Geburtsdatum</label>
+                <input type="date" id="admin-edit-geb" name="geburtsdatum">
+            </div>
+            <div id="confirm-btns">
+                <button type="button" class="btn btn-ghost btn-sm" id="admin-edit-cancel">Abbrechen</button>
+                <button type="submit" class="btn btn-primary btn-sm">Speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+document.querySelectorAll('.btn-admin-edit-user').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.getElementById('admin-edit-uid').value     = this.dataset.id;
+        document.getElementById('admin-edit-display').value = this.dataset.display;
+        document.getElementById('admin-edit-geb').value     = this.dataset.geb;
+        document.getElementById('admin-edit-modal').hidden  = false;
+    });
+});
+document.getElementById('admin-edit-cancel').addEventListener('click', function() {
+    document.getElementById('admin-edit-modal').hidden = true;
+});
+
 document.querySelectorAll('.admin-pw-confirm').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
         e.preventDefault();

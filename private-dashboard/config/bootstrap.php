@@ -184,6 +184,28 @@ function uid(): int {
 }
 
 // ════════════════════════════════════════════════
+// GLOBALE AUTH-HILFSFUNKTIONEN
+// ════════════════════════════════════════════════
+
+function is_partner(): bool {
+    if (!isset($_SESSION['user_id'])) return false;
+    $db   = get_db();
+    $stmt = $db->prepare("SELECT role FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $row  = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row && in_array($row['role'], ['admin', 'partner']);
+}
+
+function get_current_role(): string {
+    if (!isset($_SESSION['user_id'])) return 'guest';
+    $db   = get_db();
+    $stmt = $db->prepare("SELECT role FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $row  = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row['role'] ?? 'user';
+}
+
+// ════════════════════════════════════════════════
 // MIGRATION 6 – Geburtsdatum in users
 // ════════════════════════════════════════════════
 (function() {
@@ -446,5 +468,35 @@ function uid(): int {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     } catch (PDOException $e) {
         error_log('Migration 14: ' . $e->getMessage());
+    }
+})();
+
+// ════════════════════════════════════════════════
+// MIGRATION 15 – Partner-Rolle + user_id in roboforex_accounts
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        // user_id Spalte zu roboforex_accounts hinzufügen
+        $cols = $db->query("SHOW COLUMNS FROM roboforex_accounts")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('user_id', $cols)) {
+            $db->exec("ALTER TABLE roboforex_accounts ADD COLUMN `user_id` INT UNSIGNED DEFAULT NULL AFTER `id`");
+            $db->exec("ALTER TABLE roboforex_accounts ADD KEY `idx_user_id` (`user_id`)");
+        }
+        // Bestehende Konten ohne user_id bleiben Admin-Konten (user_id = NULL = alle Admins sehen sie)
+    } catch (PDOException $e) {
+        error_log('Migration 15: ' . $e->getMessage());
+    }
+})();
+
+// ════════════════════════════════════════════════
+// MIGRATION 16 – Partner-Rolle in users.role ENUM
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        $db->exec("ALTER TABLE users MODIFY COLUMN role ENUM('admin','user','partner') NOT NULL DEFAULT 'user'");
+    } catch (PDOException $e) {
+        error_log('Migration 16 partner role: ' . $e->getMessage());
     }
 })();

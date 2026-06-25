@@ -1411,3 +1411,5 @@ select { cursor: pointer; }
 /* RoboForex Card-Abstände */
 .rf-tab-content        { padding-top: 16px; }
 .rf-tab-content .card  { margin-bottom: 16px; }
+
+.admin-inline-input { padding: 3px 6px; font-size: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--text); width: 100%; margin-bottom: 4px; }
