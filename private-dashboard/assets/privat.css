@@ -1131,3 +1131,283 @@ select { cursor: pointer; }
     max-width: 420px;
     width: 90%;
 }
+
+/* ════════════════════════════════════════════════
+   TRADING TAGESUPDATE – Seiten-spezifische Klassen
+   Ans Ende der privat.css anhängen.
+   ════════════════════════════════════════════════ */
+
+/* ── Formular-Grid: Desktop 5-spaltig ── */
+.tr-form-grid {
+    display: grid;
+    grid-template-columns: 180px 130px 1fr 1fr 1fr;
+    gap: 20px;
+    padding: 20px 24px;
+    align-items: start;
+}
+
+/* ── Konto-Spalte ── */
+.tr-account-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+.tr-startbal-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+.tr-startbal-val { color: var(--text); font-weight: 600; }
+.tr-field        { margin-bottom: 8px; }
+.tr-field:last-of-type { margin-bottom: 0; }
+
+/* ── Konto-Block (Mobile-Box, Desktop unsichtbar) ── */
+.tr-account-block-wrap {
+    padding: 0;
+}
+
+/* ── Innerhalb Konto: Gewinn + Rendite ── */
+.tr-account-fields {
+    display: block;
+}
+
+/* ── Kontostand-Feld ── */
+.tr-account-balance { margin-top: 0; }
+
+/* ── Offene Positionen ── */
+.tr-positions {
+    margin-top: 6px;
+    padding: 6px 8px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 0.5px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.8;
+}
+
+/* ── Abstände ── */
+.tr-form-card  { margin-bottom: 24px; }
+.tr-week       { margin-top: 4px; }
+.tr-week strong { font-weight: 700; }
+.tr-stat-start  { margin-top: 4px; }
+
+/* ── KPI-Karten Header ── */
+.tr-kpi-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+/* ── Modal ── */
+.tr-modal-box        { min-width: 320px; text-align: left; }
+.tr-modal-title      { margin: 0 0 1rem; font-size: 1rem; }
+.tr-modal-field      { margin-bottom: .75rem; }
+.tr-modal-field-last { margin-bottom: 1.25rem; }
+.tr-modal-text       { margin-bottom: 1.25rem; font-size: .9rem; color: var(--text); }
+
+
+/* ════════════════════════════════════════════════
+   MOBILE ≤ 768px
+   ════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+    /* Grid aufheben – alles untereinander */
+    .tr-form-grid {
+        display: block !important;
+        padding: 12px 16px;
+    }
+
+    /* Datum + Handelstag nebeneinander */
+    .tr-date-row-item {
+        display: inline-block;
+        width: calc(50% - 6px);
+        vertical-align: top;
+    }
+    .tr-date-row-item:first-child { margin-right: 12px; }
+    .tr-date-row-item { margin-bottom: 16px; }
+
+    /* Jedes Konto als eigene Box */
+    .tr-account-block-wrap {
+        background: var(--bg);
+        border-radius: var(--radius);
+        border: 0.5px solid var(--border);
+        padding: 12px 14px;
+        margin-bottom: 12px;
+    }
+    .tr-account-block-wrap:last-child { margin-bottom: 0; }
+
+    /* Gewinn + Rendite nebeneinander */
+    .tr-account-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    /* Kontostand volle Breite */
+    .tr-account-balance { margin-top: 10px; }
+
+    /* Tabellen-Spalten ausblenden */
+    .tr-table-hide-mobile { display: none !important; }
+
+    /* Label "Gewinn / Verlust (EUR)" → "Rendite €" auf Mobile */
+    .tr-label-profit {
+        font-size: 0;
+    }
+    .tr-label-profit::after {
+        content: 'Rendite €';
+        font-size: 12px;
+    }
+
+    /* Modal volle Breite */
+    .tr-modal-box { min-width: 0; width: 100%; }
+}
+
+/* ── Grafik-Modal Vorschau ── */
+.tr-img-preview         { text-align: center; margin-bottom: 1rem; }
+.tr-img-preview-img     { max-width: 100%; border-radius: 8px; border: 0.5px solid var(--border); }
+.tr-img-preview-actions { margin-top: .5rem; }
+
+/* ── Card-Head mit mehreren Buttons ── */
+.tr-card-head-actions   { display: flex; gap: 8px; align-items: center; }
+
+/* ── Checkbox Label ── */
+.tr-checkbox-label      { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; margin-left: 8px; }
+
+/* Grafik-Modal eigener Backdrop */
+#image-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 1000;
+}
+#image-modal #confirm-box {
+    max-width: 420px;
+    width: 90%;
+}
+
+/* ════════════════════════════════════════════════
+   ROBOFOREX PARTNER DASHBOARD
+   ════════════════════════════════════════════════ */
+
+/* Tabs */
+.rf-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    gap: 4px;
+}
+.rf-tab {
+    padding: 10px 18px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color .15s, border-color .15s;
+}
+.rf-tab:hover      { color: var(--text); }
+.rf-tab--active    { color: var(--green); border-bottom-color: var(--green); }
+
+/* Tab-Content */
+.rf-tab-content    { padding-top: 4px; }
+
+/* Badges */
+.badge             { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+.badge--success    { background: var(--green-light); color: var(--green-dark); }
+.badge--warning    { background: #FEF3C7; color: #92400E; }
+.badge--muted      { background: var(--bg); color: var(--text-muted); }
+
+/* Commission Summary */
+.rf-commission-summary {
+    padding: 10px 16px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* Pagination */
+.rf-pages          { display: flex; gap: 4px; padding: 12px 16px; flex-wrap: wrap; }
+
+/* Partner-Baum */
+.rf-tree-container { 
+  padding: 16px; min-height: 120px; 
+}
+
+.rf-tree           { 
+  font-size: 13px; 
+}
+
+.rf-tree-node      { margin: 4px 0; }
+.rf-tree-node--child { margin-left: 32px; border-left: 2px solid var(--border); padding-left: 12px; }
+.rf-tree-account   { 
+  display: inline-block; padding: 3px 10px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 6px; font-weight: 600;
+  color: var(--text); margin: 2px 0; 
+}
+
+.rf-tree-children  { 
+  margin-top: 4px; }
+
+/* input-sm */
+.input-sm          { 
+  padding: 4px 10px; font-size: 12px; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--card); color: var(--text); }
+
+/* RoboForex Header+Tabs verbunden */
+.rf-header-card {
+    margin-bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: none;
+}
+.rf-tabs-card {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    padding: 0;
+}
+
+.rf-tree-account--root { background: var(--green-light); color: var(--green-dark); font-size: 14px; }
+.rf-tree-no-referrals  { margin-left: 32px; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+.rf-tree-id    { font-weight: 700; color: var(--text); }
+.rf-tree-type  { font-size: 11px; color: var(--text-muted); }
+.rf-tree-count { font-size: 10px; background: var(--green-light); color: var(--green-dark);
+                 padding: 1px 6px; border-radius: 99px; margin-left: 4px; }
+.rf-tree-account--leaf { background: var(--bg); }
+.rf-tree-depth-0 { margin-left: 0; }
+.rf-tree-depth-1 { margin-left: 28px; }
+.rf-tree-depth-2 { margin-left: 56px; }
+.rf-tree-depth-3 { margin-left: 84px; }
+
+.rf-tree-label   { display: inline-block; background: var(--green-light); color: var(--green-dark);
+                   font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 99px;
+                   margin: 0 4px; }
+.rf-btn-label    { opacity: 0.4; font-size: 11px; }
+.rf-btn-label:hover { opacity: 1; }
+
+.rf-sortable       { cursor: pointer; user-select: none; white-space: nowrap; }
+.rf-sortable:hover { color: var(--text); }
+.rf-sort-active    { color: var(--green); }
+.rf-sort-icon      { font-size: 11px; opacity: 0.6; margin-left: 3px; }
+
+.rf-sync-time { font-size: 11px; font-weight: 400; color: var(--text-muted); margin-left: 6px; }
+
+/* RoboForex Card-Abstände */
+#rf-tab-overview .card { margin-bottom: 20px; }
+#rf-tab-overview .card:last-child { margin-bottom: 0; }
+.rf-header-card { margin-bottom: 4px; }
+
+/* RoboForex Card-Abstände */
+.rf-tab-content        { padding-top: 16px; }
+.rf-tab-content .card  { margin-bottom: 16px; }

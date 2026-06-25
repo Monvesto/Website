@@ -337,3 +337,114 @@ function uid(): int {
         error_log('Migration 11 start_date: ' . $e->getMessage());
     }
 })();
+
+// ════════════════════════════════════════════════
+// MIGRATION 12 – RoboForex Partner-Konten
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        $db->exec("CREATE TABLE IF NOT EXISTS `roboforex_accounts` (
+            `id`          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `account_id`  VARCHAR(20)  NOT NULL,
+            `label`       VARCHAR(50)  NOT NULL DEFAULT '',
+            `api_key`     VARCHAR(100) NOT NULL,
+            `sort_order`  INT NOT NULL DEFAULT 0,
+            `active`      TINYINT(1) NOT NULL DEFAULT 1,
+            `created_at`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uq_account_id` (`account_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        // Bestehendes Konto aus config.php migrieren falls vorhanden
+        if (defined('ROBOFOREX_PARTNER_ACCOUNT_ID') && ROBOFOREX_PARTNER_ACCOUNT_ID
+            && defined('ROBOFOREX_API_KEY') && ROBOFOREX_API_KEY) {
+            $db->prepare("INSERT IGNORE INTO roboforex_accounts (account_id, label, api_key, sort_order)
+                          VALUES (?, 'Hauptkonto', ?, 0)")
+               ->execute([ROBOFOREX_PARTNER_ACCOUNT_ID, ROBOFOREX_API_KEY]);
+        }
+    } catch (PDOException $e) {
+        error_log('Migration 12 roboforex_accounts: ' . $e->getMessage());
+    }
+})();
+
+// ════════════════════════════════════════════════
+// MIGRATION 13 – RoboForex Cache-Tabellen
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        // Gecachte Clients
+        $db->exec("CREATE TABLE IF NOT EXISTS `roboforex_clients` (
+            `id`                              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `rf_account_id`                   VARCHAR(20) NOT NULL,  -- Partner-Konto-ID
+            `client_account_id`               VARCHAR(20) NOT NULL,  -- Referral-Konto-ID
+            `account_type`                    VARCHAR(50) DEFAULT NULL,
+            `reg_date`                        DATETIME DEFAULT NULL,
+            `has_reached_deposit_threshold`   TINYINT(1) DEFAULT 0,
+            `is_active_accrual_of_commission` TINYINT(1) DEFAULT 0,
+            `synced_at`                       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uq_rf_client` (`rf_account_id`, `client_account_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        // Affiliate-Baum
+        $db->exec("CREATE TABLE IF NOT EXISTS `roboforex_tree` (
+            `id`              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `rf_account_id`   VARCHAR(20) NOT NULL,
+            `parent_id`       VARCHAR(20) NOT NULL,
+            `child_id`        VARCHAR(20) NOT NULL,
+            `depth`           TINYINT UNSIGNED NOT NULL DEFAULT 1,
+            `synced_at`       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uq_rf_tree` (`rf_account_id`, `parent_id`, `child_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        // Labels/Namen für Konto-IDs
+        $db->exec("CREATE TABLE IF NOT EXISTS `roboforex_client_labels` (
+            `id`                INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `client_account_id` VARCHAR(20) NOT NULL,
+            `label`             VARCHAR(100) NOT NULL DEFAULT '',
+            `notes`             TEXT DEFAULT NULL,
+            `updated_at`        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uq_client_label` (`client_account_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        // Sync-Status pro Partner-Konto
+        $db->exec("CREATE TABLE IF NOT EXISTS `roboforex_sync_log` (
+            `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `rf_account_id` VARCHAR(20) NOT NULL,
+            `sync_type`     VARCHAR(20) NOT NULL,  -- 'clients' | 'tree'
+            `synced_at`     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `records`       INT UNSIGNED DEFAULT 0,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uq_sync` (`rf_account_id`, `sync_type`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    } catch (PDOException $e) {
+        error_log('Migration 13 roboforex_cache: ' . $e->getMessage());
+    }
+})();
+
+// ════════════════════════════════════════════════
+// MIGRATION 14 – RoboForex Provisions-Cache
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        $db->exec("CREATE TABLE IF NOT EXISTS `roboforex_commission_cache` (
+            `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `rf_account_id` VARCHAR(20) NOT NULL,
+            `cache_key`     VARCHAR(50) NOT NULL,  -- 'today','tomorrow','week','month','total'
+            `amount`        DECIMAL(12,4) NOT NULL DEFAULT 0,
+            `date_from`     DATE NOT NULL,
+            `date_to`       DATE NOT NULL,
+            `synced_at`     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uq_commission_cache` (`rf_account_id`, `cache_key`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    } catch (PDOException $e) {
+        error_log('Migration 14: ' . $e->getMessage());
+    }
+})();

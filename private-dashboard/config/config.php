@@ -27,3 +27,7 @@ define('MYFXBOOK_PASSWORD', 'deinPasswort');
 // ── Telegram Trading Autoposter ──────────────────────────────────────────────
 define('TELEGRAM_BOT_TOKEN', '8542547873:AAGgOrPKiuzjyvhAX-NqNQHkgI0kPymiA4E');
 define('TELEGRAM_CHANNEL_ID', '-1003674784826');
+
+// ── RoboForex Partner API ─────────────────────────────────────────────────────
+define('ROBOFOREX_PARTNER_ACCOUNT_ID', '7026711'); // deine Partner-Kontonummer
+define('ROBOFOREX_API_KEY', '65a10da439dbb417');

@@ -25,7 +25,8 @@ $allowed = [
     'banking',
     'profil',
     'admin',
-    'tradingergebnisse'
+    'tradingergebnisse',
+    'roboforex'
 ];
 if (!in_array($page, $allowed, true)) $page = 'dashboard';
 $page_file = __DIR__ . '/pages/' . $page . '.php';
@@ -63,6 +64,7 @@ $titles = [
     'profil'         => 'Profil',
     'admin'          => 'Admin',
     'tradingergebnisse' => 'Tradingergebnisse',
+    'roboforex'      => 'RoboForex Partner',
 ];
 $page_title = $titles[$page] ?? 'Dashboard';
 
@@ -120,6 +122,7 @@ $nav = [
         'icon'  => '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>',
         'label' => 'Mein Profil',
     ],
+    
     ];
     // Admin-Link nur für Admins hinzufügen
 if (is_admin()) {
@@ -130,6 +133,10 @@ if (is_admin()) {
     $nav['tradingergebnisse'] = [
         'icon'  => '<polyline points="2 20 7 10 12 15 17 5 22 10"/>',
         'label' => 'Tradingergebnisse',
+    ];
+    $nav['roboforex'] = [
+        'icon'  => '<polyline points="2 20 7 10 12 15 17 5 22 10"/>',
+        'label' => 'RoboForex Partner',
     ];
 }
     ?>
