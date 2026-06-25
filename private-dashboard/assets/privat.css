@@ -226,7 +226,6 @@ img { max-width: 100%; display: block; }
 .card-head {
   display: flex; align-items: center; justify-content: space-between;
   padding: 10px 24px;
-  border-bottom: 0.5px solid var(--border);
   gap: 12px; flex-wrap: wrap;
 }
 
@@ -1406,10 +1405,11 @@ select { cursor: pointer; }
 /* RoboForex Card-Abstände */
 #rf-tab-overview .card { margin-bottom: 20px; }
 #rf-tab-overview .card:last-child { margin-bottom: 0; }
-.rf-header-card { margin-bottom: 4px; }
 
 /* RoboForex Card-Abstände */
 .rf-tab-content        { padding-top: 16px; }
 .rf-tab-content .card  { margin-bottom: 16px; }
 
 .admin-inline-input { padding: 3px 6px; font-size: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--text); width: 100%; margin-bottom: 4px; }
+
+.card--mt { margin-top: 20px; }

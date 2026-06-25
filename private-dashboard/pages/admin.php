@@ -267,7 +267,7 @@ $roleBadgeClass = ['admin' => 'badge--warning', 'user' => 'badge--muted', 'partn
 </div>
 
 <!-- ════ NEUEN USER ANLEGEN ════ -->
-<div class="card">
+<div class="card card--mt">
     <div class="card-head"><span class="card-title">Neuen Nutzer anlegen</span></div>
     <form method="POST" action="?page=admin">
         <?= csrf_field() ?>
@@ -347,47 +347,4 @@ $roleBadgeClass = ['admin' => 'badge--warning', 'user' => 'badge--muted', 'partn
     </div>
 </div>
 
-<script>
-document.querySelectorAll('.btn-admin-edit-user').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        document.getElementById('admin-edit-uid').value     = this.dataset.id;
-        document.getElementById('admin-edit-display').value = this.dataset.display;
-        document.getElementById('admin-edit-geb').value     = this.dataset.geb;
-        document.getElementById('admin-edit-modal').hidden  = false;
-    });
-});
-document.getElementById('admin-edit-cancel').addEventListener('click', function() {
-    document.getElementById('admin-edit-modal').hidden = true;
-});
-
-document.querySelectorAll('.admin-pw-confirm').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        var form = btn.closest('form');
-        var pw   = form.querySelector('input[name="new_password"]').value;
-        if (!pw || pw.length < 8) {
-            alert('Bitte ein Passwort mit mindestens 8 Zeichen eingeben.');
-            return;
-        }
-        customConfirm(
-            'Passwort wirklich zurücksetzen?',
-            function() { form.submit(); },
-            'PW setzen',
-            'btn-primary'
-        );
-    });
-});
-
-document.querySelectorAll('[data-confirm-msg]').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        var form = btn.closest('form');
-        customConfirm(
-            btn.getAttribute('data-confirm-msg'),
-            function() { form.submit(); },
-            btn.textContent.trim(),
-            btn.classList.contains('btn-amber') ? 'btn-amber' : 'btn-primary'
-        );
-    });
-});
-</script>
+<script src="assets/admin.js"></script>
