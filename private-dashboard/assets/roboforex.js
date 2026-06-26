@@ -69,17 +69,15 @@
         sessionStorage.removeItem('rf_page_expiry_' + currentAccountId);
         window._rfForceRefresh = true;
 
-        Promise.all([loadAll(), loadSymbolTable()]).finally(function () {
+        Promise.all([loadOverview(), loadClients(1), loadTree(), loadSymbolTable()]).finally(function () {
             btn.disabled        = false;
             btn.innerHTML       = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg> Aktualisieren';
             window._rfForceRefresh = false;
         });
     });
 
-    function loadAll() {
-        loadOverview();
-        loadClients(1);
-        loadTree();
+    async function loadAll() {
+        await Promise.all([loadOverview(), loadClients(1), loadTree()]);
     }
 
     // ── Datums-Helfer ─────────────────────────────────────────────────────────
@@ -126,11 +124,13 @@
             await Promise.all(ranges.map(function([id, from, to]) {
                 return loadSingleRange(id, from, to);
             }));
+            setSyncTime('api');
         } else {
             // Aus Cache: alles auf einmal
             try {
                 const res  = await fetch(apiUrl('overview'));
                 const data = await res.json();
+                console.log('overview source:', data.source);
                 if (!data.success) return;
                 applyOverviewData(data.data, data.source);
             } catch (e) { /* silent */ }
@@ -143,10 +143,10 @@
             const data = await res.json();
             if (!data.success || !data.data) return;
             const d = data.data;
-            document.getElementById('rf-active-clients').textContent    = d.active_clients    ?? '–';
-            document.getElementById('rf-deposited-clients').textContent = d.deposited_clients ?? '–';
-            document.getElementById('rf-new-clients').textContent       = d.new_clients       ?? '–';
-            document.getElementById('rf-total-clients').textContent     = d.total_clients     ?? '–';
+            document.getElementById('rf-active-clients').textContent    = d.active_clients_in_one_month ?? '–';
+            document.getElementById('rf-deposited-clients').textContent = d.deposited_clients           ?? '–';
+            document.getElementById('rf-new-clients').textContent       = d.registrations               ?? '–';
+            document.getElementById('rf-total-clients').textContent     = d.all_referral_count          ?? '–';
             const mnArr = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
             const nowTs = new Date();
             const moLbl = 'seit 01. ' + mnArr[nowTs.getMonth()];
@@ -166,6 +166,14 @@
         } catch (e) { if (el) el.textContent = '–'; }
     }
 
+    function setSyncTime(source) {
+        const syncEl = document.getElementById('rf-sync-time');
+        if (!syncEl) return;
+        const now = new Date();
+        const src = source === 'cache' ? 'Cache' : 'API';
+        syncEl.textContent = '(aktualisiert am ' + now.toLocaleDateString('de-DE') + ' um ' + now.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) + ' Uhr · ' + src + ')';
+    }
+
     function setDateLabels() {
         const mnArr   = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
         const nowDate = new Date();
@@ -182,10 +190,10 @@
         const ri = d.referralinfo || {};
         const co = d.commission   || {};
 
-        document.getElementById('rf-active-clients').textContent    = ri.active_clients    ?? '–';
-        document.getElementById('rf-deposited-clients').textContent = ri.deposited_clients ?? '–';
-        document.getElementById('rf-new-clients').textContent       = ri.new_clients       ?? '–';
-        document.getElementById('rf-total-clients').textContent     = ri.total_clients     ?? '–';
+        document.getElementById('rf-active-clients').textContent    = ri.active_clients_in_one_month ?? '–';
+        document.getElementById('rf-deposited-clients').textContent = ri.deposited_clients           ?? '–';
+        document.getElementById('rf-new-clients').textContent       = ri.registrations               ?? '–';
+        document.getElementById('rf-total-clients').textContent     = ri.all_referral_count          ?? '–';
 
         const mnArr = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
         const nowTs = new Date();
@@ -207,12 +215,7 @@
         setC('month',    co.month);
         setC('total',    co.total);
 
-        const syncEl = document.getElementById('rf-sync-time');
-        if (syncEl) {
-            const now    = new Date();
-            const src    = source === 'cache' ? 'Cache' : 'API';
-            syncEl.textContent = '(aktualisiert am ' + now.toLocaleDateString('de-DE') + ' um ' + now.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) + ' Uhr · ' + src + ')';
-        }
+        setSyncTime(source);
     }
 
     async function loadCommissionRange(id, from, to) {
@@ -386,10 +389,67 @@
             const data = await res.json();
             if (!data.success) { container.innerHTML = '<div class="empty-state error">' + data.message + '</div>'; return; }
             const labels = data.labels || labelsData || {};
-            container.innerHTML = '<div class="rf-tree">' + buildTreeNode(data.data, 0, labels) + '</div>';
+
+            if (data.source === 'cache') {
+                // Cache-Format: flache Zeilen rekonstruieren
+                renderTreeFromCache(data.tree, data.root, container, labels);
+            } else {
+                // API-Format: vollständiger Baum
+                container.innerHTML = '<div class="rf-tree">' + buildTreeNodeNew(data.treeData, 0, labels) + '</div>';
+            }
         } catch (e) {
             container.innerHTML = '<div class="empty-state">Fehler: ' + e.message + '</div>';
         }
+    }
+
+    function buildTreeNodeNew(node, depth, labels) {
+        if (!node) return '';
+        const id       = node.id || '–';
+        const type     = node.type || '';
+        const children = node.children || [];
+        const lbl      = labels[id] ? labels[id].label : '';
+        const isRoot   = depth === 0;
+        const expanded = isRoot;
+        const levelLabel = 'L' + depth;
+
+        let html = '<div class="rf-tree-node rf-tree-depth-' + depth + '">'
+                 + '<div class="rf-tree-row">'
+                 + (children.length
+                    ? '<span class="rf-tree-toggle" data-expanded="' + (expanded?'1':'0') + '">' + (expanded?'▼':'▶') + '</span>'
+                    : '<span class="rf-tree-toggle-empty"></span>')
+                 + '<span class="rf-tree-account' + (isRoot ? ' rf-tree-account--root' : '') + '">'
+                 + '<span class="rf-tree-level rf-tree-level-' + depth + '">' + levelLabel + '</span>'
+                 + '<span class="rf-tree-id">' + id + '</span>'
+                 + (lbl ? ' <span class="rf-tree-label">' + lbl + '</span>' : '')
+                 + '<span class="rf-tree-type">&nbsp;' + type + '</span>'
+                 + (children.length ? '<span class="rf-tree-count">' + children.length + '</span>' : '')
+                 + '</span></div>';
+
+        if (children.length) {
+            html += '<div class="rf-tree-children"' + (expanded ? '' : ' hidden') + '>';
+            children.forEach(function(child) {
+                html += buildTreeNodeNew(child, depth + 1, labels);
+            });
+            html += '</div>';
+        }
+        html += '</div>';
+        return html;
+    }
+
+    function renderTreeFromCache(rows, rootId, container, labels) {
+        if (!rows || !rows.length) {
+            container.innerHTML = '<div class="empty-state">Keine Baum-Daten im Cache.</div>';
+            return;
+        }
+        // Flache Zeilen in verschachtelten Baum umwandeln
+        const nodeMap = {};
+        nodeMap[rootId] = { id: rootId, type: '', children: [] };
+        rows.forEach(function(row) {
+            if (!nodeMap[row.child_id]) nodeMap[row.child_id] = { id: row.child_id, type: row.account_type || '', children: [] };
+            if (!nodeMap[row.parent_id]) nodeMap[row.parent_id] = { id: row.parent_id, type: '', children: [] };
+            nodeMap[row.parent_id].children.push(nodeMap[row.child_id]);
+        });
+        container.innerHTML = '<div class="rf-tree">' + buildTreeNodeNew(nodeMap[rootId], 0, labels) + '</div>';
     }
 
     function buildTreeNode(data, depth, labels) {
@@ -675,31 +735,10 @@
         });
     }
 
-    // ── Initial laden – nur wenn Seite frisch geöffnet wird ──────────────────
+    // ── Initial laden – immer aus Cache, API nur wenn Cache leer ─────────────
     if (CONFIGURED) {
-        const cacheKey     = 'rf_page_loaded_' + currentAccountId;
-        const cacheExpiry  = 'rf_page_expiry_'  + currentAccountId;
-        const now          = Date.now();
-        const cacheMinutes = 30; // nach 30 Minuten neu laden
-        const expiry       = parseInt(sessionStorage.getItem(cacheExpiry) || '0');
-        const alreadyLoaded= sessionStorage.getItem(cacheKey) === '1' && now < expiry;
-
-        if (!alreadyLoaded) {
-            // Erster Aufruf oder Cache abgelaufen → laden
-            sessionStorage.setItem(cacheKey, '1');
-            sessionStorage.setItem(cacheExpiry, String(now + cacheMinutes * 60 * 1000));
-            loadAll();
-            loadSymbolTable();
-        }
-        // Bei Konto-Wechsel immer neu laden
-        if (accountSelect) {
-            accountSelect.addEventListener('change', function () {
-                const key    = 'rf_page_loaded_' + currentAccountId;
-                const expKey = 'rf_page_expiry_'  + currentAccountId;
-                sessionStorage.removeItem(key);
-                sessionStorage.removeItem(expKey);
-            });
-        }
+        loadAll();
+        loadSymbolTable();
     }
 
 })();

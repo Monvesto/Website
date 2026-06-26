@@ -83,9 +83,9 @@ $firstAccount = $rfAccounts[0] ?? null;
                 <div class="kpi-sub" id="rf-active-clients-sub">diesen Monat</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label">Deposited Clients</div>
+                <div class="kpi-label">Kunden mit Einzahlungen</div>
                 <div class="kpi-value--md text-green" id="rf-deposited-clients">–</div>
-                <div class="kpi-sub">Einzahlungen getätigt</div>
+                <div class="kpi-sub">Einzahlung über Schwellenwert</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">Neue Registrierungen</div>
@@ -95,7 +95,7 @@ $firstAccount = $rfAccounts[0] ?? null;
             <div class="kpi-card">
                 <div class="kpi-label">Konten gesamt</div>
                 <div class="kpi-value--md text-green" id="rf-total-clients">–</div>
-                <div class="kpi-sub">in Partner-Gruppe</div>
+                <div class="kpi-sub">alle Referral-Konten</div>
             </div>
         </div>
     </div>

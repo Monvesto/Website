@@ -240,11 +240,11 @@ if ($action === 'overview') {
     $ago90        = date('Y-m-d', strtotime('-90 days'));
 
     $ranges = [
-        'today'    => [$yesterday,  $yesterday],
-        'tomorrow' => [$today,      $today],
-        'week'     => [$monday,     $today],
-        'month'    => [$monthStart, $today],
-        'total'    => [$ago90,      $today],
+        'today'    => [$yesterday,  $yesterday],  // heute gutgeschrieben = Trades von gestern
+        'tomorrow' => [$today,      $today],       // morgen vorgemerkt = Trades von heute
+        'week'     => [$monday,     $yesterday],   // diese Woche gutgeschrieben (bis gestern)
+        'month'    => [$monthStart, $yesterday],   // diesen Monat gutgeschrieben (bis gestern)
+        'total'    => [$ago90,      $yesterday],   // 90 Tage gutgeschrieben (bis gestern)
     ];
 
     $result = [];
@@ -252,7 +252,7 @@ if ($action === 'overview') {
     if (!$forceRefresh) {
         // ── Aus DB-Cache laden ────────────────────────────────────────────────
         // Referral Info
-        $stmt = $db->prepare("SELECT cache_key, amount FROM roboforex_commission_cache WHERE rf_account_id=? AND cache_key IN ('active_clients','deposited_clients','new_clients','total_clients')");
+        $stmt = $db->prepare("SELECT cache_key, amount FROM roboforex_commission_cache WHERE rf_account_id=? AND cache_key IN ('active_clients_in_one_month','deposited_clients','registrations','all_referral_count')");
         $stmt->execute([$accountId]);
         $ri = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) $ri[$r['cache_key']] = (int)$r['amount'];
@@ -265,7 +265,9 @@ if ($action === 'overview') {
         foreach ($stmt2->fetchAll(PDO::FETCH_ASSOC) as $r) $co[$r['cache_key']] = (float)$r['amount'];
         if (!empty($co)) $result['commission'] = $co;
 
-        if (!empty($result['referralinfo']) && !empty($result['commission'])) {
+        if (!empty($co) && isset($ri['active_clients_in_one_month'])) {
+            if (!empty($ri)) $result['referralinfo'] = $ri;
+            $result['commission'] = $co;
             echo json_encode(['success' => true, 'source' => 'cache', 'data' => $result]);
             exit;
         }
@@ -277,7 +279,7 @@ if ($action === 'overview') {
     if ($r['success']) {
         $data = rfXml($r['raw']);
         $result['referralinfo'] = $data;
-        foreach (['active_clients','deposited_clients','new_clients','total_clients'] as $f) {
+        foreach (['active_clients_in_one_month','deposited_clients','registrations','all_referral_count'] as $f) {
             if (isset($data[$f])) {
                 $db->prepare("INSERT INTO roboforex_commission_cache (rf_account_id,cache_key,amount,date_from,date_to) VALUES (?,?,?,CURDATE(),CURDATE()) ON DUPLICATE KEY UPDATE amount=VALUES(amount),synced_at=NOW()")
                    ->execute([$accountId, $f, (int)$data[$f]]);
@@ -322,16 +324,16 @@ if ($action === 'referralinfo') {
         $stmt->execute([$accountId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         // Gecachte Referral-Daten aus commission_cache holen
-        $stmt2 = $db->prepare("SELECT cache_key, amount FROM roboforex_commission_cache WHERE rf_account_id=? AND cache_key IN ('active_clients','deposited_clients','new_clients','total_clients')");
+        $stmt2 = $db->prepare("SELECT cache_key, amount FROM roboforex_commission_cache WHERE rf_account_id=? AND cache_key IN ('active_clients_in_one_month','deposited_clients','registrations','all_referral_count')");
         $stmt2->execute([$accountId]);
         $cached = [];
         foreach ($stmt2->fetchAll(PDO::FETCH_ASSOC) as $r) $cached[$r['cache_key']] = $r['amount'];
         if (!empty($cached)) {
             echo json_encode(['success' => true, 'source' => 'cache', 'data' => [
-                'active_clients'    => (int)($cached['active_clients']    ?? 0),
-                'deposited_clients' => (int)($cached['deposited_clients'] ?? 0),
-                'new_clients'       => (int)($cached['new_clients']       ?? 0),
-                'total_clients'     => (int)($cached['total_clients']     ?? 0),
+                'active_clients_in_one_month' => (int)($cached['active_clients_in_one_month'] ?? 0),
+                'deposited_clients'           => (int)($cached['deposited_clients']           ?? 0),
+                'registrations'               => (int)($cached['registrations']               ?? 0),
+                'all_referral_count'          => (int)($cached['all_referral_count']          ?? 0),
             ]]);
             exit;
         }
@@ -342,7 +344,7 @@ if ($action === 'referralinfo') {
     $data = rfXml($r['raw']);
 
     // In Cache speichern
-    $fields = ['active_clients','deposited_clients','new_clients','total_clients'];
+    $fields = ['active_clients_in_one_month','deposited_clients','registrations','all_referral_count'];
     foreach ($fields as $f) {
         if (isset($data[$f])) {
             $db->prepare("INSERT INTO roboforex_commission_cache (rf_account_id, cache_key, amount, date_from, date_to)
@@ -485,47 +487,48 @@ if ($action === 'tree') {
         exit;
     }
 
-    // Von API laden
+    // Von API laden – SimpleXML direkt nutzen für korrekte Tiefe
     $r = rfGet($baseUrl . '/api/partners/tree?account_id=' . $accountId . '&api_key=' . $apiKey);
     if (!$r['success']) { echo json_encode(['success' => false, 'message' => $r['message']]); exit; }
-    $data = rfXml($r['raw']);
 
-    // Baum in DB speichern (flach: parent → child Paare)
+    $xml = @simplexml_load_string($r['raw']);
+    if (!$xml) { echo json_encode(['success' => false, 'message' => 'XML parse error']); exit; }
+
+    // Baum in DB speichern
     $db->prepare("DELETE FROM roboforex_tree WHERE rf_account_id=?")->execute([$accountId]);
-    $insertTree = $db->prepare("
-        INSERT IGNORE INTO roboforex_tree (rf_account_id, parent_id, child_id, depth)
-        VALUES (?, ?, ?, ?)
-    ");
+    $insertTree = $db->prepare("INSERT IGNORE INTO roboforex_tree (rf_account_id, parent_id, child_id, depth) VALUES (?, ?, ?, ?)");
 
     $treeRows = 0;
-    $rootId   = $data['@attributes']['id'] ?? $accountId;
-    $level1   = $data['referrals']['account'] ?? [];
-    if (!is_array($level1) || isset($level1['@attributes'])) $level1 = $level1 ? [$level1] : [];
+    $rootId   = (string)($xml['id'] ?? $accountId);
+    $rootType = (string)($xml->type ?? '');
 
-    foreach ($level1 as $child) {
-        $childId = $child['@attributes']['id'] ?? '';
-        if (!$childId) continue;
-        $insertTree->execute([$accountId, $rootId, $childId, 1]);
-        $treeRows++;
-
-        $level2 = $child['referrals']['account'] ?? [];
-        if (!is_array($level2) || isset($level2['@attributes'])) $level2 = $level2 ? [$level2] : [];
-        foreach ($level2 as $grandchild) {
-            $gcId = $grandchild['@attributes']['id'] ?? '';
-            if (!$gcId) continue;
-            $insertTree->execute([$accountId, $childId, $gcId, 2]);
+    // Rekursiv SimpleXML-Objekt traversieren
+    function parseXmlTreeNode($xmlNode, $parentId, $depth, $accountId, $insertTree, &$treeRows) {
+        $result = [];
+        if (!isset($xmlNode->referrals->account)) return $result;
+        foreach ($xmlNode->referrals->account as $child) {
+            $childId   = (string)$child['id'];
+            $childType = (string)$child->type;
+            if (!$childId) continue;
+            $insertTree->execute([$accountId, $parentId, $childId, $depth]);
             $treeRows++;
+            $subChildren = parseXmlTreeNode($child, $childId, $depth + 1, $accountId, $insertTree, $treeRows);
+            $result[] = ['id' => $childId, 'type' => $childType, 'children' => $subChildren];
         }
+        return $result;
     }
+
+    $treeData = parseXmlTreeNode($xml, $rootId, 1, $accountId, $insertTree, $treeRows);
+
 
     updateSyncLog($db, $accountId, 'tree', $treeRows);
 
     echo json_encode([
-        'success' => true,
-        'source'  => 'api',
-        'data'    => $data,
-        'labels'  => $labels,
-        'root'    => $rootId,
+        'success'  => true,
+        'source'   => 'api',
+        'treeData' => ['id' => $rootId, 'type' => $rootType, 'children' => $treeData],
+        'labels'   => $labels,
+        'root'     => $rootId,
     ]);
     exit;
 }
