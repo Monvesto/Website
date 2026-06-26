@@ -183,26 +183,18 @@ function uid(): int {
     return (int)($_SESSION['user_id'] ?? 0);
 }
 
-// ════════════════════════════════════════════════
-// GLOBALE AUTH-HILFSFUNKTIONEN
-// ════════════════════════════════════════════════
-
-function is_partner(): bool {
-    if (!isset($_SESSION['user_id'])) return false;
-    $db   = get_db();
-    $stmt = $db->prepare("SELECT role FROM users WHERE id = ?");
-    $stmt->execute([$_SESSION['user_id']]);
-    $row  = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $row && in_array($row['role'], ['admin', 'partner']);
+// ── API-Key Verschlüsselung ───────────────────────────────────────────────────
+function rf_encrypt(string $plaintext): string {
+    $iv  = random_bytes(16);
+    $enc = openssl_encrypt($plaintext, 'AES-256-CBC', hex2bin(RF_ENCRYPT_KEY), OPENSSL_RAW_DATA, $iv);
+    return base64_encode($iv . $enc);
 }
 
-function get_current_role(): string {
-    if (!isset($_SESSION['user_id'])) return 'guest';
-    $db   = get_db();
-    $stmt = $db->prepare("SELECT role FROM users WHERE id = ?");
-    $stmt->execute([$_SESSION['user_id']]);
-    $row  = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $row['role'] ?? 'user';
+function rf_decrypt(string $ciphertext): string {
+    $data = base64_decode($ciphertext);
+    $iv   = substr($data, 0, 16);
+    $enc  = substr($data, 16);
+    return openssl_decrypt($enc, 'AES-256-CBC', hex2bin(RF_ENCRYPT_KEY), OPENSSL_RAW_DATA, $iv);
 }
 
 // ════════════════════════════════════════════════

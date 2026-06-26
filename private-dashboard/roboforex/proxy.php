@@ -1,24 +1,31 @@
 <?php
 /**
  * roboforex/proxy.php – RoboForex Partner API Proxy
- * Mit Cache (DB) + Label-Verwaltung
  */
 
 require_once __DIR__ . '/../config/bootstrap.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-ini_set('display_errors', 0);
 set_exception_handler(function ($e) {
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    http_response_code(200); // kein 500
+    echo json_encode(['success' => false, 'message' => 'Exception: ' . $e->getMessage() . ' in ' . basename($e->getFile()) . ':' . $e->getLine()]);
     exit;
 });
-set_error_handler(function ($errno, $errstr) {
-    echo json_encode(['success' => false, 'message' => $errstr]);
+set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+    http_response_code(200); // kein 500
+    echo json_encode(['success' => false, 'message' => 'Error ' . $errno . ': ' . $errstr . ' in ' . basename($errfile) . ':' . $errline]);
     exit;
+});
+register_shutdown_function(function () {
+    $e = error_get_last();
+    if ($e && in_array($e['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        http_response_code(200);
+        echo json_encode(['success' => false, 'message' => 'Fatal: ' . $e['message'] . ' in ' . basename($e['file']) . ':' . $e['line']]);
+    }
 });
 
-if (!is_admin()) {
+if (!is_partner()) {
     echo json_encode(['success' => false, 'message' => 'Zugriff verweigert.']);
     exit;
 }
@@ -54,6 +61,22 @@ if ($requestedAccountId) {
 $noAccountActions = ['save_account','delete_account','list_accounts','save_label','delete_label','get_labels'];
 $account = $stmt->fetch(PDO::FETCH_ASSOC);
 
+// API-Key entschlüsseln
+if ($account && !empty($account['api_key'])) {
+    $raw = $account['api_key'];
+    // Prüfen ob es ein base64-verschlüsselter Key ist (länger als 32 Zeichen)
+    if (strlen($raw) > 32) {
+        try {
+            $decrypted = rf_decrypt($raw);
+            if ($decrypted !== false && strlen($decrypted) > 0) {
+                $account['api_key'] = $decrypted;
+            }
+        } catch (Exception $e) {
+            error_log('[RF] Decrypt error: ' . $e->getMessage());
+        }
+    }
+}
+
 if (!$account && !in_array($action, $noAccountActions)) {
     echo json_encode(['success' => false, 'message' => 'Kein RoboForex-Konto konfiguriert.']);
     exit;
@@ -61,6 +84,12 @@ if (!$account && !in_array($action, $noAccountActions)) {
 
 $accountId = $account['account_id'] ?? '';
 $apiKey    = $account['api_key']    ?? '';
+
+// Leeren API-Key abfangen
+if (empty($apiKey) && !in_array($action, $noAccountActions)) {
+    echo json_encode(['success' => false, 'message' => 'API-Key nicht konfiguriert. Bitte im Konten-Tab eintragen.']);
+    exit;
+}
 
 // ── HTTP-Helper ───────────────────────────────────────────────────────────────
 function rfGet(string $url): array
@@ -140,17 +169,21 @@ if ($action === 'save_account') {
     $key    = trim($_POST['api_key']     ?? '');
     $sort   = (int)($_POST['sort_order'] ?? 0);
 
-    // user_id: Admin kann frei zuweisen, Partner bekommt immer seine eigene
     if (get_current_role() === 'admin') {
         $userId = (int)($_POST['user_id'] ?? 0) ?: null;
     } else {
-        $userId = uid(); // Partner → immer eigene user_id
+        $userId = uid();
     }
 
     if (!$accId) { echo json_encode(['success' => false, 'message' => 'Konto-ID ist Pflicht.']); exit; }
 
+    // API-Key verschlüsseln wenn neu eingegeben (nicht der Platzhalter)
+    $encryptedKey = null;
+    if ($key && !strpos($key, '•') !== false) {
+        $encryptedKey = rf_encrypt($key);
+    }
+
     if ($id > 0) {
-        // Prüfen ob Partner sein eigenes Konto bearbeitet
         if (get_current_role() !== 'admin') {
             $check = $db->prepare("SELECT user_id FROM roboforex_accounts WHERE id=?");
             $check->execute([$id]);
@@ -160,18 +193,18 @@ if ($action === 'save_account') {
                 exit;
             }
         }
-        if ($key && !str_contains($key, '•')) {
+        if ($encryptedKey) {
             $db->prepare("UPDATE roboforex_accounts SET account_id=?,label=?,api_key=?,sort_order=?,user_id=? WHERE id=?")
-               ->execute([$accId, $label, $key, $sort, $userId, $id]);
+               ->execute([$accId, $label, $encryptedKey, $sort, $userId, $id]);
         } else {
             $db->prepare("UPDATE roboforex_accounts SET account_id=?,label=?,sort_order=?,user_id=? WHERE id=?")
                ->execute([$accId, $label, $sort, $userId, $id]);
         }
     } else {
-        if (!$key) { echo json_encode(['success' => false, 'message' => 'API-Key ist Pflicht.']); exit; }
+        if (!$key || strpos($key, '•') !== false) { echo json_encode(['success' => false, 'message' => 'API-Key ist Pflicht.']); exit; }
         $db->prepare("INSERT INTO roboforex_accounts (account_id,label,api_key,sort_order,user_id) VALUES (?,?,?,?,?)
                       ON DUPLICATE KEY UPDATE label=VALUES(label),api_key=VALUES(api_key),sort_order=VALUES(sort_order),user_id=VALUES(user_id)")
-           ->execute([$accId, $label, $key, $sort, $userId]);
+           ->execute([$accId, $label, $encryptedKey, $sort, $userId]);
     }
     echo json_encode(['success' => true, 'message' => 'Konto gespeichert.']);
     exit;
@@ -316,6 +349,8 @@ if ($action === 'overview') {
     echo json_encode(['success' => true, 'source' => 'api', 'data' => $result]);
     exit;
 }
+
+// ── Referral Info (mit Cache) ─────────────────────────────────────────────────
 if ($action === 'referralinfo') {
     $forceRefresh = ($_GET['refresh'] ?? '0') === '1';
 
