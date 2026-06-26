@@ -372,7 +372,20 @@
                 });
                 labelsData[labelModalAccountId] = { label: label };
                 renderClients(clientsData);
-                loadTree(); // Baum mit neuem Label neu laden
+                // Baum-Knoten Label aktualisieren ohne neu zu laden
+                document.querySelectorAll('.rf-tree-edit-btn[data-id="' + labelModalAccountId + '"]').forEach(function(btn) {
+                    btn.dataset.label = label;
+                    const row    = btn.closest('.rf-tree-row');
+                    const oldLbl = row.querySelector('.rf-tree-label');
+                    if (oldLbl) oldLbl.remove();
+                    if (label) {
+                        const idSpan = row.querySelector('.rf-tree-id');
+                        const newLbl = document.createElement('span');
+                        newLbl.className   = 'rf-tree-label';
+                        newLbl.textContent = label;
+                        idSpan.parentNode.insertBefore(newLbl, idSpan.nextSibling);
+                    }
+                });
             } else { showMsg('error', data.message); }
         } catch (e) { showMsg('error', e.message); }
     });
@@ -423,7 +436,9 @@
                  + (lbl ? ' <span class="rf-tree-label">' + lbl + '</span>' : '')
                  + '<span class="rf-tree-type">&nbsp;' + type + '</span>'
                  + (children.length ? '<span class="rf-tree-count">' + children.length + '</span>' : '')
-                 + '</span></div>';
+                 + '</span>'
+                 + (isRoot ? '' : '<button class="btn btn-xs btn-ghost rf-btn-label rf-tree-edit-btn" data-id="' + id + '" data-label="' + (lbl || '') + '" title="Name bearbeiten">✏</button>')
+                 + '</div>';
 
         if (children.length) {
             html += '<div class="rf-tree-children"' + (expanded ? '' : ' hidden') + '>';
@@ -521,14 +536,21 @@
     // Toggle auf/zuklappen
     document.getElementById('rf-tree-container').addEventListener('click', function (e) {
         const toggle = e.target.closest('.rf-tree-toggle');
-        if (!toggle) return;
-        const node     = toggle.closest('.rf-tree-node');
-        const children = node.querySelector('.rf-tree-children');
-        if (!children) return;
-        const expanded = toggle.dataset.expanded === '1';
-        children.hidden       = expanded;
-        toggle.dataset.expanded = expanded ? '0' : '1';
-        toggle.textContent      = expanded ? '▶' : '▼';
+        if (toggle) {
+            const node     = toggle.closest('.rf-tree-node');
+            const children = node.querySelector('.rf-tree-children');
+            if (!children) return;
+            const expanded = toggle.dataset.expanded === '1';
+            children.hidden          = expanded;
+            toggle.dataset.expanded  = expanded ? '0' : '1';
+            toggle.textContent       = expanded ? '▶' : '▼';
+            return;
+        }
+        // Name bearbeiten im Baum
+        const editBtn = e.target.closest('.rf-tree-edit-btn');
+        if (editBtn) {
+            openLabelModal(editBtn.dataset.id, editBtn.dataset.label);
+        }
     });
 
     document.getElementById('btn-rf-tree-search').addEventListener('click', async function () {
