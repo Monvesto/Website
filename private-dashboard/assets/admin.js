@@ -1,5 +1,13 @@
 // assets/admin.js – Admin-Panel JS
 
+// Rollen-Dropdown
+document.querySelectorAll('.rf-role-select').forEach(function(sel) {
+    sel.addEventListener('change', function() {
+        this.closest('form').submit();
+    });
+});
+
+// Edit-Modal für Display-Name / Geburtsdatum
 document.querySelectorAll('.btn-admin-edit-user').forEach(function(btn) {
     btn.addEventListener('click', function() {
         document.getElementById('admin-edit-uid').value     = this.dataset.id;
@@ -16,6 +24,7 @@ if (cancelBtn) {
     });
 }
 
+// Passwort-Confirm
 document.querySelectorAll('.admin-pw-confirm').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
         e.preventDefault();
@@ -34,6 +43,7 @@ document.querySelectorAll('.admin-pw-confirm').forEach(function(btn) {
     });
 });
 
+// Confirm-Dialoge
 document.querySelectorAll('[data-confirm-msg]').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
         e.preventDefault();

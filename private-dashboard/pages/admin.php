@@ -239,7 +239,7 @@ $roleBadgeClass = ['admin' => 'badge--warning', 'user' => 'badge--muted', 'partn
                     <?= csrf_field() ?>
                     <input type="hidden" name="act" value="set_role">
                     <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                    <select name="role" class="input-sm" onchange="this.form.submit()">
+                    <select name="role" class="input-sm rf-role-select">
                         <option value="user"    <?= $u['role']==='user'    ? 'selected' : '' ?>>Nutzer</option>
                         <option value="partner" <?= $u['role']==='partner' ? 'selected' : '' ?>>Partner</option>
                         <option value="admin"   <?= $u['role']==='admin'   ? 'selected' : '' ?>>Admin</option>

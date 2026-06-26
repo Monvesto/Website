@@ -7,6 +7,9 @@ require_once __DIR__ . '/../config/bootstrap.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 set_exception_handler(function ($e) {
     http_response_code(200); // kein 500
     echo json_encode(['success' => false, 'message' => 'Exception: ' . $e->getMessage() . ' in ' . basename($e->getFile()) . ':' . $e->getLine()]);
@@ -641,8 +644,8 @@ if ($action === 'commission_range') {
 
     $total = round($total, 4);
 
-    // In Cache speichern
-    if ($useCache) {
+    // In Cache speichern – immer wenn cache_key gesetzt (auch bei force refresh)
+    if ($cacheKey !== '') {
         $db->prepare("INSERT INTO roboforex_commission_cache (rf_account_id, cache_key, amount, date_from, date_to, synced_at)
                       VALUES (?, ?, ?, ?, ?, NOW())
                       ON DUPLICATE KEY UPDATE amount=VALUES(amount), date_from=VALUES(date_from), date_to=VALUES(date_to), synced_at=NOW()")
