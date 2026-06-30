@@ -62,7 +62,7 @@ if ($lastMonday > $today) $lastMonday = date('Y-m-d', strtotime('monday last wee
 // ── Account-Einstellungen ─────────────────────────────────────────────────────
 $settingsStmt = $db->prepare("
     SELECT account_key, label, start_balance, start_date, calc_basis, currency, myfxbook_id,
-           rf_account_type, rf_account_id, rf_server
+           rf_account_type, rf_account_id, rf_server, rf_leverage
     FROM trading_account_settings
 ");
 $settingsStmt->execute();
@@ -161,18 +161,22 @@ $balanceCols = [
     $rfType    = $cfg['rf_account_type'] ?? '';
     $rfAccId   = $cfg['rf_account_id']   ?? '';
     $rfServer  = $cfg['rf_server']       ?? '';
+    $rfLeverage = $cfg['rf_leverage']    ?? '';
 ?>
     <div class="kpi-card">
         <!-- Karten-Header mit Bearbeiten-Button -->
         <div class="tr-kpi-head">
             <div>
-                <div class="kpi-label"><?= $label ?></div>
-                <?php if ($rfAccId || $rfServer): ?>
-                <div class="tr-rf-meta">
-                    <?= $rfAccId ? '#' . htmlspecialchars($rfAccId) : '' ?>
-                    <?= $rfServer ? ' · ' . htmlspecialchars($rfServer) : '' ?>
+                <div class="kpi-label">
+                    <?= $label ?>
+                    <?php if ($rfAccId || $rfServer || $rfLeverage): ?>
+                    <span class="tr-rf-meta">
+                        <?= $rfAccId ? '#' . htmlspecialchars($rfAccId) : '' ?>
+                        <?= $rfServer ? ' · ' . htmlspecialchars($rfServer) : '' ?>
+                        <?= $rfLeverage ? ' · ' . htmlspecialchars($rfLeverage) : '' ?>
+                    </span>
+                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
             </div>
             <button class="btn btn-xs btn-ghost btn-edit-startbal"
                     type="button"
@@ -185,6 +189,7 @@ $balanceCols = [
                     data-rftype="<?= htmlspecialchars($rfType) ?>"
                     data-rfaccid="<?= htmlspecialchars($rfAccId) ?>"
                     data-rfserver="<?= htmlspecialchars($rfServer) ?>"
+                    data-rfleverage="<?= htmlspecialchars($rfLeverage) ?>"
                     title="Einstellungen bearbeiten">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -218,6 +223,7 @@ $balanceCols = [
                     data-rftype="<?= htmlspecialchars($rfType) ?>"
                     data-rfaccid="<?= htmlspecialchars($rfAccId) ?>"
                     data-rfserver="<?= htmlspecialchars($rfServer) ?>"
+                    data-rfleverage="<?= htmlspecialchars($rfLeverage) ?>"
                     data-mode="calcbasis"
                     title="Berechnungsgrundlage ändern">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10">
@@ -498,7 +504,32 @@ $balanceCols = [
         </div>
         <div class="form-group tr-modal-field">
             <label for="rfserver-input">Server</label>
-            <input type="text" id="rfserver-input" placeholder="z.B. RoboForex-ECN">
+            <select id="rfserver-input">
+                <option value="">– keine Angabe –</option>
+                <option value="RoboForex-ECN">RoboForex-ECN</option>
+                <option value="RoboForex-Pro">RoboForex-Pro</option>
+                <option value="RoboForex-Cent">RoboForex-Cent</option>
+                <option value="RoboForex-Demo">RoboForex-Demo</option>
+                <option value="RoboForex-MT5">RoboForex-MT5</option>
+            </select>
+        </div>
+        <div class="form-group tr-modal-field">
+            <label for="rfleverage-input">Hebel</label>
+            <select id="rfleverage-input">
+                <option value="">– keine Angabe –</option>
+                <option value="1:1">1:1</option>
+                <option value="1:10">1:10</option>
+                <option value="1:20">1:20</option>
+                <option value="1:30">1:30</option>
+                <option value="1:50">1:50</option>
+                <option value="1:100">1:100</option>
+                <option value="1:200">1:200</option>
+                <option value="1:300">1:300</option>
+                <option value="1:400">1:400</option>
+                <option value="1:500">1:500</option>
+                <option value="1:1000">1:1000</option>
+                <option value="1:2000">1:2000</option>
+            </select>
         </div>
 
         <!-- MyFxBook-ID – nur sichtbar wenn noch nicht gesetzt -->

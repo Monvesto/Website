@@ -513,3 +513,18 @@ function rf_decrypt(string $ciphertext): string {
         error_log('Migration 19: ' . $e->getMessage());
     }
 })();
+
+// ════════════════════════════════════════════════
+// MIGRATION 20 – rf_leverage in trading_account_settings
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        $has = $db->query("SHOW COLUMNS FROM `trading_account_settings` LIKE 'rf_leverage'")->rowCount() > 0;
+        if (!$has) {
+            $db->exec("ALTER TABLE `trading_account_settings` ADD COLUMN `rf_leverage` VARCHAR(20) DEFAULT NULL");
+        }
+    } catch (PDOException $e) {
+        error_log('Migration 20: ' . $e->getMessage());
+    }
+})();

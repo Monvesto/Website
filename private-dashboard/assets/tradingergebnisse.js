@@ -154,6 +154,7 @@
         const rfType    = btn.dataset.rftype    || '';
         const rfAccId   = btn.dataset.rfaccid   || '';
         const rfServer  = btn.dataset.rfserver  || '';
+        const rfLeverage = btn.dataset.rfleverage || '';
         const mode      = btn.dataset.mode      || 'full'; // 'full' oder 'calcbasis'
         const labels    = { main: 'Main Account', ea: 'Monvesto EA', challenge: 'Road to 100k' };
 
@@ -167,6 +168,7 @@
         document.getElementById('rftype-input').value           = rfType;
         document.getElementById('rfaccid-input').value          = rfAccId;
         document.getElementById('rfserver-input').value         = rfServer;
+        document.getElementById('rfleverage-input').value       = rfLeverage;
 
         const hasStart = startBal !== '' && startBal !== '0';
         const hasMfxId = mfxId    !== '';
@@ -206,6 +208,7 @@
         fd.append('rf_account_type', document.getElementById('rftype-input').value);
         fd.append('rf_account_id',   document.getElementById('rfaccid-input').value);
         fd.append('rf_server',       document.getElementById('rfserver-input').value);
+        fd.append('rf_leverage',     document.getElementById('rfleverage-input').value);
         try {
             const res  = await fetch(BASE + 'myfxbook_proxy.php?action=save_settings', { method: 'POST', body: fd });
             const data = await res.json();
