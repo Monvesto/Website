@@ -299,7 +299,7 @@ if ($type === 'combined') {
 
             // Progress Text – nur EUR-Wert
             $pText = $acc['bal'] !== null
-                ? number_format($acc['bal'], 0, '.', ',') . ' EUR / 100,000 EUR'
+                ? number_format($acc['bal'], 2, '.', ',') . ' EUR / 100,000 EUR'
                 : '-- EUR / 100,000 EUR';
             tc($img, 12, $CX, $bY + $bHH + 24, $MUTED, $fontReg, $pText);
         }
@@ -350,7 +350,7 @@ if ($type === 'combined') {
         $fw = max(28, (int)($bW * $acc['prog'] / 100));
         rr($img, $bX1, $bY, $bX1+$fw, $bY+28, 14, $GREEN);
         $pt = $acc['bal'] !== null
-            ? number_format($acc['bal'],0,'.',',') . ' / 100,000 EUR  —  ' . number_format($acc['prog'],1) . '%'
+            ? number_format($acc['bal'],2,'.',',') . ' / 100,000 EUR  —  ' . number_format($acc['prog'],1) . '%'
             : '-- / 100,000 EUR';
         tc($img, 15, $CX, $bY+54, $MUTED, $fontReg, $pt);
     }

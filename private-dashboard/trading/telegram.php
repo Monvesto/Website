@@ -213,7 +213,7 @@ function buildTelegramCaption(array $entry, array $stats, array $settings, ?floa
             $filled = (int)($pct / 5);
             $bar    = str_repeat('█', $filled) . str_repeat('░', 20 - $filled);
             $lines[] = "  " . $bar . " " . number_format($pct, 1) . "%";
-            $lines[] = "  " . number_format($challengeBal, 0, '.', ',') . " / 100,000 " . $cur;
+            $lines[] = "  " . number_format($challengeBal, 2, '.', ',') . " / 100,000 " . $cur;
         }
 
         $lines[] = "";

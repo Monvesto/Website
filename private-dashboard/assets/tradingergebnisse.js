@@ -256,19 +256,28 @@
         }
     });
 
-    // ── Telegram-Button in Tabelle ────────────────────────────────────────────
+    // ── Telegram Channel-Toggle ein/ausblenden ────────────────────────────────
+    document.getElementById('chk-telegram-post').addEventListener('change', function () {
+        document.getElementById('telegram-channel-toggle').hidden = !this.checked;
+    });
+
+    function getTelegramChannel() {
+        const sel = document.getElementById('select-telegram-channel');
+        return sel ? sel.value : 'test';
+    }
     document.getElementById('trading-table').addEventListener('click', function (e) {
         const btn = e.target.closest('.btn-telegram-post');
         if (!btn) return;
         if (!confirm('Post to Telegram channel?')) return;
         const entryId = btn.dataset.id;
+        const channel = getTelegramChannel();
         btn.disabled = true;
         btn.textContent = '...';
-        fetch(BASE + 'telegram_post.php?action=post&entry_id=' + entryId + '&type=combined&format=feed')
+        fetch(BASE + 'telegram_post.php?action=post&entry_id=' + entryId + '&type=combined&format=feed&channel=' + channel)
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.success) {
-                    showMessage('success', 'Posted to Telegram ✓');
+                    showMessage('success', 'Posted to Telegram (' + channel + ') ✓');
                 } else {
                     showMessage('error', 'Telegram: ' + data.message);
                 }
@@ -285,11 +294,12 @@
     // ── Nach Speichern: Telegram auto-post ───────────────────────────────────
     async function telegramPostAfterSave(entryId) {
         if (!document.getElementById('chk-telegram-post').checked) return;
+        const channel = getTelegramChannel();
         try {
-            const res  = await fetch(BASE + 'telegram_post.php?action=post&entry_id=' + entryId + '&type=combined&format=feed');
+            const res  = await fetch(BASE + 'telegram_post.php?action=post&entry_id=' + entryId + '&type=combined&format=feed&channel=' + channel);
             const data = await res.json();
             if (data.success) {
-                showMessage('success', 'Posted to Telegram ✓');
+                showMessage('success', 'Posted to Telegram (' + channel + ') ✓');
             } else {
                 showMessage('error', 'Telegram: ' + (data.message || 'Error'));
             }

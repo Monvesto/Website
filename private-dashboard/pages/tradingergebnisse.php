@@ -367,6 +367,12 @@ $balanceCols = [
             <input type="checkbox" id="chk-telegram-post">
             Post to Telegram
         </label>
+        <label class="tr-checkbox-label" id="telegram-channel-toggle" hidden>
+            <select id="select-telegram-channel" class="input-sm">
+                <option value="live">🔴 Live</option>
+                <option value="test" selected>🧪 Test</option>
+            </select>
+        </label>
     </div>
 
 </div><!-- /card -->

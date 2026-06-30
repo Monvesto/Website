@@ -31,8 +31,19 @@ if (!is_admin()) {
     exit;
 }
 
-if (!defined('TELEGRAM_BOT_TOKEN') || !defined('TELEGRAM_CHANNEL_ID')) {
-    echo json_encode(['success' => false, 'message' => 'Telegram nicht konfiguriert. TELEGRAM_BOT_TOKEN und TELEGRAM_CHANNEL_ID in config.php setzen.']);
+if (!defined('TELEGRAM_BOT_TOKEN') || (!defined('TELEGRAM_CHANNEL_LIVE') && !defined('TELEGRAM_CHANNEL_TEST'))) {
+    echo json_encode(['success' => false, 'message' => 'Telegram nicht konfiguriert. TELEGRAM_BOT_TOKEN, TELEGRAM_CHANNEL_LIVE und TELEGRAM_CHANNEL_TEST in config.php setzen.']);
+    exit;
+}
+
+// Channel bestimmen: 'live' oder 'test' (Standard: test)
+$channel   = ($_REQUEST['channel'] ?? 'test') === 'live' ? 'live' : 'test';
+$channelId = $channel === 'live'
+    ? (defined('TELEGRAM_CHANNEL_LIVE') ? TELEGRAM_CHANNEL_LIVE : '')
+    : (defined('TELEGRAM_CHANNEL_TEST') ? TELEGRAM_CHANNEL_TEST : '');
+
+if (!$channelId) {
+    echo json_encode(['success' => false, 'message' => 'Channel-ID nicht konfiguriert.']);
     exit;
 }
 
@@ -44,7 +55,7 @@ $type   = in_array($_REQUEST['type'] ?? 'combined', ['combined','main','ea','cha
           ? ($_REQUEST['type'] ?? 'combined') : 'combined';
 $format = ($_REQUEST['format'] ?? 'feed') === 'story' ? 'story' : 'feed';
 
-$tg = new TelegramBot(TELEGRAM_BOT_TOKEN, TELEGRAM_CHANNEL_ID);
+$tg = new TelegramBot(TELEGRAM_BOT_TOKEN, $channelId);
 
 // ── Test: Bot + Channel prüfen ────────────────────────────────────────────────
 if ($action === 'test') {
