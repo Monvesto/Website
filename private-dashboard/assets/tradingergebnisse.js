@@ -292,6 +292,35 @@
         document.getElementById('image-modal').hidden = false;
     });
 
+    // ── Löschen-Button in Tabelle ─────────────────────────────────────────────
+    document.getElementById('trading-table').addEventListener('click', function (e) {
+        const btn = e.target.closest('.btn-delete-row');
+        if (!btn) return;
+        const id   = btn.dataset.id;
+        const date = btn.dataset.date;
+        customConfirm(
+            'Eintrag vom ' + date + ' wirklich unwiderruflich löschen?',
+            async function () {
+                const fd = new FormData();
+                fd.append('id', id);
+                try {
+                    const res  = await fetch(BASE + 'delete.php', { method: 'POST', body: fd });
+                    const data = await res.json();
+                    if (data.success) {
+                        showMessage('success', 'Eintrag gelöscht ✓');
+                        setTimeout(function () { location.reload(); }, 800);
+                    } else {
+                        showMessage('error', 'Fehler: ' + (data.message || 'Unbekannt'));
+                    }
+                } catch (err) {
+                    showMessage('error', 'Netzwerkfehler: ' + err.message);
+                }
+            },
+            'Löschen',
+            'btn-danger'
+        );
+    });
+
     document.getElementById('image-modal-cancel').addEventListener('click', function () {
         document.getElementById('image-modal').hidden = true;
     });

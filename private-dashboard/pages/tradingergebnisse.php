@@ -423,6 +423,9 @@ $balanceCols = [
                             </svg>
                             Post
                         </button>
+                        <button class="btn btn-xs btn-danger btn-delete-row" type="button"
+                                data-id="<?= $row['id'] ?>"
+                                data-date="<?= date('d.m.Y', strtotime($row['entry_date'])) ?>">Löschen</button>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -491,7 +494,7 @@ $balanceCols = [
                 <option value="ECN-Standard">ECN-Standard</option>
                 <option value="Fix-Cent">Fix-Cent</option>
                 <option value="ProCent CopyFx">ProCent CopyFx</option>
-                <option value="Ecn CopyFx">Ecn CopyFx</option>
+                <option value="Ecn-Standard CopyFx">Ecn CopyFx</option>
             </select>
         </div>
         <div class="form-group tr-modal-field">
@@ -502,11 +505,11 @@ $balanceCols = [
             <label for="rfserver-input">Server</label>
             <select id="rfserver-input">
                 <option value="">– keine Angabe –</option>
-                <option value="ECN">ECN</option>
-                <option value="Pro">Pro</option>
-                <option value="ProCent">ProCent</option>
-                <option value="ProCent-8">ProCent 8</option>
-                <option value="Demo">RoboForex-Demo</option>
+                <option value="RoboForex-ECN">ECN</option>
+                <option value="RoboForex-Pro">Pro</option>
+                <option value="RoboForex-Cent">ProCent</option>
+                <option value="RoboForex-Cent8">ProCent 8</option>
+                <option value="RoboForex-Demo">RoboForex-Demo</option>
             </select>
         </div>
         <div class="form-group tr-modal-field">
