@@ -27,12 +27,12 @@ define('GOCARDLESS_SECRET_ID',  '');
 define('GOCARDLESS_SECRET_KEY', '');
 
 // ── MyFxBook API ──────────────────────────────────────────────────────────────
-define('MYFXBOOK_EMAIL',    'dein@email.com');
-define('MYFXBOOK_PASSWORD', 'deinPasswort');
+define('MYFXBOOK_EMAIL',    'da_bunky@yahoo.de');
+define('MYFXBOOK_PASSWORD', 'Deluxeer1');
 
 // ── Telegram Trading Autoposter ───────────────────────────────────────────────
 define('TELEGRAM_BOT_TOKEN',  '8542547873:AAGgOrPKiuzjyvhAX-NqNQHkgI0kPymiA4E');
-define('TELEGRAM_CHANNEL_ID', '-1003674784826');
+define('TELEGRAM_CHANNEL_ID', '-1002065655634');
 
 // ── RoboForex Partner API (Legacy – wird aus DB gelesen) ──────────────────────
 // Diese Konstanten werden nur noch für die initiale Migration 12 genutzt.

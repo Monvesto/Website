@@ -40,7 +40,6 @@ function parse_betrag(string $v): string {
 (function() {
     $db = get_db();
     try {
-        // ── users Tabelle ──
         $db->exec("CREATE TABLE IF NOT EXISTS users (
             id           INT AUTO_INCREMENT PRIMARY KEY,
             username     VARCHAR(50)  NOT NULL UNIQUE,
@@ -52,12 +51,10 @@ function parse_betrag(string $v): string {
             created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )");
 
-        // ── user_profiles Tabelle ──
-        // Jeder User kann mehrere Profile anlegen (= Person-Switcher Einträge)
         $db->exec("CREATE TABLE IF NOT EXISTS user_profiles (
             id           INT AUTO_INCREMENT PRIMARY KEY,
             user_id      INT NOT NULL,
-            profile_name VARCHAR(50) NOT NULL,  -- z.B. 'Marcel', 'Kim'
+            profile_name VARCHAR(50) NOT NULL,
             is_default   TINYINT(1) NOT NULL DEFAULT 0,
             sort_order   INT NOT NULL DEFAULT 0,
             created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -72,21 +69,15 @@ function parse_betrag(string $v): string {
 
 // ════════════════════════════════════════════════
 // MIGRATION 2 – user_id zu allen Datentabellen
-// Fügt user_id Spalte hinzu falls noch nicht vorhanden.
-// Bestehende Einträge werden dem ersten Admin zugewiesen.
 // ════════════════════════════════════════════════
 (function() {
     $db = get_db();
-
-    // Tabellen die user_id bekommen sollen
     $tables = [
         'einnahmen', 'ausgaben', 'verbindlichkeiten',
         'investments', 'ziele', 'tasks', 'maintenance',
         'immobilien', 'checkliste_zahlungen', 'mieten_checkliste',
         'abos', 'versicherungen',
     ];
-
-    // Ersten Admin-User als Fallback für bestehende Daten
     $admin_id = null;
     try {
         $admin_id = $db->query("SELECT id FROM users WHERE role='admin' LIMIT 1")->fetchColumn();
@@ -96,14 +87,10 @@ function parse_betrag(string $v): string {
         try {
             $exists = $db->query("SHOW TABLES LIKE '$table'")->rowCount() > 0;
             if (!$exists) continue;
-
-            // user_id Spalte hinzufügen falls nicht vorhanden
             $has_col = $db->query("SHOW COLUMNS FROM `$table` LIKE 'user_id'")->rowCount() > 0;
             if (!$has_col) {
                 $db->exec("ALTER TABLE `$table` ADD COLUMN user_id INT NOT NULL DEFAULT 0 AFTER id");
-                // Index für Performance
                 $db->exec("ALTER TABLE `$table` ADD INDEX idx_user_id (user_id)");
-                // Bestehende Daten dem Admin zuweisen
                 if ($admin_id) {
                     $db->exec("UPDATE `$table` SET user_id=$admin_id WHERE user_id=0");
                 }
@@ -177,7 +164,6 @@ function parse_betrag(string $v): string {
 
 /**
  * Gibt user_id des eingeloggten Users zurück.
- * Kurzform für current_user_id().
  */
 function uid(): int {
     return (int)($_SESSION['user_id'] ?? 0);
@@ -252,26 +238,20 @@ function rf_decrypt(string $ciphertext): string {
 
 // ════════════════════════════════════════════════
 // MIGRATION 9 – Trading: neue Felder + Startkontostände
-// Diesen Block ans Ende der config/bootstrap.php anhängen.
 // ════════════════════════════════════════════════
 (function() {
     $db = get_db();
     try {
-        // ── Neue Spalten in trading_daily_updates ──────────────────────────
-        // Gewinn in € pro Konto
         foreach ([
             'main_account_profit'      => "DECIMAL(12,2) DEFAULT NULL AFTER `main_account_return`",
             'ea_account_profit'        => "DECIMAL(12,2) DEFAULT NULL AFTER `ea_account_return`",
             'challenge_account_profit' => "DECIMAL(12,2) DEFAULT NULL AFTER `challenge_account_return`",
-            // Aktueller Kontostand (aus MyFxBook oder manuell)
             'main_account_balance'      => "DECIMAL(12,2) DEFAULT NULL AFTER `main_account_profit`",
             'ea_account_balance'        => "DECIMAL(12,2) DEFAULT NULL AFTER `ea_account_profit`",
             'challenge_account_balance' => "DECIMAL(12,2) DEFAULT NULL AFTER `challenge_account_profit`",
-            // Offene Positionen (JSON-String aus MyFxBook)
             'main_open_positions'      => "TEXT DEFAULT NULL",
             'ea_open_positions'        => "TEXT DEFAULT NULL",
             'challenge_open_positions' => "TEXT DEFAULT NULL",
-            // MyFxBook Session-Cache (damit nicht bei jedem Aufruf neu eingeloggt wird)
             'myfxbook_synced_at'       => "DATETIME DEFAULT NULL",
         ] as $col => $def) {
             $has = $db->query("SHOW COLUMNS FROM `trading_daily_updates` LIKE '$col'")->rowCount() > 0;
@@ -280,21 +260,18 @@ function rf_decrypt(string $ciphertext): string {
             }
         }
 
-        // ── Tabelle: trading_account_settings ─────────────────────────────
-        // Speichert Ausgangskontostand + MyFxBook Account-ID pro Konto
         $db->exec("CREATE TABLE IF NOT EXISTS `trading_account_settings` (
             `id`              INT UNSIGNED NOT NULL AUTO_INCREMENT,
-            `account_key`     VARCHAR(20) NOT NULL,   -- 'main' | 'ea' | 'challenge'
-            `label`           VARCHAR(50) NOT NULL,   -- Anzeigename
-            `start_balance`   DECIMAL(12,2) DEFAULT NULL,  -- Ausgangskontostand €
+            `account_key`     VARCHAR(20) NOT NULL,
+            `label`           VARCHAR(50) NOT NULL,
+            `start_balance`   DECIMAL(12,2) DEFAULT NULL,
             `currency`        VARCHAR(5) NOT NULL DEFAULT 'USD',
-            `myfxbook_id`     VARCHAR(20) DEFAULT NULL,    -- MyFxBook Account-ID
+            `myfxbook_id`     VARCHAR(20) DEFAULT NULL,
             `updated_at`      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
             UNIQUE KEY `uq_account_key` (`account_key`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        // Standard-Einträge anlegen falls noch nicht vorhanden
         $defaults = [
             ['main',      'Main Account',   'USD'],
             ['ea',        'Monvesto EA',    'USD'],
@@ -308,8 +285,6 @@ function rf_decrypt(string $ciphertext): string {
             $stmtIns->execute($row);
         }
 
-        // ── Tabelle: trading_myfxbook_session ─────────────────────────────
-        // Cacht den MyFxBook Session-Token (max. 1 Token gleichzeitig)
         $db->exec("CREATE TABLE IF NOT EXISTS `trading_myfxbook_session` (
             `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
             `session`    VARCHAR(100) NOT NULL,
@@ -370,7 +345,6 @@ function rf_decrypt(string $ciphertext): string {
             UNIQUE KEY `uq_account_id` (`account_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        // Bestehendes Konto aus config.php migrieren falls vorhanden
         if (defined('ROBOFOREX_PARTNER_ACCOUNT_ID') && ROBOFOREX_PARTNER_ACCOUNT_ID
             && defined('ROBOFOREX_API_KEY') && ROBOFOREX_API_KEY) {
             $db->prepare("INSERT IGNORE INTO roboforex_accounts (account_id, label, api_key, sort_order)
@@ -388,11 +362,10 @@ function rf_decrypt(string $ciphertext): string {
 (function() {
     $db = get_db();
     try {
-        // Gecachte Clients
         $db->exec("CREATE TABLE IF NOT EXISTS `roboforex_clients` (
             `id`                              INT UNSIGNED NOT NULL AUTO_INCREMENT,
-            `rf_account_id`                   VARCHAR(20) NOT NULL,  -- Partner-Konto-ID
-            `client_account_id`               VARCHAR(20) NOT NULL,  -- Referral-Konto-ID
+            `rf_account_id`                   VARCHAR(20) NOT NULL,
+            `client_account_id`               VARCHAR(20) NOT NULL,
             `account_type`                    VARCHAR(50) DEFAULT NULL,
             `reg_date`                        DATETIME DEFAULT NULL,
             `has_reached_deposit_threshold`   TINYINT(1) DEFAULT 0,
@@ -402,7 +375,6 @@ function rf_decrypt(string $ciphertext): string {
             UNIQUE KEY `uq_rf_client` (`rf_account_id`, `client_account_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        // Affiliate-Baum
         $db->exec("CREATE TABLE IF NOT EXISTS `roboforex_tree` (
             `id`              INT UNSIGNED NOT NULL AUTO_INCREMENT,
             `rf_account_id`   VARCHAR(20) NOT NULL,
@@ -414,7 +386,6 @@ function rf_decrypt(string $ciphertext): string {
             UNIQUE KEY `uq_rf_tree` (`rf_account_id`, `parent_id`, `child_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        // Labels/Namen für Konto-IDs
         $db->exec("CREATE TABLE IF NOT EXISTS `roboforex_client_labels` (
             `id`                INT UNSIGNED NOT NULL AUTO_INCREMENT,
             `client_account_id` VARCHAR(20) NOT NULL,
@@ -425,11 +396,10 @@ function rf_decrypt(string $ciphertext): string {
             UNIQUE KEY `uq_client_label` (`client_account_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        // Sync-Status pro Partner-Konto
         $db->exec("CREATE TABLE IF NOT EXISTS `roboforex_sync_log` (
             `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
             `rf_account_id` VARCHAR(20) NOT NULL,
-            `sync_type`     VARCHAR(20) NOT NULL,  -- 'clients' | 'tree'
+            `sync_type`     VARCHAR(20) NOT NULL,
             `synced_at`     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `records`       INT UNSIGNED DEFAULT 0,
             PRIMARY KEY (`id`),
@@ -450,7 +420,7 @@ function rf_decrypt(string $ciphertext): string {
         $db->exec("CREATE TABLE IF NOT EXISTS `roboforex_commission_cache` (
             `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
             `rf_account_id` VARCHAR(20) NOT NULL,
-            `cache_key`     VARCHAR(50) NOT NULL,  -- 'today','tomorrow','week','month','total'
+            `cache_key`     VARCHAR(50) NOT NULL,
             `amount`        DECIMAL(12,4) NOT NULL DEFAULT 0,
             `date_from`     DATE NOT NULL,
             `date_to`       DATE NOT NULL,
@@ -469,13 +439,11 @@ function rf_decrypt(string $ciphertext): string {
 (function() {
     $db = get_db();
     try {
-        // user_id Spalte zu roboforex_accounts hinzufügen
         $cols = $db->query("SHOW COLUMNS FROM roboforex_accounts")->fetchAll(PDO::FETCH_COLUMN);
         if (!in_array('user_id', $cols)) {
             $db->exec("ALTER TABLE roboforex_accounts ADD COLUMN `user_id` INT UNSIGNED DEFAULT NULL AFTER `id`");
             $db->exec("ALTER TABLE roboforex_accounts ADD KEY `idx_user_id` (`user_id`)");
         }
-        // Bestehende Konten ohne user_id bleiben Admin-Konten (user_id = NULL = alle Admins sehen sie)
     } catch (PDOException $e) {
         error_log('Migration 15: ' . $e->getMessage());
     }
@@ -528,3 +496,39 @@ function rf_decrypt(string $ciphertext): string {
         error_log('Migration 20: ' . $e->getMessage());
     }
 })();
+
+// ════════════════════════════════════════════════
+// MIGRATION 21 – App-Settings Tabelle + Trading-Startdatum
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        $db->exec("CREATE TABLE IF NOT EXISTS `app_settings` (
+            `setting_key`   VARCHAR(50) NOT NULL,
+            `setting_value` VARCHAR(255) NOT NULL,
+            `updated_at`    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`setting_key`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $db->prepare("INSERT IGNORE INTO app_settings (setting_key, setting_value) VALUES ('trading_start_date', ?)")
+           ->execute([date('Y-m-d')]);
+    } catch (PDOException $e) {
+        error_log('Migration 21: ' . $e->getMessage());
+    }
+})();
+
+// ── Trading-Startdatum (zentral konfigurierbar) ───────────────────────────────
+function getTradingStartDate(): string {
+    $db = get_db();
+    $stmt = $db->prepare("SELECT setting_value FROM app_settings WHERE setting_key = 'trading_start_date'");
+    $stmt->execute();
+    $val = $stmt->fetchColumn();
+    return $val ?: date('Y-m-d');
+}
+
+function setTradingStartDate(string $date): void {
+    $db = get_db();
+    $db->prepare("INSERT INTO app_settings (setting_key, setting_value) VALUES ('trading_start_date', ?)
+                  ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)")
+       ->execute([$date]);
+}

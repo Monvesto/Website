@@ -13,12 +13,12 @@ if (defined('HANDLE_POST_ONLY')) return;
 
 $db = get_db();
 
-$tradingStartDate = '2026-06-24';
+$tradingStartDate = getTradingStartDate();
 
 // ── Hilfsfunktionen ───────────────────────────────────────────────────────────
 function calcTradingDay(string $date): int
 {
-    $start  = new DateTime('2026-06-24');
+    $start  = new DateTime(getTradingStartDate());
     $target = new DateTime($date);
     $diff   = (int) $start->diff($target)->format('%r%a');
     return max(1, $diff + 1);
@@ -132,7 +132,7 @@ $tradingBase = 'trading/';
 
 $accounts = [
     'main'      => 'Main Account',
-    'ea'        => 'Monvesto EA',
+    'ea'        => 'Low Risk Account',
     'challenge' => 'Road to 100k',
 ];
 $balanceCols = [
@@ -247,6 +247,10 @@ $balanceCols = [
     <div class="card-head">
         <span class="card-title" id="form-headline">Neuer Eintrag</span>
         <div class="tr-card-head-actions">
+            <span class="text-muted tr-start-label">
+                Start: <?= date('d.m.Y', strtotime($tradingStartDate)) ?>
+            </span>
+            <button class="btn btn-ghost btn-sm" id="btn-edit-trading-start" type="button">Startdatum ändern</button>
             <button class="btn btn-ghost btn-sm" id="btn-gd-test" type="button">GD-Test</button>
             <button class="btn btn-ghost btn-sm" id="btn-myfxbook" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13">
@@ -273,7 +277,7 @@ $balanceCols = [
 
         <?php
         $accountKeys   = ['main', 'ea', 'challenge'];
-        $accountLabels = ['main' => 'Main Account', 'ea' => 'Monvesto EA', 'challenge' => 'Road to 100k'];
+        $accountLabels = ['main' => 'Main Account', 'ea' => 'Low Risk Account', 'challenge' => 'Road to 100k'];
         foreach ($accountKeys as $key):
             $cfg       = $accountSettings[$key] ?? [];
             $startBal  = isset($cfg['start_balance']) && $cfg['start_balance'] !== null ? (float) $cfg['start_balance'] : null;
@@ -447,6 +451,23 @@ $balanceCols = [
     </div>
 </div>
 
+<!-- ── Trading-Startdatum-Modal ───────────────────────────────────────────── -->
+<div id="trading-start-modal" hidden>
+    <div id="confirm-backdrop"></div>
+    <div id="confirm-box" class="tr-modal-box">
+        <h3 class="tr-modal-title">Handelstag-Startdatum</h3>
+        <div class="form-group tr-modal-field-last">
+            <label for="trading-start-input">Startdatum (Tag 1)</label>
+            <input type="date" id="trading-start-input" value="<?= $tradingStartDate ?>">
+            <span class="form-hint">Ändert die Zählung "Tag X seit Start" für alle Konten.</span>
+        </div>
+        <div id="confirm-btns">
+            <button class="btn btn-ghost btn-sm" id="trading-start-cancel">Abbrechen</button>
+            <button class="btn btn-primary btn-sm" id="trading-start-save">Speichern</button>
+        </div>
+    </div>
+</div>
+
 <!-- ── Einstellungen-Modal ────────────────────────────────────────────────── -->
 <div id="startbal-modal" hidden>
     <div id="confirm-backdrop"></div>
@@ -553,7 +574,7 @@ $balanceCols = [
             <select id="img-type">
                 <option value="combined">All 3 Accounts (combined)</option>
                 <option value="main">Main Account</option>
-                <option value="ea">Monvesto EA</option>
+                <option value="ea">Low Risk Account</option>
                 <option value="challenge">Road to 100k</option>
             </select>
         </div>

@@ -5,9 +5,10 @@
  * Serverseitiger Proxy für MyFxBook API-Aufrufe.
  * Gibt immer JSON zurück.
  *
- * ?action=save_settings  (POST) → Ausgangskontostand + MyFxBook-ID speichern
- * ?action=fetch_all      (GET)  → Kontodaten + offene Positionen laden
- * ?action=logout         (GET)  → Session beenden
+ * ?action=save_settings       (POST) → Ausgangskontostand + MyFxBook-ID speichern
+ * ?action=save_trading_start  (POST) → Globales Handelstag-Startdatum speichern
+ * ?action=fetch_all           (GET)  → Kontodaten + offene Positionen laden
+ * ?action=logout              (GET)  → Session beenden
  */
 
 // ── Fehlerbehandlung: immer JSON zurückgeben, nie leere 500er ────────────────
@@ -35,6 +36,24 @@ if (!is_admin()) {
 
 $db     = get_db();
 $action = $_GET['action'] ?? 'fetch_all';
+
+// ════════════════════════════════════════════════════════════════════════════
+// ACTION: save_trading_start – läuft OHNE MyFxBook-Login
+// ════════════════════════════════════════════════════════════════════════════
+if ($action === 'save_trading_start') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        echo json_encode(['success' => false, 'message' => 'POST erwartet.']);
+        exit;
+    }
+    $date = trim($_POST['trading_start_date'] ?? '');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+        echo json_encode(['success' => false, 'message' => 'Ungültiges Datum.']);
+        exit;
+    }
+    setTradingStartDate($date);
+    echo json_encode(['success' => true, 'message' => 'Startdatum gespeichert.']);
+    exit;
+}
 
 // ════════════════════════════════════════════════════════════════════════════
 // ACTION: save_settings – läuft OHNE MyFxBook-Login
@@ -261,7 +280,9 @@ if ($action === 'fetch_all') {
         if ($dailyResult['success']) {
             $dailyData = $dailyResult['data']['dataDaily'] ?? [];
             if (!empty($dailyData)) {
-                $todayProfit = (float) ($dailyData[0]['profit'] ?? 0);
+                // MyFxBook liefert dataDaily als [[{...}]] (doppelt verschachtelt)
+                $entry = isset($dailyData[0][0]) ? $dailyData[0][0] : $dailyData[0];
+                $todayProfit = (float) ($entry['profit'] ?? 0);
                 $base = ($startBal && $startBal > 0) ? $startBal : ($balance - $todayProfit);
                 if ($base > 0) {
                     $todayReturn = round(($todayProfit / $base) * 100, 4);

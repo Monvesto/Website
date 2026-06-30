@@ -18,8 +18,7 @@
     const START_BALANCES = cfg.startBalances;
     const CALC_BASES     = cfg.calcBases;
 
-    const formCard = document.getElementById('trading-form-card');
-    if (formCard) formCard.style.marginBottom = '24px';
+    // (margin-bottom für trading-form-card wird über CSS-Klasse .tr-form-card geregelt)
 
     // ── Handelstag berechnen ──────────────────────────────────────────────────
     function calcTradingDay(dateStr) {
@@ -96,9 +95,10 @@
         fd.append('edit_id',      document.getElementById('edit_id').value);
         fd.append('force_update', force ? '1' : '0');
         ['main', 'ea', 'challenge'].forEach(function (k) {
-            fd.append(k + '_return', document.getElementById(k + '_return').value);
-            fd.append(k + '_profit', document.getElementById(k + '_profit').value);
-            fd.append(k + '_open',   document.getElementById(k + '_open_json').value);
+            fd.append(k + '_return',  document.getElementById(k + '_return').value);
+            fd.append(k + '_profit',  document.getElementById(k + '_profit').value);
+            fd.append(k + '_balance', document.getElementById(k + '_balance').value);
+            fd.append(k + '_open',    document.getElementById(k + '_open_json').value);
         });
         let res, data;
         try {
@@ -156,7 +156,7 @@
         const rfServer  = btn.dataset.rfserver  || '';
         const rfLeverage = btn.dataset.rfleverage || '';
         const mode      = btn.dataset.mode      || 'full'; // 'full' oder 'calcbasis'
-        const labels    = { main: 'Main Account', ea: 'Monvesto EA', challenge: 'Road to 100k' };
+        const labels    = { main: 'Main Account', ea: 'Low Risk Account', challenge: 'Road to 100k' };
 
         // Werte vorausfüllen
         document.getElementById('startbal-account-key').value  = key;
@@ -224,6 +224,38 @@
         document.getElementById('startbal-modal').hidden = true;
     });
 
+    // ── Trading-Startdatum ändern ──────────────────────────────────────────────
+    document.getElementById('btn-edit-trading-start').addEventListener('click', function () {
+        document.getElementById('trading-start-modal').hidden = false;
+    });
+    document.getElementById('trading-start-cancel').addEventListener('click', function () {
+        document.getElementById('trading-start-modal').hidden = true;
+    });
+    document.getElementById('trading-start-save').addEventListener('click', async function () {
+        const btn  = this;
+        const date = document.getElementById('trading-start-input').value;
+        if (!date) { alert('Bitte ein Datum wählen.'); return; }
+
+        btn.disabled = true;
+        btn.textContent = 'Speichert...';
+        try {
+            const fd = new FormData();
+            fd.append('trading_start_date', date);
+            const res  = await fetch(BASE + 'myfxbook_proxy.php?action=save_trading_start', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data.success) {
+                showMessage('success', 'Startdatum gespeichert ✓');
+                setTimeout(function () { location.reload(); }, 800);
+            } else {
+                showMessage('error', 'Fehler: ' + (data.message || 'Unbekannt'));
+                btn.disabled = false; btn.textContent = 'Speichern';
+            }
+        } catch (e) {
+            showMessage('error', 'Netzwerkfehler: ' + e.message);
+            btn.disabled = false; btn.textContent = 'Speichern';
+        }
+    });
+
     // ── Telegram-Button in Tabelle ────────────────────────────────────────────
     document.getElementById('trading-table').addEventListener('click', function (e) {
         const btn = e.target.closest('.btn-telegram-post');
@@ -275,7 +307,6 @@
     const tgTestBtn = document.createElement('button');
     tgTestBtn.className = 'btn btn-ghost btn-sm';
     tgTestBtn.textContent = 'TG-Test';
-    tgTestBtn.style.marginLeft = '8px'; // wird durch CSP blockiert aber funktional
     document.getElementById('btn-gd-test').parentNode.appendChild(tgTestBtn);
     tgTestBtn.addEventListener('click', async function () {
         const res  = await fetch(BASE + 'telegram_post.php?action=test');
@@ -377,10 +408,22 @@
     async function createImageAfterSave(entryId) {
         if (!document.getElementById('chk-create-image').checked) return;
         try {
-            const res = await fetch(BASE + 'generate_image.php?action=generate'
+            const res  = await fetch(BASE + 'generate_image.php?action=generate'
                 + '&entry_id=' + entryId
                 + '&type=combined&format=feed');
-            // Nicht auf JSON warten – Grafik ist optional, Fehler werden ignoriert
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('img-entry-id').value = entryId;
+                document.getElementById('img-type').value     = 'combined';
+                document.getElementById('img-format').value   = 'feed';
+                document.getElementById('img-preview-img').src = data.url + '?t=' + Date.now();
+                document.getElementById('img-download-link').href =
+                    BASE + 'generate_image.php?action=download'
+                    + '&entry_id=' + entryId
+                    + '&type=combined&format=feed';
+                document.getElementById('img-preview').hidden = false;
+                document.getElementById('image-modal').hidden = false;
+            }
         } catch (e) { /* silent */ }
     }
 
@@ -406,6 +449,38 @@
     });
 
     // ── MyFxBook laden ────────────────────────────────────────────────────────
+    // ── Trading-Startdatum ändern ──────────────────────────────────────────────
+    document.getElementById('btn-edit-trading-start').addEventListener('click', function () {
+        document.getElementById('trading-start-modal').hidden = false;
+    });
+    document.getElementById('trading-start-cancel').addEventListener('click', function () {
+        document.getElementById('trading-start-modal').hidden = true;
+    });
+    document.getElementById('trading-start-save').addEventListener('click', async function () {
+        const btn  = this;
+        const date = document.getElementById('trading-start-input').value;
+        if (!date) { alert('Bitte ein Datum wählen.'); return; }
+
+        btn.disabled = true;
+        btn.textContent = 'Speichert...';
+        try {
+            const fd = new FormData();
+            fd.append('trading_start_date', date);
+            const res  = await fetch(BASE + 'myfxbook_proxy.php?action=save_trading_start', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data.success) {
+                showMessage('success', 'Startdatum gespeichert ✓');
+                setTimeout(function () { location.reload(); }, 800);
+            } else {
+                showMessage('error', 'Fehler: ' + (data.message || 'Unbekannt'));
+                btn.disabled = false; btn.textContent = 'Speichern';
+            }
+        } catch (e) {
+            showMessage('error', 'Netzwerkfehler: ' + e.message);
+            btn.disabled = false; btn.textContent = 'Speichern';
+        }
+    });
+
     document.getElementById('btn-myfxbook').addEventListener('click', async function () {
         const btn = this;
         btn.disabled = true; btn.textContent = 'Lade...';
@@ -426,6 +501,9 @@
             if (acc.today_profit !== null) {
                 document.getElementById(key + '_profit').value = acc.today_profit.toFixed(2);
                 document.getElementById(key + '_profit').dispatchEvent(new Event('input'));
+            }
+            if (acc.balance !== null && acc.balance !== undefined) {
+                document.getElementById(key + '_balance').value = acc.balance.toFixed(2);
             }
             if (acc.today_return !== null) {
                 document.getElementById(key + '_return').value = acc.today_return.toFixed(2);
@@ -479,6 +557,8 @@
                     + '<td class="col-actions">'
                     + '<button class="btn btn-xs btn-ghost btn-edit-row" type="button">Bearbeiten</button> '
                     + '<button class="btn btn-xs btn-ok btn-create-image" type="button" data-id="' + r.id + '" data-date="' + r.entry_date + '">Grafik</button>'
+                    + '<button class="btn btn-xs btn-primary btn-telegram-post" type="button" data-id="' + r.id + '" data-date="' + r.entry_date + '">Post</button>'
+                    + '<button class="btn btn-xs btn-danger btn-delete-row" type="button" data-id="' + r.id + '" data-date="' + formatDate(r.entry_date) + '">Löschen</button>'
                     + '</td>'
                     + '</tr>';
             }).join('');
@@ -494,7 +574,7 @@
             const s = data.stats;
             document.getElementById('trading-stats').innerHTML =
                 statCard('Main Account',  s.main.all,      s.main.week)      +
-                statCard('Monvesto EA',   s.ea.all,        s.ea.week)        +
+                statCard('Low Risk Account',   s.ea.all,        s.ea.week)        +
                 statCard('Road to 100k',  s.challenge.all, s.challenge.week);
         } catch (e) { /* silent */ }
     }
@@ -506,7 +586,7 @@
             + '<div class="kpi-label">' + label + '</div>'
             + '<div class="kpi-value--md ' + aCls + '">' + fmtReturnStat(all) + '</div>'
             + '<div class="kpi-sub">seit Start</div>'
-            + '<div class="kpi-sub tr-week" style="margin-top:4px">Woche: <strong class="' + wCls + '">' + fmtReturnStat(week) + '</strong></div>'
+            + '<div class="kpi-sub tr-week">Woche: <strong class="' + wCls + '">' + fmtReturnStat(week) + '</strong></div>'
             + '</div>';
     }
 

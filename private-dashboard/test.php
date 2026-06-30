@@ -1,14 +1,35 @@
 <?php
 require_once __DIR__ . '/config/bootstrap.php';
+require_once __DIR__ . '/trading/api/myfxbook.php';
+
 header('Content-Type: application/json');
 
-$db = get_db();
-$cols = $db->query("SHOW COLUMNS FROM trading_account_settings")->fetchAll(PDO::FETCH_COLUMN);
-$row = $db->query("SELECT * FROM trading_account_settings WHERE account_key='main'")->fetch(PDO::FETCH_ASSOC);
+if (!is_admin()) { echo json_encode(['error' => 'no access']); exit; }
 
-echo json_encode([
-    'all_columns'    => $cols,
-    'has_rf_server'  => in_array('rf_server', $cols),
-    'has_rf_leverage'=> in_array('rf_leverage', $cols),
-    'main_row'       => $row,
-], JSON_PRETTY_PRINT);
+$db = get_db();
+$api = new MyfxbookApi(MYFXBOOK_EMAIL, MYFXBOOK_PASSWORD);
+$login = $api->login();
+
+if (!$login['success']) {
+    echo json_encode(['error' => 'Login failed: ' . $login['message']]);
+    exit;
+}
+
+$today     = date('Y-m-d');
+$yesterday = date('Y-m-d', strtotime('-1 day'));
+
+// Alle drei Account-IDs aus DB laden
+$stmt = $db->query("SELECT account_key, myfxbook_id FROM trading_account_settings WHERE myfxbook_id IS NOT NULL");
+$accounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$result = [];
+foreach ($accounts as $acc) {
+    $id = (int)$acc['myfxbook_id'];
+    $result[$acc['account_key']] = [
+        'today'     => $api->getDailyGain($id, $today, $today),
+        'yesterday' => $api->getDailyGain($id, $yesterday, $yesterday),
+        'last7'     => $api->getDailyGain($id, date('Y-m-d', strtotime('-7 days')), $today),
+    ];
+}
+
+echo json_encode($result, JSON_PRETTY_PRINT);

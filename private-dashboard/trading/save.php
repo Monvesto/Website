@@ -29,8 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $db = get_db();
 
-define('TRADING_START_DATE', '2026-06-24');
-
 // ── Eingaben einlesen ─────────────────────────────────────────────────────────
 $rawDate     = trim($_POST['entry_date']   ?? '');
 $editId      = (int) ($_POST['edit_id']    ?? 0);
@@ -105,7 +103,7 @@ if ($mainReturn === null && $eaReturn === null && $challengeReturn === null &&
 }
 
 // ── Handelstag berechnen ──────────────────────────────────────────────────────
-$start      = new DateTime(TRADING_START_DATE);
+$start      = new DateTime(getTradingStartDate());
 $entry      = new DateTime($rawDate);
 $diff       = (int) $start->diff($entry)->format('%r%a');
 $tradingDay = max(1, $diff + 1);

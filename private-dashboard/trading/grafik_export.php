@@ -12,48 +12,19 @@
  *   account  string  'main' | 'ea' | 'challenge' | 'all'  (Standard: 'all')
  *   period   string  'week' | 'month' | 'all'              (Standard: 'week')
  *   format   string  'json' | 'png'                        (Standard: 'json'; 'png' = TODO)
- *
- * Response (format=json):
- * {
- *   "account":          "main" | "ea" | "challenge" | "all",
- *   "period":           "week" | "month" | "all",
- *   "period_label":     "Diese Woche (KW24)",
- *   "from_date":        "2026-06-16",
- *   "to_date":          "2026-06-22",
- *   "trading_start":    "2026-06-24",
- *   "entries": [
- *     {
- *       "date":         "2026-06-24",
- *       "trading_day":  1,
- *       "main":         1.25,
- *       "ea":           -0.85,
- *       "challenge":    2.33
- *     }
- *   ],
- *   "summary": {
- *     "main":      { "cumulative": 0.39, "count": 1 },
- *     "ea":        { "cumulative": -0.85, "count": 1 },
- *     "challenge": { "cumulative": 2.33, "count": 1 }
- *   },
- *   "generated_at": "2026-06-24T10:00:00+02:00"
- * }
  */
 
-require_once __DIR__ . '/../../config/bootstrap.php';
+require_once __DIR__ . '/../config/bootstrap.php';
 
 $pdo = get_db();
 
 header('Content-Type: application/json; charset=utf-8');
 
-// ── Admin-Check (oder zukünftig: API-Key für Bot-Zugriff) ────────────────────
-if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    // TODO: hier später API-Key-Authentifizierung für Bot-Zugriff einbauen
-    // Beispiel: if ($_SERVER['HTTP_X_API_KEY'] !== TRADING_EXPORT_API_KEY) { ... }
+// ── Admin-Check ───────────────────────────────────────────────────────────────
+if (!is_admin()) {
     echo json_encode(['success' => false, 'message' => 'Zugriff verweigert.']);
     exit;
 }
-
-define('TRADING_START_DATE', '2026-06-24');
 
 // ── Parameter ─────────────────────────────────────────────────────────────────
 $account = in_array($_GET['account'] ?? 'all', ['main', 'ea', 'challenge', 'all'])
@@ -64,7 +35,8 @@ $format  = in_array($_GET['format']  ?? 'json', ['json', 'png'])
            ? ($_GET['format']  ?? 'json') : 'json';
 
 // ── Zeitraum ermitteln ────────────────────────────────────────────────────────
-$today = date('Y-m-d');
+$today             = date('Y-m-d');
+$tradingStartDate  = getTradingStartDate();
 
 switch ($period) {
     case 'week':
@@ -83,9 +55,9 @@ switch ($period) {
 
     case 'all':
     default:
-        $fromDate    = TRADING_START_DATE;
+        $fromDate    = $tradingStartDate;
         $toDate      = $today;
-        $periodLabel = 'Seit Start (' . date('d.m.Y', strtotime(TRADING_START_DATE)) . ')';
+        $periodLabel = 'Seit Start (' . date('d.m.Y', strtotime($tradingStartDate)) . ')';
         break;
 }
 
@@ -178,7 +150,7 @@ echo json_encode([
     'period_label'   => $periodLabel,
     'from_date'      => $fromDate,
     'to_date'        => $toDate,
-    'trading_start'  => TRADING_START_DATE,
+    'trading_start'  => $tradingStartDate,
     'entries'        => $entries,
     'summary'        => $summary,
     'generated_at'   => date('c'), // ISO 8601

@@ -59,7 +59,9 @@ class MyfxbookApi
         ]);
 
         if ($result['success'] && isset($result['data']['session'])) {
-            $this->session = $result['data']['session'];
+            // MyFxBook liefert den Session-Token bereits URL-kodiert zurück.
+            // Dekodieren, damit http_build_query() ihn später nicht doppelt kodiert.
+            $this->session = urldecode($result['data']['session']);
             return [
                 'success' => true,
                 'session' => $this->session,

@@ -31,8 +31,6 @@ if (!is_admin()) {
     exit;
 }
 
-define('TRADING_START_DATE', '2026-06-24');
-
 $db         = get_db();
 $limit      = min(100, max(1, (int) ($_GET['limit'] ?? 10)));
 $withStats  = ($_GET['stats'] ?? '0') === '1';

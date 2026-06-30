@@ -152,28 +152,43 @@ class TelegramBot
  * @param  float|null $challengeBal Aktueller Challenge-Kontostand
  * @return string HTML-formatierte Caption
  */
+function tgPct(?float $v): string {
+    if ($v === null) return '–';
+    return ($v >= 0 ? '+' : '') . number_format($v, 2, '.', ',') . '%';
+}
+function tgEur(?float $v, string $cur = 'EUR'): string {
+    if ($v === null) return '–';
+    return ($v >= 0 ? '+' : '') . number_format($v, 2, '.', ',') . ' ' . $cur;
+}
+
 function buildTelegramCaption(array $entry, array $stats, array $settings, ?float $challengeBal): string
 {
     $date = date('d.m.Y', strtotime($entry['entry_date']));
     $day  = $entry['trading_day'];
 
-    function tgPct(?float $v): string {
-        if ($v === null) return '–';
-        return ($v >= 0 ? '+' : '') . number_format($v, 2, '.', ',') . '%';
-    }
-    function tgEur(?float $v, string $cur = 'EUR'): string {
-        if ($v === null) return '–';
-        return ($v >= 0 ? '+' : '') . number_format($v, 2, '.', ',') . ' ' . $cur;
-    }
-
     $accounts = [
-        'main'      => ['label' => 'Main Account',  'ret' => 'main_account_return',      'profit' => 'main_account_profit'],
-        'ea'        => ['label' => 'Monvesto EA',    'ret' => 'ea_account_return',        'profit' => 'ea_account_profit'],
-        'challenge' => ['label' => 'Road to 100k',  'ret' => 'challenge_account_return', 'profit' => 'challenge_account_profit'],
+        'main'      => [
+            'label'  => 'Main Account',
+            'ret'    => 'main_account_return',
+            'profit' => 'main_account_profit',
+            'link'   => 'https://www.myfxbook.com/members/Monvesto/monvesto-main-account/12095621',
+        ],
+        'ea'        => [
+            'label'  => 'Low Risk Account',
+            'ret'    => 'ea_account_return',
+            'profit' => 'ea_account_profit',
+            'link'   => 'https://www.myfxbook.com/members/Monvesto/monvesto-low-risk/12095622',
+        ],
+        'challenge' => [
+            'label'  => 'Road to 100k',
+            'ret'    => 'challenge_account_return',
+            'profit' => 'challenge_account_profit',
+            'link'   => 'https://www.myfxbook.com/members/Monvesto/monvesto-road-100k-challenge/12095625',
+        ],
     ];
 
     $lines = [];
-    $lines[] = "<b>📊 Monvesto Trading Update</b>";
+    $lines[] = "❗️ <b>Daily Results</b> ❗️";
     $lines[] = "📅 " . $date . "  |  Day " . $day;
     $lines[] = "";
 
@@ -187,15 +202,16 @@ function buildTelegramCaption(array $entry, array $stats, array $settings, ?floa
         $emoji = ($today === null || $today >= 0) ? '🟢' : '🔴';
 
         $lines[] = $emoji . " <b>" . $acc['label'] . "</b>";
+        $lines[] = "➡️ " . $acc['link'];
         $lines[] = "  Today:  <b>" . tgPct($today) . "</b>  (" . tgEur($profit, $cur) . ")";
         $lines[] = "  Week:   " . tgPct($wkRet);
         $lines[] = "  Total:  " . tgPct($allRet);
 
         // Challenge: Kontostand + Progress
         if ($key === 'challenge' && $challengeBal !== null) {
-            $pct = min(100, $challengeBal / 1000);
-            $filled = (int)($pct / 5); // 20 Segmente à 5%
-            $bar  = str_repeat('█', $filled) . str_repeat('░', 20 - $filled);
+            $pct    = min(100, $challengeBal / 1000);
+            $filled = (int)($pct / 5);
+            $bar    = str_repeat('█', $filled) . str_repeat('░', 20 - $filled);
             $lines[] = "  " . $bar . " " . number_format($pct, 1) . "%";
             $lines[] = "  " . number_format($challengeBal, 0, '.', ',') . " / 100,000 " . $cur;
         }
@@ -203,7 +219,14 @@ function buildTelegramCaption(array $entry, array $stats, array $settings, ?floa
         $lines[] = "";
     }
 
-    $lines[] = "<i>monvesto.de</i>";
+    $lines[] = "⚠️ <b>Get REBATE + FREE 30$ CASH after verification!</b>";
+    $lines[] = "💰 Broker Link: https://my.roboforex.com/de/?a=cslx";
+    $lines[] = "💰 Affiliate Code: <b>CSLX</b>";
+    $lines[] = "";
+    $lines[] = "Stay tuned for Daily Updates ✔️";
+    $lines[] = "#RoadTo100K #CopyTrading #Challenge #TradingJourney";
+    $lines[] = "";
+    $lines[] = "ℹ️ <i>All important info can be found in the pinned message.</i>";
 
     return implode("\n", $lines);
 }

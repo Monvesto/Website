@@ -120,7 +120,7 @@ foreach ($settingsStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
 $d = $e['entry_date'];
 $data = [
     'main'      => ['label'=>'MAIN ACCOUNT', 'today'=>$e['main_account_return'],      'profit'=>$e['main_account_profit'],      'total'=>cumRet($db,'main_account_profit',      $d, isset($acctSettings['main']['start_balance'])      ? (float)$acctSettings['main']['start_balance']      : null), 'bal'=>null,  'prog'=>null],
-    'ea'        => ['label'=>'MONVESTO EA',   'today'=>$e['ea_account_return'],        'profit'=>$e['ea_account_profit'],        'total'=>cumRet($db,'ea_account_profit',        $d, isset($acctSettings['ea']['start_balance'])        ? (float)$acctSettings['ea']['start_balance']        : null), 'bal'=>null,  'prog'=>null],
+    'ea'        => ['label'=>'LOW RISK ACCOUNT',   'today'=>$e['ea_account_return'],        'profit'=>$e['ea_account_profit'],        'total'=>cumRet($db,'ea_account_profit',        $d, isset($acctSettings['ea']['start_balance'])        ? (float)$acctSettings['ea']['start_balance']        : null), 'bal'=>null,  'prog'=>null],
     'challenge' => ['label'=>'ROAD TO 100K', 'today'=>$e['challenge_account_return'], 'profit'=>$e['challenge_account_profit'], 'total'=>cumRet($db,'challenge_account_profit', $d, isset($acctSettings['challenge']['start_balance']) ? (float)$acctSettings['challenge']['start_balance'] : null), 'bal'=>lastBalance($db,'challenge_account_balance',$d), 'prog'=>null],
 ];
 // Progress: wenn Kontostand vorhanden → echte %, sonst cum. Rendite als Schätzung
