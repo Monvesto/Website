@@ -171,9 +171,9 @@ $balanceCols = [
                     <?= $label ?>
                     <?php if ($rfAccId || $rfServer || $rfLeverage): ?>
                     <span class="tr-rf-meta">
-                        <?= $rfAccId ? '#' . htmlspecialchars($rfAccId) : '' ?>
-                        <?= $rfServer ? ' · ' . htmlspecialchars($rfServer) : '' ?>
-                        <?= $rfLeverage ? ' · ' . htmlspecialchars($rfLeverage) : '' ?>
+                        <?= $rfAccId    ? '' . htmlspecialchars($rfAccId) : '' ?>
+                        <?= $rfServer   ? ' | ' . htmlspecialchars($rfServer) : '' ?>
+                        <?= $rfLeverage ? ' | ' . htmlspecialchars($rfLeverage) : '' ?>
                     </span>
                     <?php endif; ?>
                 </div>
@@ -489,13 +489,9 @@ $balanceCols = [
                 <option value="Pro-Cent">Pro-Cent</option>
                 <option value="Pro-Standard">Pro-Standard</option>
                 <option value="ECN-Standard">ECN-Standard</option>
-                <option value="ECN2-Standard">ECN2-Standard</option>
-                <option value="Fix-Standard">Fix-Standard</option>
                 <option value="Fix-Cent">Fix-Cent</option>
                 <option value="ProCent CopyFx">ProCent CopyFx</option>
-                <option value="Ecn-Standard CopyFx">Ecn-Standard CopyFx</option>
-                <option value="MT5_ecn_real-Standard">MT5_ecn_real-Standard</option>
-                <option value="Umstel_real-Standard">Umstel_real-Standard</option>
+                <option value="Ecn CopyFx">Ecn CopyFx</option>
             </select>
         </div>
         <div class="form-group tr-modal-field">
@@ -506,21 +502,17 @@ $balanceCols = [
             <label for="rfserver-input">Server</label>
             <select id="rfserver-input">
                 <option value="">– keine Angabe –</option>
-                <option value="RoboForex-ECN">RoboForex-ECN</option>
-                <option value="RoboForex-Pro">RoboForex-Pro</option>
-                <option value="RoboForex-Cent">RoboForex-Cent</option>
-                <option value="RoboForex-Demo">RoboForex-Demo</option>
-                <option value="RoboForex-MT5">RoboForex-MT5</option>
+                <option value="ECN">ECN</option>
+                <option value="Pro">Pro</option>
+                <option value="ProCent">ProCent</option>
+                <option value="ProCent-8">ProCent 8</option>
+                <option value="Demo">RoboForex-Demo</option>
             </select>
         </div>
         <div class="form-group tr-modal-field">
             <label for="rfleverage-input">Hebel</label>
             <select id="rfleverage-input">
                 <option value="">– keine Angabe –</option>
-                <option value="1:1">1:1</option>
-                <option value="1:10">1:10</option>
-                <option value="1:20">1:20</option>
-                <option value="1:30">1:30</option>
                 <option value="1:50">1:50</option>
                 <option value="1:100">1:100</option>
                 <option value="1:200">1:200</option>
