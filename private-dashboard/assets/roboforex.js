@@ -618,8 +618,14 @@
         const col = commissionSort.col;
         const dir = commissionSort.dir;
         const sorted = commissionData.slice().sort(function (a, b) {
-            let va = a[col] || '';
-            let vb = b[col] || '';
+            let va, vb;
+            if (col === 'name') {
+                va = (labelsData[a.login] ? labelsData[a.login].label : '') || '';
+                vb = (labelsData[b.login] ? labelsData[b.login].label : '') || '';
+            } else {
+                va = a[col] || '';
+                vb = b[col] || '';
+            }
             if (col === 'amount' || col === 'volume' || col === 'level') {
                 va = parseFloat(va) || 0;
                 vb = parseFloat(vb) || 0;

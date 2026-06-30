@@ -151,6 +151,9 @@
         const startBal  = btn.dataset.startbal  || '';
         const startDate = btn.dataset.startdate || '';
         const calcBasis = btn.dataset.calcbasis || '';
+        const rfType    = btn.dataset.rftype    || '';
+        const rfAccId   = btn.dataset.rfaccid   || '';
+        const rfServer  = btn.dataset.rfserver  || '';
         const mode      = btn.dataset.mode      || 'full'; // 'full' oder 'calcbasis'
         const labels    = { main: 'Main Account', ea: 'Monvesto EA', challenge: 'Road to 100k' };
 
@@ -161,6 +164,9 @@
         document.getElementById('calcbasis-input').value       = calcBasis;
         document.getElementById('startbal-currency').value     = currency;
         document.getElementById('startbal-myfxbook-id').value  = mfxId;
+        document.getElementById('rftype-input').value           = rfType;
+        document.getElementById('rfaccid-input').value          = rfAccId;
+        document.getElementById('rfserver-input').value         = rfServer;
 
         const hasStart = startBal !== '' && startBal !== '0';
         const hasMfxId = mfxId    !== '';
@@ -197,6 +203,9 @@
         fd.append('calc_basis',    document.getElementById('calcbasis-input').value);
         fd.append('currency',      document.getElementById('startbal-currency').value);
         fd.append('myfxbook_id',   document.getElementById('startbal-myfxbook-id').value);
+        fd.append('rf_account_type', document.getElementById('rftype-input').value);
+        fd.append('rf_account_id',   document.getElementById('rfaccid-input').value);
+        fd.append('rf_server',       document.getElementById('rfserver-input').value);
         try {
             const res  = await fetch(BASE + 'myfxbook_proxy.php?action=save_settings', { method: 'POST', body: fd });
             const data = await res.json();

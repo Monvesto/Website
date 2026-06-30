@@ -51,6 +51,9 @@ if ($action === 'save_settings') {
     $calcBasis  = trim($_POST['calc_basis']    ?? '');
     $myfxbookId = trim($_POST['myfxbook_id']   ?? '');
     $currency   = trim($_POST['currency']      ?? 'USD');
+    $rfType     = trim($_POST['rf_account_type'] ?? '');
+    $rfAccId    = trim($_POST['rf_account_id']   ?? '');
+    $rfServer   = trim($_POST['rf_server']       ?? '');
 
     if (!in_array($accountKey, ['main', 'ea', 'challenge'], true)) {
         echo json_encode(['success' => false, 'message' => 'Ungültiger account_key: ' . $accountKey]);
@@ -61,32 +64,41 @@ if ($action === 'save_settings') {
     $calcBasisFloat = ($calcBasis !== '') ? (float) str_replace(',', '.', $calcBasis) : null;
     $myfxbookId     = ($myfxbookId !== '') ? $myfxbookId : null;
     $startDateVal   = ($startDate !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) ? $startDate : null;
+    $rfType         = ($rfType   !== '') ? $rfType   : null;
+    $rfAccId        = ($rfAccId  !== '') ? $rfAccId  : null;
+    $rfServer       = ($rfServer !== '') ? $rfServer : null;
 
     $stmt = $db->prepare("
         UPDATE trading_account_settings
-        SET start_balance = ?,
-            start_date    = ?,
-            calc_basis    = ?,
-            myfxbook_id   = ?,
-            currency      = ?
+        SET start_balance    = ?,
+            start_date       = ?,
+            calc_basis       = ?,
+            myfxbook_id      = ?,
+            currency         = ?,
+            rf_account_type  = ?,
+            rf_account_id    = ?,
+            rf_server        = ?
         WHERE account_key = ?
     ");
-    $stmt->execute([$startBalFloat, $startDateVal, $calcBasisFloat, $myfxbookId, $currency, $accountKey]);
+    $stmt->execute([$startBalFloat, $startDateVal, $calcBasisFloat, $myfxbookId, $currency, $rfType, $rfAccId, $rfServer, $accountKey]);
 
     if ($stmt->rowCount() === 0) {
         $labels = ['main' => 'Main Account', 'ea' => 'Monvesto EA', 'challenge' => 'Road to 100k'];
         $stmt2  = $db->prepare("
             INSERT INTO trading_account_settings
-                (account_key, label, start_balance, start_date, calc_basis, myfxbook_id, currency)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+                (account_key, label, start_balance, start_date, calc_basis, myfxbook_id, currency, rf_account_type, rf_account_id, rf_server)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
-                start_balance = VALUES(start_balance),
-                start_date    = VALUES(start_date),
-                calc_basis    = VALUES(calc_basis),
-                myfxbook_id   = VALUES(myfxbook_id),
-                currency      = VALUES(currency)
+                start_balance   = VALUES(start_balance),
+                start_date      = VALUES(start_date),
+                calc_basis      = VALUES(calc_basis),
+                myfxbook_id     = VALUES(myfxbook_id),
+                currency        = VALUES(currency),
+                rf_account_type = VALUES(rf_account_type),
+                rf_account_id   = VALUES(rf_account_id),
+                rf_server       = VALUES(rf_server)
         ");
-        $stmt2->execute([$accountKey, $labels[$accountKey], $startBalFloat, $startDateVal, $calcBasisFloat, $myfxbookId, $currency]);
+        $stmt2->execute([$accountKey, $labels[$accountKey], $startBalFloat, $startDateVal, $calcBasisFloat, $myfxbookId, $currency, $rfType, $rfAccId, $rfServer]);
     }
 
     echo json_encode(['success' => true, 'message' => 'Einstellungen gespeichert.']);

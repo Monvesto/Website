@@ -178,7 +178,7 @@ $firstAccount = $rfAccounts[0] ?? null;
                 <thead>
                     <tr>
                         <th class="rf-sortable" data-col="client_account_id">Kontonummer <span class="rf-sort-icon">↕</span></th>
-                        <th>Name</th>
+                        <th class="rf-sortable" data-col="label">Name <span class="rf-sort-icon">↕</span></th>
                         <th class="rf-sortable" data-col="account_type">Kontotyp <span class="rf-sort-icon">↕</span></th>
                         <th class="rf-sortable" data-col="reg_date">Registriert <span class="rf-sort-icon">↕</span></th>
                         <th class="rf-sortable" data-col="has_reached_deposit_threshold">Deposit-Schwelle <span class="rf-sort-icon">↕</span></th>
@@ -225,8 +225,8 @@ $firstAccount = $rfAccounts[0] ?? null;
                 <thead>
                     <tr>
                         <th>Ticket</th>
-                        <th>Login</th>
-                        <th>Name</th>
+                        <th class="rf-sortable" data-col="login">Login <span class="rf-sort-icon">↕</span></th>
+                        <th class="rf-sortable" data-col="name">Name <span class="rf-sort-icon">↕</span></th>
                         <th class="rf-sortable" data-col="symbol">Symbol <span class="rf-sort-icon">↕</span></th>
                         <th class="rf-sortable" data-col="volume">Volumen <span class="rf-sort-icon">↕</span></th>
                         <th class="rf-sortable" data-col="close_time">Geschlossen <span class="rf-sort-icon">↕</span></th>

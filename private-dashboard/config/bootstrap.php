@@ -492,3 +492,24 @@ function rf_decrypt(string $ciphertext): string {
         error_log('Migration 16 partner role: ' . $e->getMessage());
     }
 })();
+
+// ════════════════════════════════════════════════
+// MIGRATION 19 – RoboForex Kontodaten in trading_account_settings
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        foreach ([
+            'rf_account_type' => "VARCHAR(50) DEFAULT NULL",
+            'rf_account_id'   => "VARCHAR(20) DEFAULT NULL",
+            'rf_server'       => "VARCHAR(50) DEFAULT NULL",
+        ] as $col => $def) {
+            $has = $db->query("SHOW COLUMNS FROM `trading_account_settings` LIKE '$col'")->rowCount() > 0;
+            if (!$has) {
+                $db->exec("ALTER TABLE `trading_account_settings` ADD COLUMN `$col` $def");
+            }
+        }
+    } catch (PDOException $e) {
+        error_log('Migration 19: ' . $e->getMessage());
+    }
+})();

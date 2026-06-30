@@ -998,3 +998,5 @@ select { cursor: pointer; }
   .chk-col-label { min-width: 120px; }
   .person-btn { padding: 3px 8px; font-size: 11px; }
 }
+
+.tr-rf-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }

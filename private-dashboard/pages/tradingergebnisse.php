@@ -61,7 +61,8 @@ if ($lastMonday > $today) $lastMonday = date('Y-m-d', strtotime('monday last wee
 
 // ── Account-Einstellungen ─────────────────────────────────────────────────────
 $settingsStmt = $db->prepare("
-    SELECT account_key, label, start_balance, start_date, calc_basis, currency, myfxbook_id
+    SELECT account_key, label, start_balance, start_date, calc_basis, currency, myfxbook_id,
+           rf_account_type, rf_account_id, rf_server
     FROM trading_account_settings
 ");
 $settingsStmt->execute();
@@ -157,11 +158,22 @@ $balanceCols = [
     $calcBasis = isset($cfg['calc_basis'])    && $cfg['calc_basis']    !== null ? (float) $cfg['calc_basis']    : null;
     $currency  = $cfg['currency']    ?? 'USD';
     $mfxId     = $cfg['myfxbook_id'] ?? '';
+    $rfType    = $cfg['rf_account_type'] ?? '';
+    $rfAccId   = $cfg['rf_account_id']   ?? '';
+    $rfServer  = $cfg['rf_server']       ?? '';
 ?>
     <div class="kpi-card">
         <!-- Karten-Header mit Bearbeiten-Button -->
         <div class="tr-kpi-head">
-            <div class="kpi-label"><?= $label ?></div>
+            <div>
+                <div class="kpi-label"><?= $label ?></div>
+                <?php if ($rfAccId || $rfServer): ?>
+                <div class="tr-rf-meta">
+                    <?= $rfAccId ? '#' . htmlspecialchars($rfAccId) : '' ?>
+                    <?= $rfServer ? ' · ' . htmlspecialchars($rfServer) : '' ?>
+                </div>
+                <?php endif; ?>
+            </div>
             <button class="btn btn-xs btn-ghost btn-edit-startbal"
                     type="button"
                     data-key="<?= $key ?>"
@@ -170,6 +182,9 @@ $balanceCols = [
                     data-startbal="<?= $startBal ?? '' ?>"
                     data-startdate="<?= htmlspecialchars($startDate ?? '') ?>"
                     data-calcbasis="<?= $calcBasis ?? '' ?>"
+                    data-rftype="<?= htmlspecialchars($rfType) ?>"
+                    data-rfaccid="<?= htmlspecialchars($rfAccId) ?>"
+                    data-rfserver="<?= htmlspecialchars($rfServer) ?>"
                     title="Einstellungen bearbeiten">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -200,6 +215,9 @@ $balanceCols = [
                     data-startbal="<?= $startBal ?? '' ?>"
                     data-startdate="<?= htmlspecialchars($startDate ?? '') ?>"
                     data-calcbasis="<?= $calcBasis ?? '' ?>"
+                    data-rftype="<?= htmlspecialchars($rfType) ?>"
+                    data-rfaccid="<?= htmlspecialchars($rfAccId) ?>"
+                    data-rfserver="<?= htmlspecialchars($rfServer) ?>"
                     data-mode="calcbasis"
                     title="Berechnungsgrundlage ändern">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10">
@@ -455,6 +473,32 @@ $balanceCols = [
                 <option value="EUR">EUR</option>
                 <option value="GBP">GBP</option>
             </select>
+        </div>
+
+        <!-- RoboForex Kontodaten – immer sichtbar -->
+        <div class="form-group tr-modal-field">
+            <label for="rftype-input">RoboForex Kontoart</label>
+            <select id="rftype-input">
+                <option value="">– keine Angabe –</option>
+                <option value="Pro-Cent">Pro-Cent</option>
+                <option value="Pro-Standard">Pro-Standard</option>
+                <option value="ECN-Standard">ECN-Standard</option>
+                <option value="ECN2-Standard">ECN2-Standard</option>
+                <option value="Fix-Standard">Fix-Standard</option>
+                <option value="Fix-Cent">Fix-Cent</option>
+                <option value="ProCent CopyFx">ProCent CopyFx</option>
+                <option value="Ecn-Standard CopyFx">Ecn-Standard CopyFx</option>
+                <option value="MT5_ecn_real-Standard">MT5_ecn_real-Standard</option>
+                <option value="Umstel_real-Standard">Umstel_real-Standard</option>
+            </select>
+        </div>
+        <div class="form-group tr-modal-field">
+            <label for="rfaccid-input">RoboForex Kontonummer</label>
+            <input type="text" id="rfaccid-input" placeholder="z.B. 7026711">
+        </div>
+        <div class="form-group tr-modal-field">
+            <label for="rfserver-input">Server</label>
+            <input type="text" id="rfserver-input" placeholder="z.B. RoboForex-ECN">
         </div>
 
         <!-- MyFxBook-ID – nur sichtbar wenn noch nicht gesetzt -->

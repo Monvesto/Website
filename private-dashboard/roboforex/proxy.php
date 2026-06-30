@@ -182,7 +182,7 @@ if ($action === 'save_account') {
 
     // API-Key verschlüsseln wenn neu eingegeben (nicht der Platzhalter)
     $encryptedKey = null;
-    if ($key && !strpos($key, '•') !== false) {
+    if ($key && strpos($key, '•') === false) {
         $encryptedKey = rf_encrypt($key);
     }
 
