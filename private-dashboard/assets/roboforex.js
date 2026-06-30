@@ -293,10 +293,39 @@
             document.getElementById('rf-clients-count').textContent =
                 clientsData.length + ' Konten' + src;
 
-            renderClients(clientsData);
+            sortAndRenderClients();
         } catch (e) {
             tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Fehler: ' + e.message + '</td></tr>';
         }
+    }
+
+    let clientsSort = { col: 'client_account_id', dir: 1 };
+
+    function sortAndRenderClients() {
+        const col = clientsSort.col;
+        const dir = clientsSort.dir;
+        const sorted = clientsData.slice().sort(function (a, b) {
+            let av = a[col] || '', bv = b[col] || '';
+            if (col === 'has_reached_deposit_threshold' || col === 'is_active_accrual_of_commission') {
+                av = parseInt(av); bv = parseInt(bv);
+            }
+            if (av < bv) return -1 * dir;
+            if (av > bv) return  1 * dir;
+            return 0;
+        });
+        // Sortier-Icons aktualisieren
+        document.querySelectorAll('#rf-clients-table .rf-sortable').forEach(function (th) {
+            const icon = th.querySelector('.rf-sort-icon');
+            if (!icon) return;
+            if (th.dataset.col === col) {
+                th.classList.add('rf-sort-active');
+                icon.textContent = dir === 1 ? '↑' : '↓';
+            } else {
+                th.classList.remove('rf-sort-active');
+                icon.textContent = '↕';
+            }
+        });
+        renderClients(sorted);
     }
 
     function renderClients(list) {
@@ -321,6 +350,16 @@
         }).join('');
     }
 
+    // Clients Sortierung
+    document.querySelector('#rf-clients-table thead').addEventListener('click', function (e) {
+        const th = e.target.closest('.rf-sortable');
+        if (!th) return;
+        const col = th.dataset.col;
+        clientsSort.dir = (clientsSort.col === col) ? clientsSort.dir * -1 : 1;
+        clientsSort.col = col;
+        sortAndRenderClients();
+    });
+
     // Label-Edit inline
     document.querySelector('#rf-clients-table').addEventListener('click', function (e) {
         const btn = e.target.closest('.rf-btn-label');
@@ -337,7 +376,7 @@
                     || (r.label || '').toLowerCase().includes(q);
               })
             : clientsData;
-        renderClients(list);
+        sortAndRenderClients();
     });
 
     // ── Label-Modal ───────────────────────────────────────────────────────────
@@ -606,11 +645,14 @@
         let total = 0;
         tbody.innerHTML = sorted.map(function (r) {
             const id     = r['@attributes'] ? r['@attributes'].id : (r.id || '–');
+            const login  = r.login || '–';
+            const lbl    = labelsData[login] ? labelsData[login].label : '';
             const amount = parseFloat(r.amount || 0);
             total += amount;
             return '<tr>'
                 + '<td class="fw-700">' + id + '</td>'
-                + '<td>' + (r.login  || '–') + '</td>'
+                + '<td>' + login + '</td>'
+                + '<td>' + (lbl ? '<span class="rf-tree-label">' + lbl + '</span>' : '') + '</td>'
                 + '<td>' + (r.symbol || '–') + '</td>'
                 + '<td class="text-muted">' + (r.volume || '–') + '</td>'
                 + '<td class="text-muted">' + fmtDate(r.close_time || '') + '</td>'
@@ -641,7 +683,7 @@
 
     async function loadCommissionDetail(date, page) {
         const tbody = document.querySelector('#rf-commission-table tbody');
-        tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Lade...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Lade...</td></tr>';
         document.getElementById('rf-commission-summary').hidden = true;
         try {
             const res  = await fetch(apiUrl('commission', 'date=' + date + '&page=' + page));
@@ -656,7 +698,7 @@
             commissionData = Array.isArray(items) ? items : (items && items['@attributes'] ? [items] : []);
 
             if (!commissionData.length) {
-                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Keine Provisionen für ' + fmtDe(date) + '.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Keine Provisionen für ' + fmtDe(date) + '.</td></tr>';
                 return;
             }
 
