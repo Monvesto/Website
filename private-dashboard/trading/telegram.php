@@ -142,16 +142,7 @@ class TelegramBot
     }
 }
 
-// ── Caption Builder ───────────────────────────────────────────────────────────
-/**
- * Baut die ausführliche HTML-Caption für den Telegram-Post.
- *
- * @param  array $entry   Zeile aus trading_daily_updates
- * @param  array $stats   ['main'=>['all'=>float,'week'=>float], 'ea'=>..., 'challenge'=>...]
- * @param  array $settings Account-Einstellungen
- * @param  float|null $challengeBal Aktueller Challenge-Kontostand
- * @return string HTML-formatierte Caption
- */
+// ── Caption Builder: Helper ────────────────────────────────────────────────────
 function tgPct(?float $v): string {
     if ($v === null) return '–';
     return ($v >= 0 ? '+' : '') . number_format($v, 2, '.', ',') . '%';
@@ -161,12 +152,12 @@ function tgEur(?float $v, string $cur = 'EUR'): string {
     return ($v >= 0 ? '+' : '') . number_format($v, 2, '.', ',') . ' ' . $cur;
 }
 
-function buildTelegramCaption(array $entry, array $stats, array $settings, ?float $challengeBal): string
+/**
+ * Liefert die Konto-Konfiguration (Label + MyFxBook-Link) für die Caption-Builder.
+ */
+function tgAccountsConfig(): array
 {
-    $date = date('d.m.Y', strtotime($entry['entry_date']));
-    $day  = $entry['trading_day'];
-
-    $accounts = [
+    return [
         'main'      => [
             'label'  => 'Main Account',
             'ret'    => 'main_account_return',
@@ -186,6 +177,24 @@ function buildTelegramCaption(array $entry, array $stats, array $settings, ?floa
             'link'   => 'https://www.myfxbook.com/members/Monvesto/monvesto-road-100k-challenge/12095625',
         ],
     ];
+}
+
+// ── Caption Builder: LIVE (Telegram Hauptchannel) ─────────────────────────────
+/**
+ * Baut die ausführliche HTML-Caption für den Telegram Live-Channel.
+ *
+ * @param  array $entry   Zeile aus trading_daily_updates
+ * @param  array $stats   ['main'=>['all'=>float,'week'=>float], 'ea'=>..., 'challenge'=>...]
+ * @param  array $settings Account-Einstellungen
+ * @param  float|null $challengeBal Aktueller Challenge-Kontostand
+ * @return string HTML-formatierte Caption
+ */
+function buildTelegramCaptionLive(array $entry, array $stats, array $settings, ?float $challengeBal): string
+{
+    $date = date('d.m.Y', strtotime($entry['entry_date']));
+    $day  = $entry['trading_day'];
+
+    $accounts = tgAccountsConfig();
 
     $lines = [];
     $lines[] = "❗️ <b>Daily Results</b> ❗️";
@@ -227,6 +236,62 @@ function buildTelegramCaption(array $entry, array $stats, array $settings, ?floa
     $lines[] = "#RoadTo100K #CopyTrading #Challenge #TradingJourney";
     $lines[] = "";
     $lines[] = "ℹ️ <i>All important info can be found in the pinned message.</i>";
+
+    return implode("\n", $lines);
+}
+
+// ── Caption Builder: TEST (Instagram / Test-Channel) ──────────────────────────
+/**
+ * Baut die kompakte HTML-Caption für den Instagram/Test-Channel.
+ * Kein MyFxBook-Link, keine Week-Zeile, kein Rebate-Block –
+ * stattdessen Telegram-Link am Ende.
+ *
+ * @param  array $entry   Zeile aus trading_daily_updates
+ * @param  array $stats   ['main'=>['all'=>float,'week'=>float], 'ea'=>..., 'challenge'=>...]
+ * @param  array $settings Account-Einstellungen
+ * @param  float|null $challengeBal Aktueller Challenge-Kontostand
+ * @return string HTML-formatierte Caption
+ */
+function buildTelegramCaptionTest(array $entry, array $stats, array $settings, ?float $challengeBal): string
+{
+    $date = date('d.m.Y', strtotime($entry['entry_date']));
+    $day  = $entry['trading_day'];
+
+    $accounts = tgAccountsConfig();
+
+    $lines = [];
+    $lines[] = "❗️ <b>Daily Results</b> ❗️";
+    $lines[] = "📅 " . $date . "  |  Day " . $day;
+    $lines[] = "";
+
+    foreach ($accounts as $key => $acc) {
+        $cur    = $settings[$key]['currency'] ?? 'EUR';
+        $today  = isset($entry[$acc['ret']])    && $entry[$acc['ret']]    !== null ? (float)$entry[$acc['ret']]    : null;
+        $profit = isset($entry[$acc['profit']]) && $entry[$acc['profit']] !== null ? (float)$entry[$acc['profit']] : null;
+        $allRet = $stats[$key]['all']  ?? null;
+
+        $emoji = ($today === null || $today >= 0) ? '🟢' : '🔴';
+
+        $lines[] = $emoji . " <b>" . $acc['label'] . "</b>";
+        $lines[] = "  Today:  <b>" . tgPct($today) . "</b>  (" . tgEur($profit, $cur) . ")";
+        $lines[] = "  Total:  " . tgPct($allRet);
+
+        // Challenge: Kontostand + Progress
+        if ($key === 'challenge' && $challengeBal !== null) {
+            $pct    = min(100, $challengeBal / 1000);
+            $filled = (int)($pct / 5);
+            $bar    = str_repeat('█', $filled) . str_repeat('░', 20 - $filled);
+            $lines[] = "  " . $bar . " " . number_format($pct, 1) . "%";
+            $lines[] = "  " . number_format($challengeBal, 2, '.', ',') . " / 100,000 " . $cur;
+        }
+
+        $lines[] = "";
+    }
+
+    $lines[] = "Stay tuned for Daily Updates ✔️";
+    $lines[] = "https://t.me/MonvestoCopytrading";
+    $lines[] = "";
+    $lines[] = "#RoadTo100K #CopyTrading #Challenge #TradingJourney";
 
     return implode("\n", $lines);
 }

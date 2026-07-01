@@ -261,6 +261,15 @@
         document.getElementById('telegram-channel-toggle').hidden = !this.checked;
     });
 
+    function formatTelegramResult(results) {
+        if (!results) return 'Telegram: Ergebnis unbekannt';
+        const labels = { live: '🔴 Live', test: '🧪 Test' };
+        return Object.keys(results).map(function (ch) {
+            const r = results[ch];
+            return labels[ch] + ' ' + (r.success ? '✓' : '✗ (' + r.message + ')');
+        }).join(' · ');
+    }
+
     function getTelegramChannel() {
         const sel = document.getElementById('select-telegram-channel');
         return sel ? sel.value : 'test';
@@ -277,9 +286,9 @@
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.success) {
-                    showMessage('success', 'Posted to Telegram (' + channel + ') ✓');
+                    showMessage('success', formatTelegramResult(data.results));
                 } else {
-                    showMessage('error', 'Telegram: ' + data.message);
+                    showMessage('error', 'Telegram: ' + (data.message || formatTelegramResult(data.results)));
                 }
                 btn.disabled = false;
                 btn.textContent = 'Post';
@@ -299,9 +308,9 @@
             const res  = await fetch(BASE + 'telegram_post.php?action=post&entry_id=' + entryId + '&type=combined&format=feed&channel=' + channel);
             const data = await res.json();
             if (data.success) {
-                showMessage('success', 'Posted to Telegram (' + channel + ') ✓');
+                showMessage('success', formatTelegramResult(data.results));
             } else {
-                showMessage('error', 'Telegram: ' + (data.message || 'Error'));
+                showMessage('error', 'Telegram: ' + (data.message || formatTelegramResult(data.results) || 'Error'));
             }
         } catch (e) { /* silent */ }
     }

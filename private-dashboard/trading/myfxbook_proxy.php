@@ -161,6 +161,56 @@ function saveSession($db, $session)
     }
 }
 
+/**
+ * Extrahiert aus einer getDailyGain()-Antwort ein flaches Array von Tages-Zeilen.
+ * MyFxBook liefert dataDaily teils doppelt verschachtelt ([[{...}]]).
+ */
+function extractDailyRows(array $dailyResult): array
+{
+    if (!$dailyResult['success']) return [];
+    $dataDaily = $dailyResult['data']['dataDaily'] ?? [];
+    if (empty($dataDaily)) return [];
+
+    // Fall 1: [[{...}, {...}]]  → äußere Klammer entfernen
+    if (isset($dataDaily[0]) && is_array($dataDaily[0]) && isset($dataDaily[0][0])) {
+        return $dataDaily[0];
+    }
+    // Fall 2: [{...}, {...}]  → bereits flach
+    return $dataDaily;
+}
+
+/**
+ * Summiert den Profit aller HEUTE geschlossenen Trades (aus getHistory()).
+ * Wird als Fallback genutzt, wenn MyFxBook für "heute" noch keine
+ * dataDaily-Tageszeile berechnet hat (üblich, solange der Handelstag
+ * noch läuft). Nutzt bewusst die geschlossenen Trades statt einer
+ * Kontostand-Differenz, da Letztere Einzahlungen/Auszahlungen fälschlich
+ * als Trading-Gewinn zählen würde.
+ *
+ * @return array{profit: float, trades_closed: int}
+ */
+function getTodaysClosedTradesProfit(MyfxbookApi $api, int $mfxId, string $today): array
+{
+    $result = $api->getHistory($mfxId);
+    if (!$result['success']) {
+        return ['profit' => 0.0, 'trades_closed' => 0];
+    }
+
+    $history = $result['data']['history'] ?? [];
+    $sum     = 0.0;
+    $count   = 0;
+
+    foreach ($history as $trade) {
+        $closeTime = $trade['closeTime'] ?? '';
+        if (substr($closeTime, 0, 10) === $today) {
+            $sum += (float) ($trade['profit'] ?? 0);
+            $count++;
+        }
+    }
+
+    return ['profit' => round($sum, 2), 'trades_closed' => $count];
+}
+
 // ── API-Instanz ───────────────────────────────────────────────────────────────
 $cachedSession = loadCachedSession($db);
 $api = new MyfxbookApi(
@@ -276,17 +326,28 @@ if ($action === 'fetch_all') {
         $todayProfit = null;
         $todayReturn = null;
 
+        // ── 1. Versuch: reguläre Tagesdaten für heute ─────────────────────────
         $dailyResult = $api->getDailyGain((int) $mfxId, $today, $today);
-        if ($dailyResult['success']) {
-            $dailyData = $dailyResult['data']['dataDaily'] ?? [];
-            if (!empty($dailyData)) {
-                // MyFxBook liefert dataDaily als [[{...}]] (doppelt verschachtelt)
-                $entry = isset($dailyData[0][0]) ? $dailyData[0][0] : $dailyData[0];
-                $todayProfit = (float) ($entry['profit'] ?? 0);
-                $base = ($startBal && $startBal > 0) ? $startBal : ($balance - $todayProfit);
-                if ($base > 0) {
-                    $todayReturn = round(($todayProfit / $base) * 100, 4);
-                }
+        $todayRows   = extractDailyRows($dailyResult);
+
+        if (!empty($todayRows)) {
+            $row = $todayRows[0];
+            $todayProfit = (float) ($row['profit'] ?? 0);
+            $base = ($startBal && $startBal > 0) ? $startBal : ($balance - $todayProfit);
+            if ($base > 0) {
+                $todayReturn = round(($todayProfit / $base) * 100, 4);
+            }
+        } else {
+            // ── 2. Fallback: MyFxBook hat "heute" noch nicht abgeschlossen ────
+            // → Summe der HEUTE geschlossenen Trades nehmen (nicht Kontostand-
+            //   Differenz, da diese Einzahlungen fälschlich als Gewinn zählen würde)
+            $closedToday = getTodaysClosedTradesProfit($api, (int) $mfxId, $today);
+            $todayProfit = $closedToday['profit']; // 0.00 wenn heute noch nichts geschlossen wurde
+            $base = ($startBal && $startBal > 0) ? $startBal : null;
+            if ($base > 0) {
+                $todayReturn = round(($todayProfit / $base) * 100, 4);
+            } else {
+                $todayReturn = 0.0;
             }
         }
 

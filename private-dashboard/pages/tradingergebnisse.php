@@ -371,6 +371,7 @@ $balanceCols = [
             <select id="select-telegram-channel" class="input-sm">
                 <option value="live">🔴 Live</option>
                 <option value="test" selected>🧪 Test</option>
+                <option value="both">🔴+🧪 Beide</option>
             </select>
         </label>
     </div>

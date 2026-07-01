@@ -10,6 +10,7 @@
  *   type      string  'combined' | 'main' | 'ea' | 'challenge'
  *   format    string  'feed' | 'story'
  *   action    string  'post' | 'test'
+ *   channel   string  'live' | 'test' | 'both'
  */
 
 require_once __DIR__ . '/../config/bootstrap.php';
@@ -36,17 +37,6 @@ if (!defined('TELEGRAM_BOT_TOKEN') || (!defined('TELEGRAM_CHANNEL_LIVE') && !def
     exit;
 }
 
-// Channel bestimmen: 'live' oder 'test' (Standard: test)
-$channel   = ($_REQUEST['channel'] ?? 'test') === 'live' ? 'live' : 'test';
-$channelId = $channel === 'live'
-    ? (defined('TELEGRAM_CHANNEL_LIVE') ? TELEGRAM_CHANNEL_LIVE : '')
-    : (defined('TELEGRAM_CHANNEL_TEST') ? TELEGRAM_CHANNEL_TEST : '');
-
-if (!$channelId) {
-    echo json_encode(['success' => false, 'message' => 'Channel-ID nicht konfiguriert.']);
-    exit;
-}
-
 require_once __DIR__ . '/telegram.php';
 
 $db     = get_db();
@@ -55,10 +45,14 @@ $type   = in_array($_REQUEST['type'] ?? 'combined', ['combined','main','ea','cha
           ? ($_REQUEST['type'] ?? 'combined') : 'combined';
 $format = ($_REQUEST['format'] ?? 'feed') === 'story' ? 'story' : 'feed';
 
-$tg = new TelegramBot(TELEGRAM_BOT_TOKEN, $channelId);
+// ── Channel(s) bestimmen: 'live', 'test' oder 'both' ──────────────────────────
+$channelParam = $_REQUEST['channel'] ?? 'test';
+$channels     = $channelParam === 'both' ? ['live', 'test'] : [($channelParam === 'live' ? 'live' : 'test')];
 
-// ── Test: Bot + Channel prüfen ────────────────────────────────────────────────
+// ── Test: Bot + Channel prüfen (nutzt ersten konfigurierten Channel) ──────────
 if ($action === 'test') {
+    $testChannelId = defined('TELEGRAM_CHANNEL_LIVE') ? TELEGRAM_CHANNEL_LIVE : TELEGRAM_CHANNEL_TEST;
+    $tg   = new TelegramBot(TELEGRAM_BOT_TOKEN, $testChannelId);
     $bot  = $tg->getMe();
     $chat = $tg->getChat();
     echo json_encode([
@@ -155,21 +149,39 @@ $balStmt->execute([$d]);
 $challengeBal = $balStmt->fetchColumn();
 $challengeBal = $challengeBal !== false ? (float)$challengeBal : null;
 
-// ── Caption bauen ─────────────────────────────────────────────────────────────
-$caption = buildTelegramCaption($entry, $stats, $settings, $challengeBal);
+// ── Pro Channel: passende Caption bauen und senden ────────────────────────────
+$results  = [];
+$anySent  = false;
 
-// ── An Telegram senden ────────────────────────────────────────────────────────
-$result = $tg->sendPhoto($filepath, $caption, 'HTML');
+foreach ($channels as $ch) {
+    $channelId = $ch === 'live'
+        ? (defined('TELEGRAM_CHANNEL_LIVE') ? TELEGRAM_CHANNEL_LIVE : '')
+        : (defined('TELEGRAM_CHANNEL_TEST') ? TELEGRAM_CHANNEL_TEST : '');
 
-if ($result['success']) {
-    echo json_encode([
-        'success' => true,
-        'message' => 'Posted to Telegram ✓',
+    if (!$channelId) {
+        $results[$ch] = ['success' => false, 'message' => 'Channel-ID nicht konfiguriert.'];
+        continue;
+    }
+
+    $caption = $ch === 'live'
+        ? buildTelegramCaptionLive($entry, $stats, $settings, $challengeBal)
+        : buildTelegramCaptionTest($entry, $stats, $settings, $challengeBal);
+
+    $tg     = new TelegramBot(TELEGRAM_BOT_TOKEN, $channelId);
+    $result = $tg->sendPhoto($filepath, $caption, 'HTML');
+
+    $results[$ch] = [
+        'success'    => $result['success'],
+        'message'    => $result['success'] ? 'OK' : ('Telegram error: ' . $result['message']),
         'message_id' => $result['data']['message_id'] ?? null,
-    ]);
-} else {
-    echo json_encode([
-        'success' => false,
-        'message' => 'Telegram error: ' . $result['message'],
-    ]);
+    ];
+
+    if ($result['success']) $anySent = true;
 }
+
+// ── Gesamt-Antwort ─────────────────────────────────────────────────────────────
+echo json_encode([
+    'success' => $anySent,
+    'message' => $anySent ? 'Posted to Telegram ✓' : 'Telegram: konnte an keinen Channel gesendet werden.',
+    'results' => $results,
+]);
