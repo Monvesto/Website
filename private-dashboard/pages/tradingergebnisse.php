@@ -62,7 +62,7 @@ if ($lastMonday > $today) $lastMonday = date('Y-m-d', strtotime('monday last wee
 // ── Account-Einstellungen ─────────────────────────────────────────────────────
 $settingsStmt = $db->prepare("
     SELECT account_key, label, start_balance, start_date, calc_basis, currency, myfxbook_id,
-           rf_account_type, rf_account_id, rf_server, rf_leverage
+           rf_account_type, rf_account_id, rf_server, rf_leverage, cent_divisor
     FROM trading_account_settings
 ");
 $settingsStmt->execute();
@@ -162,6 +162,7 @@ $balanceCols = [
     $rfAccId   = $cfg['rf_account_id']   ?? '';
     $rfServer  = $cfg['rf_server']       ?? '';
     $rfLeverage = $cfg['rf_leverage']    ?? '';
+    $centDivisor = isset($cfg['cent_divisor']) && $cfg['cent_divisor'] !== null ? (float) $cfg['cent_divisor'] : 1.0;
 ?>
     <div class="kpi-card">
         <!-- Karten-Header mit Bearbeiten-Button -->
@@ -190,6 +191,7 @@ $balanceCols = [
                     data-rfaccid="<?= htmlspecialchars($rfAccId) ?>"
                     data-rfserver="<?= htmlspecialchars($rfServer) ?>"
                     data-rfleverage="<?= htmlspecialchars($rfLeverage) ?>"
+                    data-centdivisor="<?= $centDivisor ?>"
                     title="Einstellungen bearbeiten">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -212,25 +214,6 @@ $balanceCols = [
         <?php if ($calcBasis): ?>
         <div class="kpi-sub tr-stat-start">
             <strong>Akt. Berechnungsgrundlage:</strong> <?= fmtMoney($calcBasis, $currency) ?>
-            <button class="btn btn-xs btn-ghost btn-edit-startbal"
-                    type="button"
-                    data-key="<?= $key ?>"
-                    data-currency="<?= htmlspecialchars($currency) ?>"
-                    data-mfxid="<?= htmlspecialchars($mfxId) ?>"
-                    data-startbal="<?= $startBal ?? '' ?>"
-                    data-startdate="<?= htmlspecialchars($startDate ?? '') ?>"
-                    data-calcbasis="<?= $calcBasis ?? '' ?>"
-                    data-rftype="<?= htmlspecialchars($rfType) ?>"
-                    data-rfaccid="<?= htmlspecialchars($rfAccId) ?>"
-                    data-rfserver="<?= htmlspecialchars($rfServer) ?>"
-                    data-rfleverage="<?= htmlspecialchars($rfLeverage) ?>"
-                    data-mode="calcbasis"
-                    title="Berechnungsgrundlage ändern">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
-            </button>
         </div>
         <?php else: ?>
         <div class="kpi-sub tr-stat-start text-muted">
@@ -294,27 +277,12 @@ $balanceCols = [
         <div class="tr-account-block-wrap">
             <div class="tr-account-label"><?= $label ?></div>
 
-            <!-- Basis-Zeile mit Bearbeiten-Button -->
+            <!-- Basis-Zeile (nur Anzeige, Bearbeitung über KPI-Karte oben) -->
             <div class="tr-startbal-row">
                 <span>Basis:</span>
                 <span id="calcbasis-display-<?= $key ?>" class="tr-startbal-val">
                     <?= $calcBasis ? fmtMoney($calcBasis, $currency) : '<span class="text-muted">–</span>' ?>
                 </span>
-                <button class="btn btn-xs btn-ghost btn-edit-startbal"
-                        type="button"
-                        data-key="<?= $key ?>"
-                        data-currency="<?= htmlspecialchars($currency) ?>"
-                        data-mfxid="<?= htmlspecialchars($mfxId) ?>"
-                        data-startbal="<?= $startBal ?? '' ?>"
-                        data-startdate="<?= htmlspecialchars($startDate ?? '') ?>"
-                        data-calcbasis="<?= $calcBasis ?? '' ?>"
-                        data-mode="calcbasis"
-                        title="Berechnungsgrundlage ändern">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                </button>
             </div>
 
             <!-- Gewinn + Rendite: Mobile 2-spaltig -->
@@ -510,6 +478,16 @@ $balanceCols = [
                 <option value="EUR">EUR</option>
                 <option value="GBP">GBP</option>
             </select>
+        </div>
+
+        <!-- Cent-Konto-Divisor – immer sichtbar -->
+        <div class="form-group tr-modal-field">
+            <label for="centdivisor-input">Cent-Konto-Divisor</label>
+            <select id="centdivisor-input">
+                <option value="1">Normal (1:1)</option>
+                <option value="100">Cent-Konto (1:100)</option>
+            </select>
+            <span class="form-hint">Bei Cent-Konten liefert MyFxBook Kontostand/Gewinn im 100-fachen Wert. Hier auf 1:100 stellen, damit automatisch auf echte Kontowährung umgerechnet wird.</span>
         </div>
 
         <!-- RoboForex Kontodaten – immer sichtbar -->

@@ -18,8 +18,6 @@
     const START_BALANCES = cfg.startBalances;
     const CALC_BASES     = cfg.calcBases;
 
-    // (margin-bottom für trading-form-card wird über CSS-Klasse .tr-form-card geregelt)
-
     // ── Handelstag berechnen ──────────────────────────────────────────────────
     function calcTradingDay(dateStr) {
         const start  = new Date(TRADING_START + 'T00:00:00');
@@ -40,7 +38,6 @@
             const account = this.dataset.account;
             const type    = this.dataset.type;
             const val     = parseFloat(this.value.replace(',', '.'));
-            // Berechnungsgrundlage, Fallback Startsumme
             const basis   = (CALC_BASES[account] !== null && CALC_BASES[account] !== undefined)
                           ? CALC_BASES[account] : START_BALANCES[account];
 
@@ -155,6 +152,7 @@
         const rfAccId   = btn.dataset.rfaccid   || '';
         const rfServer  = btn.dataset.rfserver  || '';
         const rfLeverage = btn.dataset.rfleverage || '';
+        const centDivisor = btn.dataset.centdivisor || '1';
         const mode      = btn.dataset.mode      || 'full'; // 'full' oder 'calcbasis'
         const labels    = { main: 'Main Account', ea: 'Low Risk Account', challenge: 'Road to 100k' };
 
@@ -169,6 +167,7 @@
         document.getElementById('rfaccid-input').value          = rfAccId;
         document.getElementById('rfserver-input').value         = rfServer;
         document.getElementById('rfleverage-input').value       = rfLeverage;
+        document.getElementById('centdivisor-input').value      = centDivisor;
 
         const hasStart = startBal !== '' && startBal !== '0';
         const hasMfxId = mfxId    !== '';
@@ -209,6 +208,7 @@
         fd.append('rf_account_id',   document.getElementById('rfaccid-input').value);
         fd.append('rf_server',       document.getElementById('rfserver-input').value);
         fd.append('rf_leverage',     document.getElementById('rfleverage-input').value);
+        fd.append('cent_divisor',    document.getElementById('centdivisor-input').value);
         try {
             const res  = await fetch(BASE + 'myfxbook_proxy.php?action=save_settings', { method: 'POST', body: fd });
             const data = await res.json();
@@ -468,38 +468,6 @@
     });
 
     // ── MyFxBook laden ────────────────────────────────────────────────────────
-    // ── Trading-Startdatum ändern ──────────────────────────────────────────────
-    document.getElementById('btn-edit-trading-start').addEventListener('click', function () {
-        document.getElementById('trading-start-modal').hidden = false;
-    });
-    document.getElementById('trading-start-cancel').addEventListener('click', function () {
-        document.getElementById('trading-start-modal').hidden = true;
-    });
-    document.getElementById('trading-start-save').addEventListener('click', async function () {
-        const btn  = this;
-        const date = document.getElementById('trading-start-input').value;
-        if (!date) { alert('Bitte ein Datum wählen.'); return; }
-
-        btn.disabled = true;
-        btn.textContent = 'Speichert...';
-        try {
-            const fd = new FormData();
-            fd.append('trading_start_date', date);
-            const res  = await fetch(BASE + 'myfxbook_proxy.php?action=save_trading_start', { method: 'POST', body: fd });
-            const data = await res.json();
-            if (data.success) {
-                showMessage('success', 'Startdatum gespeichert ✓');
-                setTimeout(function () { location.reload(); }, 800);
-            } else {
-                showMessage('error', 'Fehler: ' + (data.message || 'Unbekannt'));
-                btn.disabled = false; btn.textContent = 'Speichern';
-            }
-        } catch (e) {
-            showMessage('error', 'Netzwerkfehler: ' + e.message);
-            btn.disabled = false; btn.textContent = 'Speichern';
-        }
-    });
-
     document.getElementById('btn-myfxbook').addEventListener('click', async function () {
         const btn = this;
         btn.disabled = true; btn.textContent = 'Lade...';

@@ -74,6 +74,7 @@ if ($action === 'save_settings') {
     $rfAccId    = trim($_POST['rf_account_id']   ?? '');
     $rfServer   = trim($_POST['rf_server']       ?? '');
     $rfLeverage = trim($_POST['rf_leverage']     ?? '');
+    $centDiv    = trim($_POST['cent_divisor']    ?? '1');
 
     if (!in_array($accountKey, ['main', 'ea', 'challenge'], true)) {
         echo json_encode(['success' => false, 'message' => 'Ungültiger account_key: ' . $accountKey]);
@@ -88,6 +89,8 @@ if ($action === 'save_settings') {
     $rfAccId        = ($rfAccId  !== '') ? $rfAccId  : null;
     $rfServer       = ($rfServer !== '') ? $rfServer : null;
     $rfLeverage     = ($rfLeverage !== '') ? $rfLeverage : null;
+    $centDivFloat   = (float) str_replace(',', '.', $centDiv);
+    if ($centDivFloat <= 0) $centDivFloat = 1.0;
 
     $stmt = $db->prepare("
         UPDATE trading_account_settings
@@ -99,17 +102,18 @@ if ($action === 'save_settings') {
             rf_account_type  = ?,
             rf_account_id    = ?,
             rf_server        = ?,
-            rf_leverage      = ?
+            rf_leverage      = ?,
+            cent_divisor     = ?
         WHERE account_key = ?
     ");
-    $stmt->execute([$startBalFloat, $startDateVal, $calcBasisFloat, $myfxbookId, $currency, $rfType, $rfAccId, $rfServer, $rfLeverage, $accountKey]);
+    $stmt->execute([$startBalFloat, $startDateVal, $calcBasisFloat, $myfxbookId, $currency, $rfType, $rfAccId, $rfServer, $rfLeverage, $centDivFloat, $accountKey]);
 
     if ($stmt->rowCount() === 0) {
         $labels = ['main' => 'Main Account', 'ea' => 'Monvesto EA', 'challenge' => 'Road to 100k'];
         $stmt2  = $db->prepare("
             INSERT INTO trading_account_settings
-                (account_key, label, start_balance, start_date, calc_basis, myfxbook_id, currency, rf_account_type, rf_account_id, rf_server, rf_leverage)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (account_key, label, start_balance, start_date, calc_basis, myfxbook_id, currency, rf_account_type, rf_account_id, rf_server, rf_leverage, cent_divisor)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
                 start_balance   = VALUES(start_balance),
                 start_date      = VALUES(start_date),
@@ -119,9 +123,10 @@ if ($action === 'save_settings') {
                 rf_account_type = VALUES(rf_account_type),
                 rf_account_id   = VALUES(rf_account_id),
                 rf_server       = VALUES(rf_server),
-                rf_leverage     = VALUES(rf_leverage)
+                rf_leverage     = VALUES(rf_leverage),
+                cent_divisor    = VALUES(cent_divisor)
         ");
-        $stmt2->execute([$accountKey, $labels[$accountKey], $startBalFloat, $startDateVal, $calcBasisFloat, $myfxbookId, $currency, $rfType, $rfAccId, $rfServer, $rfLeverage]);
+        $stmt2->execute([$accountKey, $labels[$accountKey], $startBalFloat, $startDateVal, $calcBasisFloat, $myfxbookId, $currency, $rfType, $rfAccId, $rfServer, $rfLeverage, $centDivFloat]);
     }
 
     echo json_encode(['success' => true, 'message' => 'Einstellungen gespeichert.']);
@@ -251,7 +256,7 @@ if ($action === 'logout') {
 // ════════════════════════════════════════════════════════════════════════════
 if ($action === 'fetch_all') {
 
-    $settingsStmt = $db->prepare("SELECT account_key, label, myfxbook_id, start_balance, currency FROM trading_account_settings");
+    $settingsStmt = $db->prepare("SELECT account_key, label, myfxbook_id, start_balance, currency, cent_divisor FROM trading_account_settings");
     $settingsStmt->execute();
     $settings = [];
     foreach ($settingsStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
@@ -283,6 +288,8 @@ if ($action === 'fetch_all') {
         $label    = $cfg['label']       ?? $key;
         $startBal = (isset($cfg['start_balance']) && $cfg['start_balance'] !== null) ? (float) $cfg['start_balance'] : null;
         $currency = $cfg['currency']    ?? 'USD';
+        $centDiv  = (isset($cfg['cent_divisor']) && $cfg['cent_divisor'] !== null && (float)$cfg['cent_divisor'] > 0)
+                    ? (float) $cfg['cent_divisor'] : 1.0;
 
         $accountData = [
             'key'            => $key,
@@ -290,6 +297,7 @@ if ($action === 'fetch_all') {
             'myfxbook_id'    => $mfxId,
             'start_balance'  => $startBal,
             'currency'       => $currency,
+            'cent_divisor'   => $centDiv,
             'balance'        => null,
             'equity'         => null,
             'today_profit'   => null,
@@ -321,8 +329,13 @@ if ($action === 'fetch_all') {
             continue;
         }
 
-        $balance     = (float) ($mfxAccount['balance'] ?? 0);
-        $equity      = (float) ($mfxAccount['equity']  ?? $balance);
+        // Rohwerte von MyFxBook (bei Cent-Konten im 100-fachen Wert)
+        $balanceRaw  = (float) ($mfxAccount['balance'] ?? 0);
+        $equityRaw   = (float) ($mfxAccount['equity']  ?? $balanceRaw);
+
+        // Auf echte Kontowährung umrechnen (Divisor 1 = keine Änderung)
+        $balance     = round($balanceRaw / $centDiv, 2);
+        $equity      = round($equityRaw  / $centDiv, 2);
         $todayProfit = null;
         $todayReturn = null;
 
@@ -332,7 +345,7 @@ if ($action === 'fetch_all') {
 
         if (!empty($todayRows)) {
             $row = $todayRows[0];
-            $todayProfit = (float) ($row['profit'] ?? 0);
+            $todayProfit = round(((float) ($row['profit'] ?? 0)) / $centDiv, 2);
             $base = ($startBal && $startBal > 0) ? $startBal : ($balance - $todayProfit);
             if ($base > 0) {
                 $todayReturn = round(($todayProfit / $base) * 100, 4);
@@ -342,7 +355,7 @@ if ($action === 'fetch_all') {
             // → Summe der HEUTE geschlossenen Trades nehmen (nicht Kontostand-
             //   Differenz, da diese Einzahlungen fälschlich als Gewinn zählen würde)
             $closedToday = getTodaysClosedTradesProfit($api, (int) $mfxId, $today);
-            $todayProfit = $closedToday['profit']; // 0.00 wenn heute noch nichts geschlossen wurde
+            $todayProfit = round($closedToday['profit'] / $centDiv, 2); // 0.00 wenn heute noch nichts geschlossen wurde
             $base = ($startBal && $startBal > 0) ? $startBal : null;
             if ($base > 0) {
                 $todayReturn = round(($todayProfit / $base) * 100, 4);
@@ -362,7 +375,7 @@ if ($action === 'fetch_all') {
                 $openPositions[] = [
                     'symbol'     => $t['symbol']    ?? '',
                     'type'       => $t['type']       ?? '',
-                    'profit'     => $t['profit']     ?? 0,
+                    'profit'     => round(((float) ($t['profit'] ?? 0)) / $centDiv, 2),
                     'pips'       => $t['pips']       ?? 0,
                     'open_price' => $t['openPrice']  ?? 0,
                     'open_time'  => $t['openTime']   ?? '',

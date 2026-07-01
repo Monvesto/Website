@@ -517,6 +517,23 @@ function rf_decrypt(string $ciphertext): string {
     }
 })();
 
+// ════════════════════════════════════════════════
+// MIGRATION 22 – cent_divisor in trading_account_settings
+// (für Cent-Konten: MyFxBook liefert Kontostand/Gewinn im
+//  100-fachen Wert. Divisor 100 rechnet auf echte EUR um.)
+// ════════════════════════════════════════════════
+(function() {
+    $db = get_db();
+    try {
+        $has = $db->query("SHOW COLUMNS FROM `trading_account_settings` LIKE 'cent_divisor'")->rowCount() > 0;
+        if (!$has) {
+            $db->exec("ALTER TABLE `trading_account_settings` ADD COLUMN `cent_divisor` DECIMAL(10,4) NOT NULL DEFAULT 1.0000 AFTER `rf_leverage`");
+        }
+    } catch (PDOException $e) {
+        error_log('Migration 22 cent_divisor: ' . $e->getMessage());
+    }
+})();
+
 // ── Trading-Startdatum (zentral konfigurierbar) ───────────────────────────────
 function getTradingStartDate(): string {
     $db = get_db();
